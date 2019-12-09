@@ -11,13 +11,13 @@ import re
 from unittest import mock
 
 from util import mocked_requests_get, base_init_check_test
-from breadp.checks import IsValidDOICheck
+from breadp.checks import IsValidDoiCheck
 from breadp.rdp.rdp import RdpFactory, Rdp
 
 # Tests the PID check
 @mock.patch('requests.get', side_effect=mocked_requests_get)
 def test_is_valid_doi_check(mock_get):
-    check = IsValidDOICheck()
+    check = IsValidDoiCheck()
     assert base_init_check_test(check, 0)
 
     # Successful

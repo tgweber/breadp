@@ -101,7 +101,7 @@ class IsValidDoiCheck(Check):
     """
 
     def __init__(self):
-        super(IsValidDOICheck, self).__init__()
+        super(IsValidDoiCheck, self).__init__()
         self.id = 0
         self.version = "0.0.1"
         self.desc = "IsValidDoiCheck checks whether an RDP has a valid DOI as PID."
@@ -119,7 +119,7 @@ class DoiResolvesCheck(Check):
     """
 
     def __init__(self):
-        super(IsValidDOICheck, self).__init__()
+        super(IsValidDoiCheck, self).__init__()
         self.id = 1
         self.version = "0.0.1"
         self.desc = "PidChecks checks whether an RDP has a valid DOI as PID."
