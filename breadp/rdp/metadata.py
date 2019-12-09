@@ -1,3 +1,11 @@
+################################################################################
+# Copyright: Tobias Weber 2019
+#
+# Apache 2.0 License
+#
+# This file contains all code related to metadata (as a component of RDPs)
+#
+################################################################################
 import json
 from collections import OrderedDict
 import xmltodict
@@ -5,33 +13,42 @@ import xmltodict
 from breadp.util.exceptions import NotCheckeableError
 from breadp.util.util import Bundle
 
-class MetadataFactory(object):
-    def create(scheme, payload):
-        if scheme == "datacite":
-            return DataCiteMetadata(oaipmh=payload)
-        else:
-            raise NotCheckeableError("Scheme %s is not supported".format(scheme))
+class Metadata(object):
+    """ Base class and interface for Metadata as components of RDPs
 
-class MetadataBundle(Bundle):
+    Attributes
+    ----------
+    pid: str
+        Identifier for the RDP
+    """
     @property
     def pid(self):
-        if self.has("datacite"):
-            return self.get("datacite").pid()
-        else:
-            raise NotCheckeableError("No metadata object that supports PID retrieval")
+        raise NotImplementedError("pid must be implemented by subclasses of Metadata")
 
-################################################################################
-# SPECIFIC METADATA IMPLEMENTATIONS
-################################################################################
+class OaiPmhMetadata(Metadata):
+    """ Base class and interface for all OAI-PMH-based Metadata objects
+    """
 
-class DataCiteMetadata(object):
-    def __init__(self, **kwargs):
-        if "oaipmh" in kwargs:
-            oaipmh = xmltodict.parse(kwargs["oaipmh"])
-            self.md = oaipmh["OAI-PMH"]["GetRecord"]["record"]["metadata"]["resource"]
-            self.normalize_metadata()
 
-    def normalize_metadata(self, md=None):
+    def _initialize(self, oaipmh):
+        """ Initializes the md attribute from an XML-encoded OAI-PMH response
+
+        Parameters
+        ----------
+        oaipmh: str
+            XML-encoded OAI-PMH response
+        """
+        oaipmh = xmltodict.parse(oaipmh)
+        self.md = oaipmh["OAI-PMH"]["GetRecord"]["record"]["metadata"]["resource"]
+
+    def _normalize(self, md=None) -> None:
+        """ Normalizes the metadata (recursively)
+
+        Parameters
+        ----------
+        md: dict, optional
+            Metadata to be normalized. If empty, the md attribute of the object will be used.
+        """
         if not md:
             md = self.md
         for key in md.keys():
@@ -39,8 +56,44 @@ class DataCiteMetadata(object):
                 if '#text'in md[key].keys():
                     md[key][key] = md[key]['#text']
                     del md[key]['#text']
-                self.normalize_metadata(md[key])
+                self._normalize(md[key])
 
+
+class MetadataFactory(object):
+    """ Factory for Metadata
+
+    Methods
+    ------
+    create(md_type, payload) -> Metadata
+        Factory method returning a Metadata object appropriate for the given type and payload
+    """
+    def create(md_type, payload) -> Metadata:
+        """ Creates a Metadata object appropriate for the given type and payload
+
+        Parameters
+        ----------
+        md_type: str
+            Type of the Metadata, supported types: oaipmh_datacite
+        payload: misc
+            Payload to be used to create the Metadata object
+
+        Returns
+        -------
+        Metadata: The created Metadata object
+        """
+        if md_type in ("oaipmh_datacite"):
+            md = DataCiteMetadata()
+            md._initialize(payload)
+            md._normalize()
+            return md
+        return Metadata()
+
+################################################################################
+# SPECIFIC METADATA IMPLEMENTATIONS
+################################################################################
+class DataCiteMetadata(OaiPmhMetadata):
+    """ DataCite Metadata Object
+    """
     @property
-    def pid(self):
+    def pid(self) -> str:
         return self.md["identifier"]["identifier"]

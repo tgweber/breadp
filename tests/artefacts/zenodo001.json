@@ -1,0 +1,14 @@
+[
+ {"checksum": "1b412036083c40c38346b6def1b0db8c",
+  "filename": "s_data_vectorized.csv",
+  "filesize": 1848371687,
+  "id": "abc",
+  "links": {"download": "https://zenodo.org/api/files/abc/s_data_vectorized.csv",
+            "self": "https://zenodo.org/api/deposit/depositions/3490396/files/abc"}},
+ {"checksum": "1b412036083c40c38346b6def1b0db8c",
+  "filename": "s_data_vectorized.csv",
+  "filesize": 1848371687,
+  "id": "abcd",
+  "links": {"download": "https://zenodo.org/api/files/abcd/s_data_vectorized.tar.gz",
+            "self": "https://zenodo.org/api/deposit/depositions/3490396/files/abcd"}}
+]

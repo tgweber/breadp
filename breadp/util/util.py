@@ -2,6 +2,9 @@ class Bundle(object):
     def __init__(self):
         self.payload = {}
 
+    def __len__(self):
+        return len(self.payload.keys())
+
     def put(self, item_type, item):
         self.payload[item_type] = item
 
@@ -10,4 +13,3 @@ class Bundle(object):
 
     def has(self, item_type):
         return item_type in self.payload.keys()
-
