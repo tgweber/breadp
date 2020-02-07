@@ -22,15 +22,15 @@ A research data product is a composite built out of these elements:
 * a bundle of metadata (potentially same information in different formats)
 * a bundle of data
 
-### Persistent Identifier
-A perstistent identifier is one of the following items:
+### Persistent IDentifier (PID)
+A Perstistent IDentifier (PID) is one of the following items:
 * An DOI
 * A Handle
 * An URL
 
 ### Service Bundles
-A service is a combination of a protocol and an enpoint.
-A service can produce metadata and data.
+A service is a combination of a protocol and an endpoint.
+A service can provide access to metadata and data of one or several research data products.
 Services have a timestamp indicating their creation.
 A service bundle is a set of services with a selection function;
 the selection functions allows to pick a service for a given task or returns None if
@@ -52,18 +52,29 @@ A check consists of:
 * a version
 * a short text describing the criterion checked (in English)
 * a state
+* a result
 * a set of logs of run checks
 
 States:
 * "unchecked" if the research data product has not been checked.
-* "success" if the research data product meets the criterion.
-* "failure" if the research data product fails to meet the criterion.
-* "uncheckable" if the research data product cannot be checked due to reasons external to the research data product.
+* "success" if the research data product was successfully checked. 
+* "failure" if the research data product could not be checked. 
+
+Results:
+* Boolean checks:
+    * True (if the research data product meets the criterion)
+    * False (if the research data product does not meet the criterion)
+  Example: Check if the metadata validate against their schema.
+* Ordinal checks: One option out of an ordered list of options
+  Example: Check if the research data is above, on or below a threshold (tba: better example)
+* Metric checks: A float representing the  result
+  Example: Response time of a service
 
 Log fields:
 * start: timestamp (UTC) when the check started
 * end: timestamp (UTC) when the check finished
-* state: state the check resulted in
+* state: state the check is in 
+* result: None if the check has not run yet or serialized result (see above=
 * version: version of the check
 * pid: persistent Identifier of the RDP checked
 * msg: string indicating failure or success information (may be empty)
