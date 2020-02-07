@@ -12,6 +12,7 @@ import re
 
 from breadp.util.exceptions import NotCheckeableError
 from breadp.util.log import Log, CheckLogEntry
+from breadp.checks.result import BooleanResult
 
 class Check(object):
     """ Base class and interface for checks for RDPs
@@ -39,6 +40,7 @@ class Check(object):
 
     def __init__(self):
         self.state = "unchecked"
+        self.result = None
         self.log = Log()
 
     def check(self, rdp):
@@ -52,9 +54,9 @@ class Check(object):
         """
         start = datetime.utcnow().isoformat()
         try:
-            (self.state, msg) = (self._do_check(rdp))
+            (self.state, self.result, msg) = (self._do_check(rdp))
         except NotCheckeableError as e:
-            self.state = "uncheckable"
+            self.state = "failure"
             msg = str(e)
         end = datetime.utcnow().isoformat()
         self.set_check(start, end, self.state, rdp.pid, msg)
@@ -87,7 +89,6 @@ class Check(object):
         self.state = state
         self.log.add(CheckLogEntry(start, end, self.version, pid, msg, state))
 
-
     def _do_check(self, rdp):
         raise NotImplementedError("_do_check must be implemented by subclasses of Check")
 
@@ -105,15 +106,16 @@ class IsValidDoiCheck(Check):
         if not rdp.pid:
             raise NotCheckeableError("RDP has no PID!")
         if re.match("^10\.\d{4}\d*/.*", rdp.pid):
-            return ("success", "")
-        return ("failure", "{} is not a valid DOI".format(rdp.pid))
+            return ("success", BooleanResult(True, ""), "")
+        msg = "{} is not a valid DOI".format(rdp.pid)
+        return ("failure", BooleanResult(False, msg), msg)
 
 class DoiResolvesCheck(Check):
     """ Checks whether the DOI of an RDP resolves
     """
 
     def __init__(self):
-        super(IsValidDoiCheck, self).__init__()
+        super(DoiResolvesCheck, self).__init__()
         self.id = 1
         self.version = "0.0.1"
         self.desc = "PidChecks checks whether an RDP has a valid DOI as PID."
@@ -122,5 +124,6 @@ class DoiResolvesCheck(Check):
         if not rdp.pid:
             raise NotCheckeableError("RDP has no PID!")
         if re.match("^10\.\d{4}\d*/.*", rdp.pid):
-            return ("success", "")
-        return ("failure", "{} is not a valid DOI".format(rdp.pid))
+            return ("success", BooleanResult(True, ""), "")
+        msg = "{} is not a valid DOI".format(rdp.pid)
+        return ("failure", BooleanResult(False, msg), msg)

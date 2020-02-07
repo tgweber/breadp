@@ -10,6 +10,7 @@
 from datetime import datetime
 
 from breadp.util.log import Log, AssessmentLogEntry
+from breadp.checks.result import BooleanResult
 
 class Assessment(object):
     """ Base class and interface for assesss for RDPs
@@ -76,13 +77,17 @@ class BatchAssessment(Assessment):
 class SimpleAndAssessment(Assessment):
     def _do_assess(self, rdp):
         for c in self.checks:
-            if not c.log.get_by_pid(rdp.pid)[-1].state == "success":
+            if not isinstance(c.result, BooleanResult):
+                return 0
+            if not c.result.outcome:
                 return 0
         return 1
 
 class SimpleOrAssessment(Assessment):
     def _do_assess(self, rdp):
         for c in self.checks:
-            if c.log.get_by_pid(rdp.pid)[-1].state == "success":
+            if not isinstance(c.result, BooleanResult):
+                return 0
+            if c.result.outcome:
                 return 1
         return 0

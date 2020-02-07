@@ -31,7 +31,7 @@ def test_is_valid_doi_check(mock_get):
     pid = rdp.pid
     rdp.pid = ""
     check.check(rdp)
-    assert check.state == "uncheckable"
+    assert check.state == "failure"
     assert len(check.log) == 2
     assert check.log.log[-2].state == "success"
     rdp.pid = pid
@@ -42,4 +42,4 @@ def test_is_valid_doi_check(mock_get):
     assert check.state == "failure"
     assert len(check.log) == 3
     assert check.log.log[-3].state == "success"
-    assert check.log.log[-2].state == "uncheckable"
+    assert check.log.log[-2].state == "failure"
