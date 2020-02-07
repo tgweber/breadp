@@ -11,6 +11,7 @@ from datetime import datetime
 import re
 
 from breadp.util.exceptions import NotCheckeableError
+from breadp.util.log import Log, CheckLogEntry
 
 class Check(object):
     """ Base class and interface for checks for RDPs
@@ -21,21 +22,24 @@ class Check(object):
         Identifier for the check
     version: str
         Version of the check
-    status: str
+    desc: str
+        A short text describing the criterion checked (in English)
+    state: str
         Status of the last run check ("unchecked", "success", "uncheckable", "failure")
-    log: list
+    log: Log
         List of log entries of run checks
-        (includes keys "start", "end", "status", "version", "pid", "msg")
+        (includes keys "start", "end", "state", "version", "pid", "msg")
+
 
     Methods
     -------
     check(self, rdp) -> None
-        Runs the check and updates log and status
+        Runs the check and updates log and state
     """
 
     def __init__(self):
-        self.status = "unchecked"
-        self.log = []
+        self.state = "unchecked"
+        self.log = Log()
 
     def check(self, rdp):
         """ Wrapper code around each check
@@ -48,14 +52,14 @@ class Check(object):
         """
         start = datetime.utcnow().isoformat()
         try:
-            (self.status, msg) = (self._do_check(rdp))
+            (self.state, msg) = (self._do_check(rdp))
         except NotCheckeableError as e:
-            self.status = "uncheckable"
+            self.state = "uncheckable"
             msg = str(e)
         end = datetime.utcnow().isoformat()
-        self.set_check(start, end, self.status, rdp.pid, msg)
+        self.set_check(start, end, self.state, rdp.pid, msg)
 
-    def set_check(self, start, end, status, pid, msg):
+    def set_check(self, start, end, state, pid, msg):
         """ Allows to set the results of a check (even from outside).
         Use this from outside the check object,
         if another check already failed on which this check is depending.
@@ -67,30 +71,21 @@ class Check(object):
             Start of check in ISO 8601 format and UTC time.
         end: str
             End of check in ISO 8601 format and UTC time.
-        status: str
+        state: str
             One out of "success", "uncheckable", "failure"
         pid: str
             Identifier of the RDP to-be-checked
         msg: str
             Log message of the check
         """
-        if status not in ("success", "uncheckable", "failure"):
+        if state not in ("success", "uncheckable", "failure"):
             raise ValueError(
-                "status must be 'success', 'uncheckable, or 'failure', given: {}".format(
-                    status
+                "state must be 'success', 'uncheckable, or 'failure', given: {}".format(
+                    state
                 )
             )
-        self.status = status
-        self.log.append(
-            {
-                "start": start,
-                "end": end,
-                "status": status,
-                "version": self.version,
-                "pid": pid,
-                "msg": msg
-            }
-        )
+        self.state = state
+        self.log.add(CheckLogEntry(start, end, self.version, pid, msg, state))
 
 
     def _do_check(self, rdp):
@@ -105,7 +100,6 @@ class IsValidDoiCheck(Check):
         self.id = 0
         self.version = "0.0.1"
         self.desc = "IsValidDoiCheck checks whether an RDP has a valid DOI as PID."
-        self.description = self.desc
 
     def _do_check(self, rdp):
         if not rdp.pid:
@@ -123,7 +117,6 @@ class DoiResolvesCheck(Check):
         self.id = 1
         self.version = "0.0.1"
         self.desc = "PidChecks checks whether an RDP has a valid DOI as PID."
-        self.description = self.desc
 
     def _do_check(self, rdp):
         if not rdp.pid:

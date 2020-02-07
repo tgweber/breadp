@@ -23,24 +23,23 @@ def test_is_valid_doi_check(mock_get):
     # Successful
     rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
     check.check(rdp)
-    assert check.status == "success"
+    assert check.state == "success"
     assert len(check.log) == 1
-    assert check.log[-1]["status"] == check.status
+    assert check.log.log[-1].state == check.state
 
     # Uncheckeable
     pid = rdp.pid
     rdp.pid = ""
     check.check(rdp)
-    assert check.status == "uncheckable"
+    assert check.state == "uncheckable"
     assert len(check.log) == 2
-    assert check.log[-2]["status"] == "success"
+    assert check.log.log[-2].state == "success"
     rdp.pid = pid
 
     # Failure
     rdp = RdpFactory.create("10.123/zenodo.3490396-failure", "zenodo", token="123")
     check.check(rdp)
-    assert check.status == "failure"
+    assert check.state == "failure"
     assert len(check.log) == 3
-    assert check.log[-3]["status"] == "success"
-    assert check.log[-2]["status"] == "uncheckable"
-
+    assert check.log.log[-3].state == "success"
+    assert check.log.log[-2].state == "uncheckable"
