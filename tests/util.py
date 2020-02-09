@@ -9,29 +9,39 @@
 import json
 import re
 
+class _MockResponse:
+    def __init__(self, content, status_code, headers = {}):
+        self.content = content
+        self.status_code = status_code
+        self.headers = headers
+
+    def json(self):
+        return self.content
+
 # Prepare Mock responses for the tests
 def mocked_requests_get(*args, **kwargs):
-    class MockResponse:
-        def __init__(self, content, status_code):
-            self.content = content
-            self.status_code = status_code
-
-        def json(self):
-            return self.content
     #print(args[0])
     if args[0] == "https://zenodo.org/oai2d":
         with open("./tests/artefacts/md001.xml", "rb") as f:
             content = f.read()
-        return MockResponse(content, 200)
+        return _MockResponse(content, 200)
     elif args[0] == "https://zenodo.org/api/deposit/depositions/3490396/files":
         with open("./tests/artefacts/zenodo001.json", "r") as f:
             content = json.load(f)
-        return MockResponse(content, 200)
+        return _MockResponse(content, 200)
     elif args[0] == "https://zenodo.org/api/files/abc/s_data_vectorized.csv":
         with open("./tests/artefacts/d001.csv", "rb") as f:
             content = f.read()
-        return MockResponse(content, 200)
-    return MockResponse(None, 404)
+        return _MockResponse(content, 200)
+    return _MockResponse(None, 404)
+
+def mocked_requests_head(*args, **kwargs):
+    print(args[0])
+    if args[0] == "https://doi.org/10.5281/zenodo.3490396":
+        return _MockResponse(
+            "", 302, {"Location": "https://zenodo.org/record/3490396"}
+        )
+    return _MockResponse(None, 404)
 
 # Basic tests for all checks who did not already run
 def base_init_check_test(check, check_id):

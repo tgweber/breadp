@@ -10,8 +10,8 @@
 import re
 from unittest import mock
 
-from util import mocked_requests_get, base_init_check_test
-from breadp.checks import IsValidDoiCheck
+from util import mocked_requests_get, mocked_requests_head, base_init_check_test
+from breadp.checks import IsValidDoiCheck, DoiResolvesCheck
 from breadp.rdp.rdp import RdpFactory, Rdp
 
 # Tests the PID check
@@ -27,7 +27,7 @@ def test_is_valid_doi_check(mock_get):
     assert len(check.log) == 1
     assert check.log.log[-1].state == check.state
 
-    # Uncheckeable
+    # Failure 1
     pid = rdp.pid
     rdp.pid = ""
     check.check(rdp)
@@ -36,10 +36,26 @@ def test_is_valid_doi_check(mock_get):
     assert check.log.log[-2].state == "success"
     rdp.pid = pid
 
-    # Failure
+    # Failure 2
     rdp = RdpFactory.create("10.123/zenodo.3490396-failure", "zenodo", token="123")
     check.check(rdp)
     assert check.state == "failure"
     assert len(check.log) == 3
     assert check.log.log[-3].state == "success"
     assert check.log.log[-2].state == "failure"
+
+@mock.patch('requests.head', side_effect=mocked_requests_head)
+@mock.patch('requests.get', side_effect=mocked_requests_get)
+def test_doi_resolve_check(mock_head, mock_get):
+    check = DoiResolvesCheck()
+    assert base_init_check_test(check, 1)
+
+    # Successful resolution
+    rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
+    check.check(rdp)
+    assert check.state == "success"
+
+    # Failed resolution
+    rdp = RdpFactory.create("10.123/zenodo.3490396-failure", "zenodo", token="123")
+    check.check(rdp)
+    assert check.state == "failure"

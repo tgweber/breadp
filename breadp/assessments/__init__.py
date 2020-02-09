@@ -70,6 +70,7 @@ class Assessment(object):
 
 class BatchAssessment(Assessment):
     def _run_checks(self, rdp):
+        import pprint
         for c in self.checks:
             c.check(rdp)
         return "Success"
@@ -80,6 +81,7 @@ class SimpleAndAssessment(Assessment):
             if not isinstance(c.result, BooleanResult):
                 return 0
             if not c.result.outcome:
+                print(c.result.context)
                 return 0
         return 1
 

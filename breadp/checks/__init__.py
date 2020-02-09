@@ -9,6 +9,7 @@
 
 from datetime import datetime
 import re
+import requests
 
 from breadp.util.exceptions import NotCheckeableError
 from breadp.util.log import Log, CheckLogEntry
@@ -118,12 +119,21 @@ class DoiResolvesCheck(Check):
         super(DoiResolvesCheck, self).__init__()
         self.id = 1
         self.version = "0.0.1"
-        self.desc = "PidChecks checks whether an RDP has a valid DOI as PID."
+        self.desc = "DoiResolvesCheck checks whether the DOI resolves."
 
     def _do_check(self, rdp):
         if not rdp.pid:
             raise NotCheckeableError("RDP has no PID!")
-        if re.match("^10\.\d{4}\d*/.*", rdp.pid):
-            return ("success", BooleanResult(True, ""), "")
-        msg = "{} is not a valid DOI".format(rdp.pid)
-        return ("failure", BooleanResult(False, msg), msg)
+        try:
+            response = requests.head('https://doi.org/' + rdp.pid)
+        except Exception as e:
+            raise NotCheckeableError("{}: {}".format(type(e), e))
+
+        if response.status_code != 302:
+            msg = "Could not resolve {}, status code: {}".format(
+                rdp.pid, response.status_code)
+            return ("failure", BooleanResult(False, msg), msg)
+
+        msg = "Location of resolved doi: {}".format(
+            response.headers.get('Location'))
+        return ("success", BooleanResult(True, msg), msg)
