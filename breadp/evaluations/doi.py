@@ -3,17 +3,17 @@
 #
 # Apache 2.0 License
 #
-# This file contains all code related to DOI assessment objects
+# This file contains all code related to DOI evaluation objects
 #
 ################################################################################
 
-from breadp.assessments import BatchAssessment, SimpleAndAssessment, Assessment
+from breadp.evaluations import BatchEvaluation, SimpleAndEvaluation, Evaluation
 from breadp.checks import IsValidDoiCheck, DoiResolvesCheck
 
-class DoiAssessment(BatchAssessment, SimpleAndAssessment):
+class DoiEvaluation(BatchEvaluation, SimpleAndEvaluation):
 
     def __init__(self):
-        Assessment.__init__(self)
+        Evaluation.__init__(self)
         self.checks.append(IsValidDoiCheck())
         self.checks.append(DoiResolvesCheck())
         self.version = "0.0.1"

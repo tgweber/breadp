@@ -79,21 +79,21 @@ Log fields:
 * pid: persistent Identifier of the RDP checked
 * msg: string indicating failure or success information (may be empty)
 
-## Assessments
-An assessement orchestrates several checks for an RDP and maps the check results to a score between 0 and 1.
+## Evaluation
+An evaluation orchestrates several checks for an RDP and maps the check results to a score between 0 and 1.
 
-An assessement consists of:
+An evaluation consists of:
 * An ID
 * a version
-* a short description describing the assessment criteria (in English)
+* a short description describing the evaluation criteria (in English)
 * A set of checks
-* A set of logs of done assessements
+* A set of logs of done evaluation
 
 Log fields:
 * start: timestamp (UTC) when the first check started
 * end: timestamp (UTC) when the last check finished
-* assessement: Number between 0 and 1. 0 is the lowest/worse, 1 the highest/best assessement.
-* version: version of the assessment
+* evaluation: Number between 0 and 1. 0 is the lowest/worse, 1 the highest/best evaluation.
+* version: version of the evaluation.
 * pid: persistent Identifier of the RDP checked
 * msg: string indicating failure or success information (may be empty)
 
@@ -102,13 +102,13 @@ Log fields:
 A benchmark consists of:
 * An ID
 * A version
-* A set of indendent assessments (specified by ID + version)
+* A set of indendent evaluation (specified by ID + version)
 * A set of logs of done benchmark runs.
 
 Log fields:
-* start: timestamp (UTC) when the first check of an assessment started
-* end: timestamp (UTC) when the last check of an assessment finished
-* score: Number between 0 and 1. 0 is the lowest/worse, 1 the highest/best assessement.
+* start: timestamp (UTC) when the first check of an evaluation started
+* end: timestamp (UTC) when the last check of an evaluation finished
+* score: Number between 0 and 1. 0 is the lowest/worse, 1 the highest/best evaluation.
 * version: version of the benchmark
 * pid: persistent Identifier of the RDP checked
 * msg: string indicating failure or success information (may be empty)

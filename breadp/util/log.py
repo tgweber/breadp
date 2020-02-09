@@ -39,7 +39,7 @@ class CheckLogEntry(LogEntry):
         super(CheckLogEntry, self).__init__(start, end, version, pid, msg)
         self.state = state
 
-class AssessmentLogEntry(LogEntry):
-    def __init__(self, start, end, version, pid, msg, assessment):
-        super(AssessmentLogEntry, self).__init__(start, end, version, pid, msg)
-        self.assessment = assessment
+class EvaluationLogEntry(LogEntry):
+    def __init__(self, start, end, version, pid, msg, evaluation):
+        super(EvaluationLogEntry, self).__init__(start, end, version, pid, msg)
+        self.evaluation = evaluation
