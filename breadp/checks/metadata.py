@@ -44,7 +44,7 @@ class MainDescriptionLengthCheck(Check):
         Check.__init__(self)
         self.id = 3
         self.version = "0.0.1"
-        self.desc = "checks how long the main description"
+        self.desc = "checks how many words are in the main description "
 
     def _do_check(self, rdp):
         md = rdp.metadata.getMainDescription()
