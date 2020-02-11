@@ -17,17 +17,28 @@ from breadp.rdp.rdp import RdpFactory, Rdp
 # Tests the PID check
 @mock.patch('requests.get', side_effect=mocked_requests_get)
 def test_pid_evaluation(mock_get):
-    a = DoiEvaluation()
+    e = DoiEvaluation()
     rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
-    a.evaluate(rdp)
-    assert len(a.log) == 1
-    assert a.log.log[-1].evaluation == 1
+    e.evaluate(rdp)
+    assert len(e.log) == 1
+    assert e.log.log[-1].evaluation == 1
 
 # Test the Description Evaluation
 @mock.patch('requests.get', side_effect=mocked_requests_get)
 def test_description_evaluation(mock_get):
-    a = DescriptionEvaluation()
+    e = DescriptionEvaluation(4)
     rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
-    a.evaluate(rdp)
-    assert len(a.log) == 1
-    assert a.log.log[-1].evaluation == 1
+    e.evaluate(rdp)
+    assert len(e.log) == 1
+    assert e.log.log[-1].evaluation == 1
+    for c in e.checks.values():
+        print("{}: {} - {}".format(c.success,c.result.outcome, c.log.log[-1].msg))
+
+
+    rdp = RdpFactory.create("10.5281/zenodo.badex1", "zenodo", token="123")
+    e.evaluate(rdp)
+    assert len(e.log) == 2
+    assert e.log.log[-1].evaluation == 1/13
+
+    for c in e.checks.values():
+        print("{}: {} - {}".format(c.success,c.result.outcome, c.log.log[-1].msg))

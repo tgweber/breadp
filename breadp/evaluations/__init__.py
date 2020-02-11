@@ -50,7 +50,7 @@ class Evaluation(object):
             Research Data Product to be evaluated
         """
         start = datetime.utcnow().isoformat()
-        msg = self._run_checks(rdp)
+        (msg, success) = self._run_checks(rdp)
         end = datetime.utcnow().isoformat()
         self.log.add(EvaluationLogEntry(
             start,
@@ -58,6 +58,7 @@ class Evaluation(object):
             self.version,
             rdp.pid,
             msg,
+            success,
             self._do_evaluate(rdp))
         )
 
@@ -69,10 +70,12 @@ class Evaluation(object):
 
 class BatchEvaluation(Evaluation):
     def _run_checks(self, rdp):
-        import pprint
+        success = True
         for checkName, check in self.checks.items():
             check.check(rdp)
-        return "Success"
+            if not check.success:
+                success = False
+        return ("", success)
 
 class SimpleAndEvaluation(Evaluation):
     def _do_evaluate(self, rdp):
@@ -83,3 +86,19 @@ class SimpleAndEvaluation(Evaluation):
                 print(check.result.context)
                 return 0
         return 1
+
+class MandatoryRecommendedEvaluation(Evaluation):
+    def __init__(self, mandatory_check_weight = 2):
+        Evaluation.__init__(self)
+        self.mandatory_checks = []
+        self.mandatory_check_weight = mandatory_check_weight
+        self.evaluation_score_part = 1
+
+    def _calculate_evaluation_weights(self):
+        weight_parts = len(self.checks) - len(self.mandatory_checks)  + \
+            len(self.mandatory_checks) * self.mandatory_check_weight
+        self.evaluation_score_part = 1 / weight_parts
+
+    def _add_mandatory_check(self, check):
+        self.checks[type(check).__name__] = check
+        self.mandatory_checks.append(type(check).__name__)

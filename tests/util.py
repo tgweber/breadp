@@ -60,7 +60,7 @@ def base_init_check_test(check, check_id):
         return False
     if not len(check.desc) > 10:
         return False
-    if not check.state == "unchecked":
+    if check.success:
         return False
     if not len(check.log) == 0:
         return False

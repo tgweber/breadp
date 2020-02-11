@@ -12,12 +12,12 @@ class CheckResult(object):
 
     Attributes
     ----------
-    context: str
-        Message giving more context to the outcome of the check.
+    msg: str
+        Message giving more msg to the outcome of the check.
     """
 
-    def __init__(self, context):
-        self.context = context
+    def __init__(self, msg):
+        self.msg = msg
 
 class BooleanResult(CheckResult):
     """ A result with a boolean outcome
@@ -28,8 +28,8 @@ class BooleanResult(CheckResult):
         Indicates whether the rdp fulfills the criterion checked
     """
 
-    def __init__(self, outcome: bool, context: str):
-        super(BooleanResult, self).__init__(context)
+    def __init__(self, outcome: bool, msg: str):
+        super(BooleanResult, self).__init__(msg)
         self.outcome = outcome
 
 class MetricResult(CheckResult):
@@ -40,8 +40,8 @@ class MetricResult(CheckResult):
     outcome: float
         The number the check resulted in (can be a float("nan")).
     """
-    def __init__(self, outcome: float, context: str):
-        super(MetricResult, self).__init__(context)
+    def __init__(self, outcome: float, msg: str):
+        super(MetricResult, self).__init__(msg)
         self.outcome = outcome
 
 class CategoricalResult(CheckResult):
@@ -52,8 +52,8 @@ class CategoricalResult(CheckResult):
     outcome: str
         The categorical value the check resulted in.
     """
-    def __init__(self, outcome: str, context: str):
-        super(CategoricalResult, self).__init__(context)
+    def __init__(self, outcome: str, msg: str):
+        super(CategoricalResult, self).__init__(msg)
         self.outcome = outcome
 
 class ListResult(CheckResult):
@@ -64,6 +64,6 @@ class ListResult(CheckResult):
     outcome: list
         The list the check resuled in.
     """
-    def __init__(self, outcome: list, context: str):
-        super(ListResult, self).__init__(context)
+    def __init__(self, outcome: list, msg: str):
+        super(ListResult, self).__init__(msg)
         self.outcome = outcome

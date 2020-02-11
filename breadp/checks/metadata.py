@@ -30,7 +30,7 @@ class DescriptionsNumberCheck(Check):
         self.desc = "checks how many descriptions are part of the metadata of the RDP"
 
     def _do_check(self, rdp):
-        return("success", MetricResult(len(rdp.metadata.descriptions), ""), "")
+        return(True, MetricResult(len(rdp.metadata.descriptions), ""))
 
 class MainDescriptionLengthCheck(Check):
     """ Checks the length of the main description in words
@@ -50,10 +50,8 @@ class MainDescriptionLengthCheck(Check):
         md = rdp.metadata.getMainDescription()
         if md is None:
             msg = "No main description was identifyable"
-            return("failure", MetricResult(float("nan"), msg), msg)
-        return("success",
-               MetricResult(len(rdp.metadata.getMainDescription().split()), ""),
-               "")
+            return(False, MetricResult(float("nan"), msg))
+        return(True, MetricResult(len(rdp.metadata.getMainDescription().split()), ""))
 
 class MainDescriptionLanguageCheck(Check):
     """ Checks the language of the main description
@@ -73,8 +71,8 @@ class MainDescriptionLanguageCheck(Check):
         md = rdp.metadata.getMainDescription()
         if md is None:
             msg = "No main description was identifyable"
-            return("failure", CategoricalResult("", msg), msg)
-        return("success", CategoricalResult(detect(md), ""), "")
+            return(True, CategoricalResult("", msg))
+        return(True, CategoricalResult(detect(md), ""))
 
 class DataCiteDescriptionsTypeCheck(Check):
     """ Checks all description types of DataCite metadata
@@ -95,7 +93,7 @@ class DataCiteDescriptionsTypeCheck(Check):
         types = []
         for d in rdp.metadata.descriptions:
             types.append(d["@descriptionType"])
-        return ("success", ListResult(types, ""), "")
+        return (True, ListResult(types, ""))
 
 class TitlesNumberCheck(Check):
     """ Checks the number of titles in the metadata of an RDP
@@ -114,8 +112,8 @@ class TitlesNumberCheck(Check):
     def _do_check(self, rdp):
         if not rdp.metadata.titles:
             msg = "No titles could be retrieved"
-            return("failure", MetricResult(float(0), msg), msg)
-        return("success", MetricResult(len(rdp.metadata.titles), ""), "")
+            return(False, MetricResult(float(0), msg))
+        return(True, MetricResult(len(rdp.metadata.titles), ""))
 
 class MainTitleLengthCheck(Check):
     """ Checks the length of the main title in words
@@ -135,10 +133,8 @@ class MainTitleLengthCheck(Check):
         mt = rdp.metadata.getMainTitle()
         if mt is None:
             msg = "No main title was identifyable"
-            return("failure", MetricResult(float("nan"), msg), msg)
-        return("success",
-               MetricResult(len(rdp.metadata.getMainTitle().split()), ""),
-               "")
+            return(True, MetricResult(float("nan"), msg))
+        return(True, MetricResult(len(rdp.metadata.getMainTitle().split()), ""))
 
 class MainTitleLanguageCheck(Check):
     """ Checks the language of the main title
@@ -158,8 +154,8 @@ class MainTitleLanguageCheck(Check):
         mt = rdp.metadata.getMainTitle()
         if mt is None:
             msg = "No main title was identifyable"
-            return("failure", CategoricalResult("", msg), msg)
-        return("success", CategoricalResult(detect(mt), ""), "")
+            return(True, CategoricalResult("", msg))
+        return(True, CategoricalResult(detect(mt), ""))
 
 class MainTitleProbablyJustAFileNameCheck(Check):
     """ Checks whether the main title is (probably) just a file name
@@ -179,8 +175,8 @@ class MainTitleProbablyJustAFileNameCheck(Check):
         mt = rdp.metadata.getMainTitle()
         if mt is None:
             msg = "No main title was identifyable"
-            return("failure", BooleanResult(False, msg), msg)
+            return(True, BooleanResult(False, msg))
         if re.match("^\s*\S+\.\S+\s*$", mt):
             msg = "{} is probably just a file name".format(mt)
-            return("success", BooleanResult(True, msg), msg)
-        return ("success", BooleanResult(False, ""), "")
+            return(True, BooleanResult(True, msg))
+        return (True, BooleanResult(False, ""))
