@@ -65,7 +65,7 @@ class MainDescriptionLanguageCheck(Check):
         Check.__init__(self)
         self.id = 4
         self.version = "0.0.1"
-        self.desc = "checks the language of the main descriptions"
+        self.desc = "checks the language of the main description"
 
     def _do_check(self, rdp):
         md = rdp.metadata.getMainDescription()
@@ -134,3 +134,24 @@ class MainTitleLengthCheck(Check):
         return("success",
                MetricResult(len(rdp.metadata.getMainTitle().split()), ""),
                "")
+
+class MainTitleLanguageCheck(Check):
+    """ Checks the language of the main title
+
+    Methods
+    -------
+    _do_check(self, rdp)
+        returns a CategoricalResult (ISO-639-1 code)
+    """
+    def __init__(self):
+        Check.__init__(self)
+        self.id = 8
+        self.version = "0.0.1"
+        self.desc = "checks the language of the main title"
+
+    def _do_check(self, rdp):
+        mt = rdp.metadata.getMainTitle()
+        if mt is None:
+            msg = "No main title was identifyable"
+            return("failure", CategoricalResult("", msg), msg)
+        return("success", CategoricalResult(detect(mt), ""), "")
