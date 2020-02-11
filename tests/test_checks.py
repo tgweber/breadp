@@ -14,8 +14,9 @@ from util import mocked_requests_get, mocked_requests_head, base_init_check_test
 from breadp.checks import IsValidDoiCheck, DoiResolvesCheck
 from breadp.checks.metadata import DataCiteDescriptionsTypeCheck, \
         DescriptionsNumberCheck, \
-         MainDescriptionLanguageCheck, \
-        MainDescriptionLengthCheck
+        MainDescriptionLanguageCheck, \
+        MainDescriptionLengthCheck, \
+        TitlesNumberCheck
 
 from breadp.rdp.rdp import RdpFactory, Rdp
 
@@ -117,3 +118,13 @@ def test_datacite_descriptions_types_check(mock_get):
     assert len(check.result.outcome) == 2
     assert "Abstract" in check.result.outcome
 
+@mock.patch('requests.get', side_effect=mocked_requests_get)
+def test_titles_number_check(mock_get):
+    check =TitlesNumberCheck()
+    assert base_init_check_test(check, 6)
+
+    # Successful check
+    rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
+    check.check(rdp)
+    assert check.state == "success"
+    assert check.result.outcome == 1

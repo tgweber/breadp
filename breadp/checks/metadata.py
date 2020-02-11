@@ -14,7 +14,7 @@ from breadp.checks.result import CategoricalResult, \
         MetricResult
 
 class DescriptionsNumberCheck(Check):
-    """ Checks the number of description for an RDP
+    """ Checks the number of descriptions in the metadata for an RDP
 
     Methods
     -------
@@ -94,3 +94,20 @@ class DataCiteDescriptionsTypeCheck(Check):
         for d in rdp.metadata.descriptions:
             types.append(d["@descriptionType"])
         return ("success", ListResult(types, ""), "")
+
+class TitlesNumberCheck(Check):
+    """ Checks the number of titles in the metadata of an RDP
+
+    Methods
+    -------
+    _do_check(self, rdp)
+        returns a MetricResult
+    """
+    def __init__(self):
+        super(TitlesNumberCheck, self).__init__()
+        self.id = 6
+        self.version = "0.0.1"
+        self.desc = "checks how many titles are part of the metadata of the RDP"
+
+    def _do_check(self, rdp):
+        return("success", MetricResult(len(rdp.metadata.titles), ""), "")

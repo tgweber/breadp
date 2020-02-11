@@ -19,13 +19,20 @@ class Metadata(object):
     ----------
     pid: str
         Identifier for the RDP
+    descriptions
+        Descriptions of the RDP
+    titles
+        Titles of the RDP
     """
     @property
     def pid(self):
         raise NotImplementedError("pid must be implemented by subclasses of Metadata")
     @property
     def descriptions(self):
-        raise NotImplementedError("description must be implemented by subclasses of Metadata")
+        raise NotImplementedError("descriptions must be implemented by subclasses of Metadata")
+    @property
+    def titles(self):
+        raise NotImplementedError("titles must be implemented by subclasses of Metadata")
 
     def getMainDescription(self):
         raise NotImplementedError("getMainDescription() must be implemented by subclasses of Metadata")
@@ -104,6 +111,9 @@ class DataCiteMetadata(OaiPmhMetadata):
     @property
     def descriptions(self):
         return self.md["descriptions"]["description"]
+    @property
+    def titles(self):
+        return self.md["titles"]
 
     def getMainDescription(self):
         for d in self.descriptions:
