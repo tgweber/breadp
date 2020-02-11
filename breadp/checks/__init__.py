@@ -112,7 +112,7 @@ class IsValidDoiCheck(Check):
         if re.match("^10\.\d{4}\d*/.*", rdp.pid):
             return ("success", BooleanResult(True, ""), "")
         msg = "{} is not a valid DOI".format(rdp.pid)
-        return ("failure", BooleanResult(False, msg), msg)
+        return ("success", BooleanResult(False, msg), msg)
 
 class DoiResolvesCheck(Check):
     """ Checks whether the DOI of an RDP resolves
@@ -136,12 +136,12 @@ class DoiResolvesCheck(Check):
             response = requests.head('https://doi.org/' + rdp.pid)
         except Exception as e:
             msg = "{}: {}".format(type(e), e)
-            return("failure", BooleanResult(False, msg), msg)
+            return("success", BooleanResult(False, msg), msg)
 
         if response.status_code != 302:
             msg = "Could not resolve {}, status code: {}".format(
                 rdp.pid, response.status_code)
-            return ("failure", BooleanResult(False, msg), msg)
+            return ("success", BooleanResult(False, msg), msg)
 
         msg = "Location of resolved doi: {}".format(
             response.headers.get('Location'))

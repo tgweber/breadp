@@ -18,6 +18,7 @@ from breadp.checks.metadata import DataCiteDescriptionsTypeCheck, \
         MainDescriptionLengthCheck, \
         MainTitleLanguageCheck, \
         MainTitleLengthCheck, \
+        MainTitleProbablyJustAFileNameCheck, \
         TitlesNumberCheck
 
 from breadp.rdp.rdp import RdpFactory, Rdp
@@ -37,13 +38,9 @@ def test_is_valid_doi_check(mock_get):
     assert check.result.outcome
 
     # Failure 1
-
-    import pprint
     pid = rdp.pid
     rdp.pid = ""
-    pprint.pprint(check.result.outcome)
     check.check(rdp)
-    pprint.pprint(check.result.outcome)
     assert check.state == "failure"
     assert len(check.log) == 2
     assert check.log.log[-2].state == "success"
@@ -53,7 +50,7 @@ def test_is_valid_doi_check(mock_get):
     # Failure 2
     rdp = RdpFactory.create("10.123/zenodo.3490396-failure", "zenodo", token="123")
     check.check(rdp)
-    assert check.state == "failure"
+    assert check.state == "success"
     assert len(check.log) == 3
     assert check.log.log[-3].state == "success"
     assert check.log.log[-2].state == "failure"
@@ -71,10 +68,16 @@ def test_doi_resolve_check(mock_head, mock_get):
     assert check.state == "success"
     assert check.result.outcome
 
+    # failure
+    rdp.pid = ""
+    check.check(rdp)
+    assert check.state == "failure"
+    assert not check.result.outcome
+
     # Failed resolution
     rdp = RdpFactory.create("10.123/zenodo.3490396-failure", "zenodo", token="123")
     check.check(rdp)
-    assert check.state == "failure"
+    assert check.state == "success"
     assert not check.result.outcome
 
 @mock.patch('requests.get', side_effect=mocked_requests_get)
@@ -152,3 +155,14 @@ def test_main_title_language_check(mock_get):
     check.check(rdp)
     assert check.state == "success"
     assert check.result.outcome == "en"
+
+@mock.patch('requests.get', side_effect=mocked_requests_get)
+def test_main_title_probably_just_a_filename_check(mock_get):
+    check = MainTitleProbablyJustAFileNameCheck()
+    assert base_init_check_test(check, 9)
+
+    # Successful check
+    rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
+    check.check(rdp)
+    assert check.state == "success"
+    assert not check.result.outcome

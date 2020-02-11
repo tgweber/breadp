@@ -7,9 +7,11 @@
 #
 ################################################################################
 from langdetect import detect
+import re
 
 from breadp.checks import Check
-from breadp.checks.result import CategoricalResult, \
+from breadp.checks.result import BooleanResult, \
+        CategoricalResult, \
         ListResult, \
         MetricResult
 
@@ -155,3 +157,27 @@ class MainTitleLanguageCheck(Check):
             msg = "No main title was identifyable"
             return("failure", CategoricalResult("", msg), msg)
         return("success", CategoricalResult(detect(mt), ""), "")
+
+class MainTitleProbablyJustAFileNameCheck(Check):
+    """ Checks whether the main title is (probably) just a file name
+
+    Methods
+    -------
+    _do_check(self, rdp)
+        returns a BooleanResult
+    """
+    def __init__(self):
+        Check.__init__(self)
+        self.id = 9
+        self.version = "0.0.1"
+        self.desc = "checks whether the main title is probably just a file name"
+
+    def _do_check(self, rdp):
+        mt = rdp.metadata.getMainTitle()
+        if mt is None:
+            msg = "No main title was identifyable"
+            return("failure", BooleanResult(False, msg), msg)
+        if re.match("^\s*\S+\.\S+\s*$", mt):
+            msg = "{} is probably just a file name".format(mt)
+            return("success", BooleanResult(True, msg), msg)
+        return ("success", BooleanResult(False, ""), "")
