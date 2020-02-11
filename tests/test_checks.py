@@ -16,6 +16,7 @@ from breadp.checks.metadata import DataCiteDescriptionsTypeCheck, \
         DescriptionsNumberCheck, \
         MainDescriptionLanguageCheck, \
         MainDescriptionLengthCheck, \
+        MainTitleLengthCheck, \
         TitlesNumberCheck
 
 from breadp.rdp.rdp import RdpFactory, Rdp
@@ -128,3 +129,14 @@ def test_titles_number_check(mock_get):
     check.check(rdp)
     assert check.state == "success"
     assert check.result.outcome == 1
+
+@mock.patch('requests.get', side_effect=mocked_requests_get)
+def test_titles_number_check(mock_get):
+    check = MainTitleLengthCheck()
+    assert base_init_check_test(check, 7)
+
+    # Successful check
+    rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
+    check.check(rdp)
+    assert check.state == "success"
+    assert check.result.outcome == 20

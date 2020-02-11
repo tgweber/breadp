@@ -22,7 +22,7 @@ class DescriptionsNumberCheck(Check):
         returns a MetricResult
     """
     def __init__(self):
-        super(DescriptionsNumberCheck, self).__init__()
+        Check.__init__(self)
         self.id = 2
         self.version = "0.0.1"
         self.desc = "checks how many descriptions are part of the metadata of the RDP"
@@ -31,7 +31,7 @@ class DescriptionsNumberCheck(Check):
         return("success", MetricResult(len(rdp.metadata.descriptions), ""), "")
 
 class MainDescriptionLengthCheck(Check):
-    """ Checks the length of the main description
+    """ Checks the length of the main description in words
 
     Methods
     -------
@@ -39,7 +39,7 @@ class MainDescriptionLengthCheck(Check):
         returns a MetricResult
     """
     def __init__(self):
-        super(MainDescriptionLengthCheck, self).__init__()
+        Check.__init__(self)
         self.id = 3
         self.version = "0.0.1"
         self.desc = "checks how long the main description"
@@ -62,7 +62,7 @@ class MainDescriptionLanguageCheck(Check):
         returns a CategoricalResult (ISO-639-1 code)
     """
     def __init__(self):
-        super(MainDescriptionLanguageCheck, self).__init__()
+        Check.__init__(self)
         self.id = 4
         self.version = "0.0.1"
         self.desc = "checks the language of the main descriptions"
@@ -84,7 +84,7 @@ class DataCiteDescriptionsTypeCheck(Check):
         as specified in the DataCite standard)
     """
     def __init__(self):
-        super(DataCiteDescriptionsTypeCheck, self).__init__()
+        Check.__init__(self)
         self.id = 5
         self.version = "0.0.1"
         self.desc = "checks the types of the descriptions"
@@ -104,10 +104,33 @@ class TitlesNumberCheck(Check):
         returns a MetricResult
     """
     def __init__(self):
-        super(TitlesNumberCheck, self).__init__()
+        Check.__init__(self)
         self.id = 6
         self.version = "0.0.1"
         self.desc = "checks how many titles are part of the metadata of the RDP"
 
     def _do_check(self, rdp):
         return("success", MetricResult(len(rdp.metadata.titles), ""), "")
+
+class MainTitleLengthCheck(Check):
+    """ Checks the length of the main title in words
+
+    Methods
+    -------
+    _do_check(self, rdp)
+        returns a MetricResult
+    """
+    def __init__(self):
+        Check.__init__(self)
+        self.id = 7
+        self.version = "0.0.1"
+        self.desc = "checks how many words the main title has"
+
+    def _do_check(self, rdp):
+        mt = rdp.metadata.getMainTitle()
+        if mt is None:
+            msg = "No main title was identifyable"
+            return("failure", MetricResult(float("nan"), msg), msg)
+        return("success",
+               MetricResult(len(rdp.metadata.getMainTitle().split()), ""),
+               "")
