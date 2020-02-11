@@ -112,6 +112,9 @@ class TitlesNumberCheck(Check):
         self.desc = "checks how many titles are part of the metadata of the RDP"
 
     def _do_check(self, rdp):
+        if not rdp.metadata.titles:
+            msg = "No titles could be retrieved"
+            return("failure", MetricResult(float(0), msg), msg)
         return("success", MetricResult(len(rdp.metadata.titles), ""), "")
 
 class MainTitleLengthCheck(Check):

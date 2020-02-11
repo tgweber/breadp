@@ -7,6 +7,7 @@
 #
 ################################################################################
 
+import math
 import re
 from unittest import mock
 
@@ -89,6 +90,11 @@ def test_descriptions_number_check(mock_get):
     assert check.state == "success"
     assert check.result.outcome == 2
 
+    rdp = RdpFactory.create("10.5281/zenodo.badex1", "zenodo", token="123")
+    check.check(rdp)
+    assert check.state == "success"
+    assert check.result.outcome == 0
+
 @mock.patch('requests.get', side_effect=mocked_requests_get)
 def test_main_description_length_check(mock_get):
     check = MainDescriptionLengthCheck()
@@ -100,6 +106,11 @@ def test_main_description_length_check(mock_get):
     assert check.state == "success"
     assert check.result.outcome == 69
 
+    rdp = RdpFactory.create("10.5281/zenodo.badex1", "zenodo", token="123")
+    check.check(rdp)
+    assert check.state == "failure"
+    assert math.isnan(check.result.outcome)
+
 @mock.patch('requests.get', side_effect=mocked_requests_get)
 def test_main_description_language_check(mock_get):
     check = MainDescriptionLanguageCheck()
@@ -110,6 +121,11 @@ def test_main_description_language_check(mock_get):
     check.check(rdp)
     assert check.state == "success"
     assert check.result.outcome == "en"
+
+    rdp = RdpFactory.create("10.5281/zenodo.badex2", "zenodo", token="123")
+    check.check(rdp)
+    assert check.state == "success"
+    assert check.result.outcome == "de"
 
 @mock.patch('requests.get', side_effect=mocked_requests_get)
 def test_datacite_descriptions_types_check(mock_get):
@@ -134,6 +150,11 @@ def test_titles_number_check(mock_get):
     assert check.state == "success"
     assert check.result.outcome == 1
 
+    rdp = RdpFactory.create("10.5281/zenodo.badex1", "zenodo", token="123")
+    check.check(rdp)
+    assert check.state == "failure"
+    assert check.result.outcome == 0
+
 @mock.patch('requests.get', side_effect=mocked_requests_get)
 def test_main_title_length_check(mock_get):
     check = MainTitleLengthCheck()
@@ -156,6 +177,7 @@ def test_main_title_language_check(mock_get):
     assert check.state == "success"
     assert check.result.outcome == "en"
 
+
 @mock.patch('requests.get', side_effect=mocked_requests_get)
 def test_main_title_probably_just_a_filename_check(mock_get):
     check = MainTitleProbablyJustAFileNameCheck()
@@ -166,3 +188,8 @@ def test_main_title_probably_just_a_filename_check(mock_get):
     check.check(rdp)
     assert check.state == "success"
     assert not check.result.outcome
+
+    rdp = RdpFactory.create("10.5281/zenodo.badex2", "zenodo", token="123")
+    check.check(rdp)
+    assert check.state == "success"
+    assert check.result.outcome

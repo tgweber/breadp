@@ -20,9 +20,16 @@ class _MockResponse:
 
 # Prepare Mock responses for the tests
 def mocked_requests_get(*args, **kwargs):
-    #print(args[0])
-    if args[0] == "https://zenodo.org/oai2d":
+    if args[0] == "https://zenodo.org/oai2d" and args[1]["identifier"] == "oai:zenodo.org:3490396":
         with open("./tests/artefacts/md001.xml", "rb") as f:
+            content = f.read()
+        return _MockResponse(content, 200)
+    elif args[0] == "https://zenodo.org/oai2d" and args[1]["identifier"] == "oai:zenodo.org:badex1":
+        with open("./tests/artefacts/md002.xml", "rb") as f:
+            content = f.read()
+        return _MockResponse(content, 200)
+    elif args[0] == "https://zenodo.org/oai2d" and args[1]["identifier"] == "oai:zenodo.org:badex2":
+        with open("./tests/artefacts/md003.xml", "rb") as f:
             content = f.read()
         return _MockResponse(content, 200)
     elif args[0] == "https://zenodo.org/api/deposit/depositions/3490396/files":

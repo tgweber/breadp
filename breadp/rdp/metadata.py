@@ -112,10 +112,15 @@ class DataCiteMetadata(OaiPmhMetadata):
         return self.md["identifier"]["identifier"]
     @property
     def descriptions(self):
-        return self.md["descriptions"]["description"]
+        if "descriptions" in self.md.keys():
+            return self.md["descriptions"]["description"]
+        else:
+            return []
     @property
     def titles(self):
-        return self.md["titles"]
+        if "titles" in self.md.keys():
+            return self.md["titles"]
+        return None
 
     def getMainDescription(self):
         for d in self.descriptions:
