@@ -1,3 +1,4 @@
 pytest
 pytest-cov
 xmltodict
+git+https://github.com/Mimino666/langdetect

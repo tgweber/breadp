@@ -14,7 +14,7 @@ class DoiEvaluation(BatchEvaluation, SimpleAndEvaluation):
 
     def __init__(self):
         Evaluation.__init__(self)
-        self.checks.append(IsValidDoiCheck())
-        self.checks.append(DoiResolvesCheck())
+        self.checks["IsValidDoi"] = IsValidDoiCheck()
+        self.checks["DoiResolves"] = DoiResolvesCheck()
         self.version = "0.0.1"
         self.id = 0

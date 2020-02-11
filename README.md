@@ -65,8 +65,9 @@ Results:
     * True (if the research data product meets the criterion)
     * False (if the research data product does not meet the criterion)
   Example: Check if the metadata validate against their schema.
-* Ordinal checks: One option out of an ordered list of options
-  Example: Check if the research data is above, on or below a threshold (tba: better example)
+* Categorical checks: One option out of an ordered list of options
+  Example: Check which language the main description of the metadata has (possible values
+  are a list of ISO-639-1 codes)
 * Metric checks: A float representing the  result
   Example: Response time of a service
 

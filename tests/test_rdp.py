@@ -17,7 +17,6 @@ from breadp.rdp.data import CSVData
 from breadp.rdp.services import OaipmhService, ZenodoRestService, Service
 from breadp.rdp.rdp import RdpFactory, Rdp
 from breadp.util.util import Bundle
-from breadp.util.exceptions import NotCheckeableError
 
 from util import mocked_requests_get
 # Checks that all exceptions in metadata are thrown appropiately
@@ -59,10 +58,6 @@ def test_service_rest_zenodo(mock_get):
 def test_rdp_unspecified():
     rdp = RdpFactory.create("some_id", "some_type")
     assert type(rdp) == Rdp
-    with pytest.raises(NotCheckeableError):
-        rdp.metadata.pid == "some_id"
-    with pytest.raises(NotCheckeableError):
-        len(rdp.data) == 2
 
 # Checks the functionality of a zenodo RDP
 @mock.patch('requests.get', side_effect=mocked_requests_get)
@@ -70,4 +65,8 @@ def test_rdp_zenodo(mock_get):
     rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
     assert rdp.pid == "10.5281/zenodo.3490396"
     assert rdp.metadata.pid == "10.5281/zenodo.3490396"
+    import pprint
+    pprint.pprint(rdp.metadata.descriptions)
+    assert len(rdp.metadata.descriptions) > 0
+    assert len(rdp.metadata.descriptions[0]["#text"]) > 15
     assert len(rdp.data) == 2

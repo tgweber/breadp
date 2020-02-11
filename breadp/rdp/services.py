@@ -12,7 +12,6 @@ from typing import Generator
 from breadp.rdp.metadata import MetadataFactory, Metadata
 from breadp.rdp.data import DataFactory, Data
 from breadp.util.util import Bundle
-from breadp.util.exceptions import NotCheckeableError
 
 class Service(object):
     """ Base class + interface for Services as a component of RDPS
@@ -54,16 +53,12 @@ class ServiceBundle(Bundle):
         -------
         Metadata
             Metadata object for RDP in format specified by scheme
-
-        Raises
-        ------
-        NotCheckeableError
-            Thrown if no service can satisfy the request
         """
+
         for key, service in self.payload.items():
             if service.protocol == "oai-pmh":
                 return service.get_record(identifier, scheme)
-        raise NotCheckeableError("No service available to get metadata!")
+        return None
 
     def get_data(self, identifier) -> Generator[Data, None, None]:
         """ Get all data objects for the RDP
@@ -77,16 +72,11 @@ class ServiceBundle(Bundle):
         ------
         Data
             Data objects for an RDP
-
-        Raises
-        ------
-        NotCheckeableError
-            Thrown if no service can satisfy the request
         """
         for key, service in self.payload.items():
             if service.protocol == "zenodo-rest":
                 return service.get_files(identifier)
-        raise NotCheckeableError("No service available to get data!")
+        return None
 
 ################################################################################
 # SPECIFIC SERVICE IMPLEMENTATIONS

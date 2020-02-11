@@ -9,7 +9,6 @@
 
 from breadp.rdp.services import ServiceBundle, OaipmhService, ZenodoRestService
 from breadp.util.util import Bundle
-from breadp.util.exceptions import NotCheckeableError
 
 class Rdp(object):
     """ Base class + interface for Research Data Products (RDP)
@@ -42,18 +41,13 @@ class Rdp(object):
         -------
         Bundle
             Bundle of Data objects
-
-        Raises
-        ------
-        NotCheckeableError
-            If the RDP does not support automatic data retrieval
         """
         if len(self._data) < 1:
             try:
                 for f in self._services.get_data(self.pid):
                     self._data.put(f.source, f)
             except TypeError:
-                raise NotCheckeableError
+                return None
         return self._data
 
     @property

@@ -7,6 +7,7 @@
 #
 ################################################################################
 
+from collections import OrderedDict
 from datetime import datetime
 
 from breadp.util.log import Log, EvaluationLogEntry
@@ -37,8 +38,7 @@ class Evaluation(object):
 
     def __init__(self):
         self.log = Log()
-        self.checks = []
-        self.evaluations = []
+        self.checks = OrderedDict()
 
     def evaluate(self, rdp):
         """ Wrapper code around each evaluation
@@ -61,7 +61,6 @@ class Evaluation(object):
             self._do_evaluate(rdp))
         )
 
-
     def _run_checks(self, rdp):
         raise NotImplementedError("_run_checks must be implemented by subclasses of Evaluation")
 
@@ -71,25 +70,16 @@ class Evaluation(object):
 class BatchEvaluation(Evaluation):
     def _run_checks(self, rdp):
         import pprint
-        for c in self.checks:
-            c.check(rdp)
+        for checkName, check in self.checks.items():
+            check.check(rdp)
         return "Success"
 
 class SimpleAndEvaluation(Evaluation):
     def _do_evaluate(self, rdp):
-        for c in self.checks:
-            if not isinstance(c.result, BooleanResult):
+        for checkName, check in self.checks.items():
+            if not isinstance(check.result, BooleanResult):
                 return 0
-            if not c.result.outcome:
-                print(c.result.context)
+            if not check.result.outcome:
+                print(check.result.context)
                 return 0
         return 1
-
-class SimpleOrEvaluation(Evaluation):
-    def _do_evaluate(self, rdp):
-        for c in self.checks:
-            if not isinstance(c.result, BooleanResult):
-                return 0
-            if c.result.outcome:
-                return 1
-        return 0

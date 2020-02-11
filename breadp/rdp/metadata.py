@@ -10,7 +10,6 @@ import json
 from collections import OrderedDict
 import xmltodict
 
-from breadp.util.exceptions import NotCheckeableError
 from breadp.util.util import Bundle
 
 class Metadata(object):
@@ -24,11 +23,16 @@ class Metadata(object):
     @property
     def pid(self):
         raise NotImplementedError("pid must be implemented by subclasses of Metadata")
+    @property
+    def descriptions(self):
+        raise NotImplementedError("description must be implemented by subclasses of Metadata")
+
+    def getMainDescription(self):
+        raise NotImplementedError("getMainDescription() must be implemented by subclasses of Metadata")
 
 class OaiPmhMetadata(Metadata):
     """ Base class and interface for all OAI-PMH-based Metadata objects
     """
-
 
     def _initialize(self, oaipmh):
         """ Initializes the md attribute from an XML-encoded OAI-PMH response
@@ -97,3 +101,12 @@ class DataCiteMetadata(OaiPmhMetadata):
     @property
     def pid(self) -> str:
         return self.md["identifier"]["identifier"]
+    @property
+    def descriptions(self):
+        return self.md["descriptions"]["description"]
+
+    def getMainDescription(self):
+        for d in self.descriptions:
+            if d["@descriptionType"] == "Abstract":
+                return d["#text"]
+        return None
