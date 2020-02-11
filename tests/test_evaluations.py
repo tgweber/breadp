@@ -11,7 +11,7 @@ from unittest import mock
 
 from util import mocked_requests_get
 from breadp.evaluations.doi import DoiEvaluation
-from breadp.evaluations.datacite import DescriptionEvaluation
+from breadp.evaluations.metadata import DescriptionEvaluation
 from breadp.rdp.rdp import RdpFactory, Rdp
 
 # Tests the PID check
