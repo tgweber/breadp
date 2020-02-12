@@ -31,7 +31,7 @@ def test_description_evaluation(mock_get, mock_head):
     rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
     e.evaluate(rdp)
     assert len(e.log) == 1
-    assert e.log.log[-1].evaluation == round(14/14,10)
+    assert e.log.log[-1].evaluation == 1
 
     rdp = RdpFactory.create("10.5281/zenodo.badex1", "zenodo", token="123")
     e.evaluate(rdp)
@@ -45,3 +45,13 @@ def test_description_evaluation(mock_get, mock_head):
 #        print("{}: {} - {}".format(c.success,c.result.outcome, c.log.log[-1].msg))
     assert len(e.log) == 3
     assert e.log.log[-1].evaluation == round(9/14,10)
+
+# Test the Title Evaluation
+@mock.patch('requests.get', side_effect=mocked_requests_get)
+@mock.patch('requests.head', side_effect=mocked_requests_head)
+def test_title_evaluation(mock_get, mock_head):
+    e = TitleEvaluation(2)
+    rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
+    e.evaluate(rdp)
+    assert len(e.log) == 1
+    assert e.log.log[-1].evaluation == 1

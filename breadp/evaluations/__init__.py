@@ -86,35 +86,125 @@ class SimpleAndEvaluation(Evaluation):
                 return 0
         return 1
 
-class MandatoryRecommendedEvaluation(Evaluation):
-    def __init__(self, mandatory_check_weight = 2):
+class EvaluationPart(object):
+    """ This class is the base interface for parts of evaluations
+
+    Attributes
+    ---------
+    weight: int
+        Indicates how this evaluation part should be weighted 1
+        is the default and results in a weight 1/#EvaluationParts
+    score: float
+        Score of this part of the evaluation, value between 0 and 1
+        Defaults to -1 before evaluate_part was called
+    """
+    def __init__(self, int: weight=1):
+        self.weight = weight
+        self.score = 0
+
+    def evaluate_part(self):
+        raise NotImplementedError("evaluate_part must be implemented by a subclass")
+
+class SingleCheckEvaluationPart(EvaluationPart):
+   """ This is an evaluation part which only consists of one check.
+
+   Attributes
+   ---------
+   check: Check
+        Check to be evaluated.
+   """
+   def __init__(self, Check: check, int: weight=1):
+       EvaluationPart.__init__(self, weight)
+       self.check = check
+
+   def evaluate_part(self):
+       if not self.check.success:
+           return 0
+       else:
+           self._evaluate_part()
+
+   def _evaluate_part(self):
+       raise NotImplementedError("_evaluate_part must be implemented by a subclass")
+
+class IsBetweenEvaluationPart(SingleCheckEvaluationPart):
+    """ The more of the results are between the (included) bounds, the higher
+        the score
+
+    Attributes
+    ----------
+    low: float
+        Lower bound of the comparison (the lower bound is included in the comparison)
+    high: float
+        Higher bound of the comparison (the higher bound is included in the comparison)
+    """
+    def __init__(self, Check: check, float: low, float: high, int: weight=1):
+        SingleCheckEvaluationPart(self, check, weight)
+        self.low = low
+        self.high = high
+
+    def _evaluate_part(self):
+        if isinstance(self.check.result, MetricResult):
+            if self.low <= self.check.result.outcome <= self.high:
+                return 1
+            else:
+                return 0
+        if isinstance(self.check.result, ListResult):
+            w = 1/len(self.check.result.outcome)
+            score = 0
+            for r in self.check.result.outcome:
+                if self.low <= r <= self.high:
+                    score += w
+            return score
+
+class IsOrContainsEvaluationPart(SingleCheckEvaluationPart):
+    """ evaluates to 1 if the given item is identical to the result of the checkor is
+        contained in a ListResult, 0 otherwise.
+
+    comparatum: div
+        object to compare to
+    """
+    def __init__(self, Check: check, comparatum, int: weight=1):
+        SingleCheckEvaluationPart(self, check, weight)
+        self.comparatum = comparatum
+
+    def _evaluate_part(self):
+        if isinstance(self.check.result, ListResult):
+            for r in self.check.result.outcome:
+                if r == self.comparatum:
+                    return 1
+            return 0
+        if self.comparatum == self.check.result.outcome:
+            return 1
+        return 0
+
+class IsNotOrDoesNotContainEvaluationPart(SingleCheckEvaluationPart):
+    """ evaluates to 0 if the given item is identical to the result of the check or is
+        contained in a ListResult, 1 otherwise.
+    """
+    def __init__(self, Check: check, comparatum, int: weight=1):
+        SingleCheckEvaluationPart(self, check, weight)
+        self.complement = IsOrContainsEvaluationPart(check, comparatum, weight)
+
+    def _evaluate_part(Self):
+        return 1 - self.complement._evaluate_part()
+
+class CompositeEvaluation(Evaluation, BatchEvaluation):
+    """ Evaluation that is composed of EvaluationParts
+    """
+    def __init__(self):
         Evaluation.__init__(self)
-        self.mandatory_checks = []
-        self.mandatory_check_weight = mandatory_check_weight
-        self.evaluation_score_part = 1
+        self.evaluation_parts = []
+        self.total_weights = 0
 
-    def _calculate_evaluation_weights(self, additional_score_parts=0):
-        """ This function sets self.evaluation_score_part, i.e.
-        the weight a part of the evaluation has (typically identical
-        with test of one non-mandatory check). Mandatory checks get an
-        additional weight of mandatory_check_weight times higher than
-        the evaluation_score_part (defaults to 2).
+    def add_evaluation_part(self, EvaluationPart: ep):
+        # Checks are only added once, even if different evaluation parts
+        # use the same check!
+        self.checks[type(ep.check).__name__] = ep.check
+        self.evaluation_parts.append(ep)
+        self.total_weights += ep.weight
 
-        Arguments
-        ---------
-        additional_score_parts: int
-            Determines the number of non-mandatory checks which have one
-            additional evaluation_score_part (i.e. the check's result is used
-            twice). Each additional usage increases this value.
-        """
-        evaluation_part_with_single_weight = len(self.checks) \
-                + additional_score_parts \
-                - len(self.mandatory_checks)
-        total_evaluation_parts = evaluation_part_with_single_weight \
-               + len(self.mandatory_checks) * self.mandatory_check_weight
-
-        self.evaluation_score_part = 1 / total_evaluation_parts
-
-    def _add_mandatory_check(self, check):
-        self.checks[type(check).__name__] = check
-        self.mandatory_checks.append(type(check).__name__)
+    def _do_evaluate(self, rdp):
+        score = 0
+        for ep in self.evaluation_parts:
+            score += ep.evaluate_part() * (ep.weight/self.total_weights)
+        return score
