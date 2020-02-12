@@ -38,10 +38,10 @@ def test_description_evaluation(mock_get, mock_head):
     assert len(e.log) == 2
     assert e.log.log[-1].evaluation == 0
 
+
     rdp = RdpFactory.create("10.5281/zenodo.badex2", "zenodo", token="123")
     e.evaluate(rdp)
-
-    for c in e.checks.values():
-        print("{}: {} - {}".format(c.success,c.result.outcome, c.log.log[-1].msg))
+#    for c in e.checks.values():
+#        print("{}: {} - {}".format(c.success,c.result.outcome, c.log.log[-1].msg))
     assert len(e.log) == 3
     assert e.log.log[-1].evaluation == round(9/14,10)
