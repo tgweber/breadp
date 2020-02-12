@@ -36,7 +36,7 @@ class DescriptionEvaluation(BatchEvaluation, MandatoryRecommendedEvaluation):
             c.check(rdp)
             self.checks["DataCiteDescriptionTypeCheck"] = c
 
-        self._calculate_evaluation_weights()
+        self._calculate_evaluation_weights(1)
 
         num_of_descriptions = self.checks["DescriptionsNumberCheck"].result.outcome
         if num_of_descriptions > 0:
@@ -66,5 +66,7 @@ class DescriptionEvaluation(BatchEvaluation, MandatoryRecommendedEvaluation):
                 if dt not in ("Abstract", "Methods", "TechnicalInfo"):
                     add = 0
             evaluation += add
+            if "Abstract" in self.checks["DataCiteDescriptionTypeCheck"].result.outcome:
+                evaluation += self.evaluation_score_part
 
-        return evaluation
+        return round(evaluation,10)

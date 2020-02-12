@@ -94,10 +94,27 @@ class MandatoryRecommendedEvaluation(Evaluation):
         self.mandatory_check_weight = mandatory_check_weight
         self.evaluation_score_part = 1
 
-    def _calculate_evaluation_weights(self):
-        weight_parts = len(self.checks) - len(self.mandatory_checks)  + \
-            len(self.mandatory_checks) * self.mandatory_check_weight
-        self.evaluation_score_part = 1 / weight_parts
+    def _calculate_evaluation_weights(self, additional_score_parts=0):
+        """ This function sets self.evaluation_score_part, i.e.
+        the weight a part of the evaluation has (typically identical
+        with test of one non-mandatory check). Mandatory checks get an
+        additional weight of mandatory_check_weight times higher than
+        the evaluation_score_part (defaults to 2).
+
+        Arguments
+        ---------
+        additional_score_parts: int
+            Determines the number of non-mandatory checks which have one
+            additional evaluation_score_part (i.e. the check's result is used
+            twice). Each additional usage increases this value.
+        """
+        evaluation_part_with_single_weight = len(self.checks) \
+                + additional_score_parts \
+                - len(self.mandatory_checks)
+        total_evaluation_parts = evaluation_part_with_single_weight \
+               + len(self.mandatory_checks) * self.mandatory_check_weight
+
+        self.evaluation_score_part = 1 / total_evaluation_parts
 
     def _add_mandatory_check(self, check):
         self.checks[type(check).__name__] = check

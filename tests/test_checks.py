@@ -179,7 +179,6 @@ def test_main_title_language_check(mock_get):
     assert check.success
     assert check.result.outcome == "en"
 
-
 @mock.patch('requests.get', side_effect=mocked_requests_get)
 def test_main_title_probably_just_a_filename_check(mock_get):
     check = MainTitleProbablyJustAFileNameCheck()
