@@ -59,7 +59,7 @@
               Lebenszyklus-Modelle für Forschungsdaten sind oft abstrakt und einfach. Hierin liegt die Gefahr, ein zu einfaches Bild der komplexen Forschungsdatenlandschaft zu zeichnen. Die Analyse von 90 dieser Modelle führt zu zwei Ansätzen, die Qualität dieser Modelle zu bewerten. Die Uneinheitlichkeit in der Terminologie erschwert einen direkten Vergleich zwischen den Modellen, wohingegen eine empirische Evaluierung der Modelle in Reichweite liegt.
           </description>
 
-            <description descriptionType="Other">Python, tensorflow, ipython</description>
+            <description descriptionType="Other">Python, tensorflow, ipython this is English. Methods are important. See our paper on importance of methods.</description>
           </descriptions>
         </resource>
       </metadata>

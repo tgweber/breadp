@@ -32,47 +32,53 @@ class DescriptionsNumberCheck(Check):
     def _do_check(self, rdp):
         return(True, MetricResult(len(rdp.metadata.descriptions), ""))
 
-class MainDescriptionLengthCheck(Check):
-    """ Checks the length of the main description in words
+class DescriptionsLengthCheck(Check):
+    """ Checks the length of all description in words
 
     Methods
     -------
     _do_check(self, rdp)
-        returns a MetricResult
+        returns a ListResult (of length values in words)
     """
     def __init__(self):
         Check.__init__(self)
         self.id = 3
         self.version = "0.0.1"
-        self.desc = "checks how many words are in the main description "
+        self.desc = "checks how many words are in each description"
 
     def _do_check(self, rdp):
-        md = rdp.metadata.getMainDescription()
-        if md is None:
-            msg = "No main description was identifyable"
-            return(False, MetricResult(float("nan"), msg))
-        return(True, MetricResult(len(rdp.metadata.getMainDescription().split()), ""))
+        lengths = []
+        success = False
+        msg = "No descriptions retrievable"
+        for d in rdp.metadata.descriptions:
+            success = True
+            msg = ""
+            lengths.append(len(d["#text"].split()))
+        return(success, ListResult(lengths, msg))
 
-class MainDescriptionLanguageCheck(Check):
-    """ Checks the language of the main description
+class DescriptionsLanguageCheck(Check):
+    """ Checks the language of the descriptions
 
     Methods
     -------
     _do_check(self, rdp)
-        returns a CategoricalResult (ISO-639-1 code)
+        returns a ListResult (of strings with ISO-639-1 codes)
     """
     def __init__(self):
         Check.__init__(self)
         self.id = 4
         self.version = "0.0.1"
-        self.desc = "checks the language of the main description"
+        self.desc = "checks the language of the descriptions"
 
     def _do_check(self, rdp):
-        md = rdp.metadata.getMainDescription()
-        if md is None:
-            msg = "No main description was identifyable"
-            return(True, CategoricalResult("", msg))
-        return(True, CategoricalResult(detect(md), ""))
+        languages = []
+        success = False
+        msg = "No descriptions retrievable"
+        for d in rdp.metadata.descriptions:
+            success = True
+            msg = ""
+            languages.append(detect(d["#text"]))
+        return(success, ListResult(languages, msg))
 
 class DataCiteDescriptionsTypeCheck(Check):
     """ Checks all description types of DataCite metadata

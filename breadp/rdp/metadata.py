@@ -34,11 +34,6 @@ class Metadata(object):
     def titles(self):
         raise NotImplementedError("titles must be implemented by subclasses of Metadata")
 
-    def getMainDescription(self):
-        raise NotImplementedError("getMainDescription() must be implemented by subclasses of Metadata")
-    def getMainTitle(self):
-        raise NotImplementedError("getMainTitle() must be implemented by subclasses of Metadata")
-
 class OaiPmhMetadata(Metadata):
     """ Base class and interface for all OAI-PMH-based Metadata objects
     """
@@ -120,12 +115,6 @@ class DataCiteMetadata(OaiPmhMetadata):
     def titles(self):
         if "titles" in self.md.keys():
             return self.md["titles"]
-        return None
-
-    def getMainDescription(self):
-        for d in self.descriptions:
-            if d["@descriptionType"] == "Abstract":
-                return d["#text"]
         return None
 
     def getMainTitle(self):

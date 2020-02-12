@@ -11,10 +11,10 @@ from breadp.evaluations import BatchEvaluation, \
         MandatoryRecommendedEvaluation, \
         SimpleAndEvaluation
 from breadp.rdp.metadata import DataCiteMetadata
-from breadp.checks.metadata import DescriptionsNumberCheck, \
-    MainDescriptionLengthCheck, \
-    MainDescriptionLanguageCheck, \
-    DataCiteDescriptionsTypeCheck
+from breadp.checks.metadata import     DataCiteDescriptionsTypeCheck, \
+    DescriptionsLengthCheck, \
+    DescriptionsLanguageCheck, \
+    DescriptionsNumberCheck
 
 class DescriptionEvaluation(BatchEvaluation, MandatoryRecommendedEvaluation):
     """ Evaluation for descriptions of the metadata of an RDP
@@ -24,10 +24,9 @@ class DescriptionEvaluation(BatchEvaluation, MandatoryRecommendedEvaluation):
         MandatoryRecommendedEvaluation.__init__(self, mandatory_check_weight)
         self.version = "0.0.1"
         self.id = 1
-
         self._add_mandatory_check(DescriptionsNumberCheck())
-        self._add_mandatory_check(MainDescriptionLengthCheck())
-        self._add_mandatory_check(MainDescriptionLanguageCheck())
+        self._add_mandatory_check(DescriptionsLengthCheck())
+        self._add_mandatory_check(DescriptionsLanguageCheck())
 
     def _do_evaluate(self, rdp):
         evaluation = 0
@@ -39,12 +38,27 @@ class DescriptionEvaluation(BatchEvaluation, MandatoryRecommendedEvaluation):
 
         self._calculate_evaluation_weights()
 
-        if self.checks["DescriptionsNumberCheck"].result.outcome > 0:
+        num_of_descriptions = self.checks["DescriptionsNumberCheck"].result.outcome
+        if num_of_descriptions > 0:
             evaluation += self.evaluation_score_part * self.mandatory_check_weight
-        if self.checks["MainDescriptionLengthCheck"].result.outcome < 300:
-            evaluation += self.evaluation_score_part * self.mandatory_check_weight
-        if self.checks["MainDescriptionLanguageCheck"].result.outcome == "en":
-            evaluation += self.evaluation_score_part * self.mandatory_check_weight
+        else:
+            return 0
+
+        partial_factor_descriptionsLengthCheck = 0
+        partial_factor_descriptionsLanguageCheck = 0
+        for i in range(0, num_of_descriptions):
+            if self.checks["DescriptionsLengthCheck"].result.outcome[i] < 300:
+                partial_factor_descriptionsLengthCheck += 1 / num_of_descriptions
+            if self.checks["DescriptionsLanguageCheck"].result.outcome[i] == "en":
+                partial_factor_descriptionsLanguageCheck += 1 / num_of_descriptions
+
+        evaluation += partial_factor_descriptionsLengthCheck \
+                * self.evaluation_score_part \
+                * self.mandatory_check_weight
+
+        evaluation += partial_factor_descriptionsLanguageCheck \
+                * self.evaluation_score_part \
+                * self.mandatory_check_weight
 
         if type(rdp.metadata) == DataCiteMetadata:
             add = self.evaluation_score_part

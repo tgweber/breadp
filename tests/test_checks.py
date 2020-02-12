@@ -15,8 +15,8 @@ from util import mocked_requests_get, mocked_requests_head, base_init_check_test
 from breadp.checks import IsValidDoiCheck, DoiResolvesCheck
 from breadp.checks.metadata import DataCiteDescriptionsTypeCheck, \
         DescriptionsNumberCheck, \
-        MainDescriptionLanguageCheck, \
-        MainDescriptionLengthCheck, \
+        DescriptionsLanguageCheck, \
+        DescriptionsLengthCheck, \
         MainTitleLanguageCheck, \
         MainTitleLengthCheck, \
         MainTitleProbablyJustAFileNameCheck, \
@@ -96,36 +96,38 @@ def test_descriptions_number_check(mock_get):
     assert check.result.outcome == 0
 
 @mock.patch('requests.get', side_effect=mocked_requests_get)
-def test_main_description_length_check(mock_get):
-    check = MainDescriptionLengthCheck()
+def test_descriptions_length_check(mock_get):
+    check = DescriptionsLengthCheck()
     assert base_init_check_test(check, 3)
 
     # Successful check
     rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
     check.check(rdp)
     assert check.success
-    assert check.result.outcome == 69
+    assert check.result.outcome[0] == 69
+    assert check.result.outcome[1] == 3
 
     rdp = RdpFactory.create("10.5281/zenodo.badex1", "zenodo", token="123")
     check.check(rdp)
     assert not check.success
-    assert math.isnan(check.result.outcome)
+    assert len(check.result.outcome) == 0
 
 @mock.patch('requests.get', side_effect=mocked_requests_get)
-def test_main_description_language_check(mock_get):
-    check = MainDescriptionLanguageCheck()
+def test_descriptions_language_check(mock_get):
+    check = DescriptionsLanguageCheck()
     assert base_init_check_test(check, 4)
 
     # Successful check
     rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
     check.check(rdp)
     assert check.success
-    assert check.result.outcome == "en"
+    assert len(check.result.outcome) == 2
+    assert check.result.outcome[0] == "en"
 
     rdp = RdpFactory.create("10.5281/zenodo.badex2", "zenodo", token="123")
     check.check(rdp)
     assert check.success
-    assert check.result.outcome == "de"
+    assert check.result.outcome[0] == "de"
 
 @mock.patch('requests.get', side_effect=mocked_requests_get)
 def test_datacite_descriptions_types_check(mock_get):
