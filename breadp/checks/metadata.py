@@ -53,7 +53,7 @@ class DescriptionsLengthCheck(Check):
         for d in rdp.metadata.descriptions:
             success = True
             msg = ""
-            lengths.append(len(d["#text"].split()))
+            lengths.append(len(d.text.split()))
         return(success, ListResult(lengths, msg))
 
 class DescriptionsLanguageCheck(Check):
@@ -77,7 +77,7 @@ class DescriptionsLanguageCheck(Check):
         for d in rdp.metadata.descriptions:
             success = True
             msg = ""
-            languages.append(detect(d["#text"]))
+            languages.append(detect(d.text))
         return(success, ListResult(languages, msg))
 
 class DataCiteDescriptionsTypeCheck(Check):
@@ -98,7 +98,8 @@ class DataCiteDescriptionsTypeCheck(Check):
     def _do_check(self, rdp):
         types = []
         for d in rdp.metadata.descriptions:
-            types.append(d["@descriptionType"])
+            if d.type:
+                types.append(d.type)
         return (True, ListResult(types, ""))
 
 class TitlesNumberCheck(Check):
@@ -121,13 +122,13 @@ class TitlesNumberCheck(Check):
             return(False, MetricResult(float(0), msg))
         return(True, MetricResult(len(rdp.metadata.titles), ""))
 
-class MainTitleLengthCheck(Check):
-    """ Checks the length of the main title in words
+class TitlesLengthCheck(Check):
+    """ Checks the length of all titles (in words)
 
     Methods
     -------
     _do_check(self, rdp)
-        returns a MetricResult
+        returns a ListResult (of all title lengths in words as int)
     """
     def __init__(self):
         Check.__init__(self)
@@ -136,19 +137,22 @@ class MainTitleLengthCheck(Check):
         self.desc = "checks how many words the main title has"
 
     def _do_check(self, rdp):
-        mt = rdp.metadata.getMainTitle()
-        if mt is None:
-            msg = "No main title was identifyable"
-            return(True, MetricResult(float("nan"), msg))
-        return(True, MetricResult(len(rdp.metadata.getMainTitle().split()), ""))
+        lengths = []
+        success = False
+        msg = "No titles retrievable"
+        for t in rdp.metadata.titles:
+            success = True
+            msg = ""
+            lengths.append(len(t.text.split()))
+        return(success, ListResult(lengths, msg))
 
-class MainTitleLanguageCheck(Check):
-    """ Checks the language of the main title
+class TitlesLanguageCheck(Check):
+    """ Checks the language of all titles title
 
     Methods
     -------
     _do_check(self, rdp)
-        returns a CategoricalResult (ISO-639-1 code)
+        returns a ListResult (of str encoding ISO-639-1 codes)
     """
     def __init__(self):
         Check.__init__(self)
@@ -157,19 +161,23 @@ class MainTitleLanguageCheck(Check):
         self.desc = "checks the language of the main title"
 
     def _do_check(self, rdp):
-        mt = rdp.metadata.getMainTitle()
-        if mt is None:
-            msg = "No main title was identifyable"
-            return(True, CategoricalResult("", msg))
-        return(True, CategoricalResult(detect(mt), ""))
+        languages = []
+        success = False
+        msg = "No titles retrievable"
+        for t in rdp.metadata.titles:
+            success = True
+            msg = ""
+            languages.append(detect(t.text))
+        return(success, ListResult(languages, msg))
 
-class MainTitleProbablyJustAFileNameCheck(Check):
-    """ Checks whether the main title is (probably) just a file name
+class TitlesJustAFileNameCheck(Check):
+    """ Checks whether the titles are (probably) just a file names
 
     Methods
     -------
     _do_check(self, rdp)
-        returns a BooleanResult
+        returns a ListResult (of bools indicating whether the title is probably
+        just a file name)
     """
     def __init__(self):
         Check.__init__(self)
@@ -178,11 +186,17 @@ class MainTitleProbablyJustAFileNameCheck(Check):
         self.desc = "checks whether the main title is probably just a file name"
 
     def _do_check(self, rdp):
-        mt = rdp.metadata.getMainTitle()
-        if mt is None:
-            msg = "No main title was identifyable"
-            return(True, BooleanResult(False, msg))
-        if re.match("^\s*\S+\.\S+\s*$", mt):
-            msg = "{} is probably just a file name".format(mt)
-            return(True, BooleanResult(True, msg))
-        return (True, BooleanResult(False, ""))
+        bools = []
+        success = False
+        msg = ""
+        if len(rdp.metadata.titles) == 0:
+            msg = "No titles retrievable"
+        for t in rdp.metadata.titles:
+            success = True
+            msg = ""
+            if re.match("^\s*\S+\.\S+\s*$", t.text):
+                msg += "{} is probably just a file name;".format(t.text)
+                bools.append(True)
+            else:
+                bools.append(False)
+        return(success, ListResult(bools, msg))

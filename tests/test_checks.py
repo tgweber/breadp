@@ -17,9 +17,9 @@ from breadp.checks.metadata import DataCiteDescriptionsTypeCheck, \
         DescriptionsNumberCheck, \
         DescriptionsLanguageCheck, \
         DescriptionsLengthCheck, \
-        MainTitleLanguageCheck, \
-        MainTitleLengthCheck, \
-        MainTitleProbablyJustAFileNameCheck, \
+        TitlesJustAFileNameCheck, \
+        TitlesLanguageCheck, \
+        TitlesLengthCheck, \
         TitlesNumberCheck
 
 from breadp.rdp.rdp import RdpFactory, Rdp
@@ -150,7 +150,7 @@ def test_titles_number_check(mock_get):
     rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
     check.check(rdp)
     assert check.success
-    assert check.result.outcome == 1
+    assert check.result.outcome == 2
 
     rdp = RdpFactory.create("10.5281/zenodo.badex1", "zenodo", token="123")
     check.check(rdp)
@@ -158,39 +158,53 @@ def test_titles_number_check(mock_get):
     assert check.result.outcome == 0
 
 @mock.patch('requests.get', side_effect=mocked_requests_get)
-def test_main_title_length_check(mock_get):
-    check = MainTitleLengthCheck()
+def test_titles_length_check(mock_get):
+    check = TitlesLengthCheck()
     assert base_init_check_test(check, 7)
 
     # Successful check
     rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
     check.check(rdp)
     assert check.success
-    assert check.result.outcome == 20
+    assert len(check.result.outcome) == 2
+    assert check.result.outcome[0] == 20
+    assert check.result.outcome[1] == 12
+
+    rdp = RdpFactory.create("10.5281/zenodo.badex1", "zenodo", token="123")
+    check.check(rdp)
+    assert not check.success
 
 @mock.patch('requests.get', side_effect=mocked_requests_get)
-def test_main_title_language_check(mock_get):
-    check = MainTitleLanguageCheck()
+def test_titles_language_check(mock_get):
+    check = TitlesLanguageCheck()
     assert base_init_check_test(check, 8)
 
     # Successful check
     rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
     check.check(rdp)
     assert check.success
-    assert check.result.outcome == "en"
+    assert len(check.result.outcome) == 2
+    assert check.result.outcome[0] == "en"
+    assert check.result.outcome[1] == "de"
+
+    rdp = RdpFactory.create("10.5281/zenodo.badex1", "zenodo", token="123")
+    check.check(rdp)
+    assert not check.success
 
 @mock.patch('requests.get', side_effect=mocked_requests_get)
-def test_main_title_probably_just_a_filename_check(mock_get):
-    check = MainTitleProbablyJustAFileNameCheck()
+def test_titles_just_a_filename_check(mock_get):
+    check = TitlesJustAFileNameCheck()
     assert base_init_check_test(check, 9)
 
     # Successful check
     rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
     check.check(rdp)
     assert check.success
-    assert not check.result.outcome
+    assert len(check.result.outcome) == 2
+    for o in check.result.outcome:
+        assert not o
 
     rdp = RdpFactory.create("10.5281/zenodo.badex2", "zenodo", token="123")
     check.check(rdp)
     assert check.success
-    assert check.result.outcome
+    assert check.result.outcome[0]

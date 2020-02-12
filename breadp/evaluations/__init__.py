@@ -83,7 +83,6 @@ class SimpleAndEvaluation(Evaluation):
             if not isinstance(check.result, BooleanResult):
                 return 0
             if not check.result.outcome:
-                print(check.result.context)
                 return 0
         return 1
 

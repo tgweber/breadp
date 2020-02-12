@@ -10,7 +10,7 @@ from breadp.evaluations import BatchEvaluation, \
         Evaluation, \
         MandatoryRecommendedEvaluation, \
         SimpleAndEvaluation
-from breadp.rdp.metadata import DataCiteMetadata
+from breadp.rdp.metadata.datacite import DataCiteMetadata
 from breadp.checks.metadata import     DataCiteDescriptionsTypeCheck, \
     DescriptionsLengthCheck, \
     DescriptionsLanguageCheck, \

@@ -20,8 +20,6 @@ class Log(object):
     def get_by_pid(self, pid):
         rv = []
         for le in self.log:
-            import pprint
-            pprint.pprint(le)
             if le.pid == pid:
                 rv.append(le)
         return rv

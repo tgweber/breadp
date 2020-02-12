@@ -12,7 +12,8 @@ import os
 from unittest import mock
 import pytest
 
-from breadp.rdp.metadata import DataCiteMetadata, MetadataFactory
+from breadp.rdp.metadata.datacite import DataCiteMetadata
+from breadp.rdp.metadata.factory import MetadataFactory
 from breadp.rdp.data import CSVData
 from breadp.rdp.services import OaipmhService, ZenodoRestService, Service
 from breadp.rdp.rdp import RdpFactory, Rdp
@@ -62,11 +63,52 @@ def test_rdp_unspecified():
 # Checks the functionality of a zenodo RDP
 @mock.patch('requests.get', side_effect=mocked_requests_get)
 def test_rdp_zenodo(mock_get):
+    # "good" example (n fields, some with params) --> artefacts/md001.xml
     rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
     assert rdp.pid == "10.5281/zenodo.3490396"
     assert rdp.metadata.pid == "10.5281/zenodo.3490396"
-    import pprint
-    pprint.pprint(rdp.metadata.descriptions)
     assert len(rdp.metadata.descriptions) > 0
-    assert len(rdp.metadata.descriptions[0]["#text"]) > 15
+    assert len(rdp.metadata.descriptions[0].text) > 15
+    assert rdp.metadata.descriptions[0].type == "Abstract"
+    assert len(rdp.metadata.titles) == 2
+    assert rdp.metadata.titles[0].type is None
+    assert rdp.metadata.titles[0].text == "s-sized Training and Evaluation" \
+        "  Data for Publication \"Using Supervised Learning to Classify Metadata of" \
+        " Research Data by Discipline of Research\""
+    assert rdp.metadata.titles[1].type == "TranslatedTitle"
+    assert rdp.metadata.titles[1].text == "Irgend ein deutscher Titel mit einem" \
+            " Hinweis, wie toll die Publikation ist."
     assert len(rdp.data) == 2
+
+    # Test "bad" example (empty fields) --> artefacts/002.xml
+    rdp = RdpFactory.create("10.5281/zenodo.badex1", "zenodo", token="123")
+    assert len(rdp.metadata.descriptions) == 0
+    assert len(rdp.metadata.titles) == 0
+
+    # Test another setup (one field with params) --> artefacts/003.xml
+    rdp = RdpFactory.create("10.5281/zenodo.badex2", "zenodo", token="123")
+    assert len(rdp.metadata.titles) == 1
+    assert rdp.metadata.titles[0].text == "survey.csv"
+    assert rdp.metadata.titles[0].type == "TranslatedTitle"
+
+    # Test another setup (one field without params) --> artefacts/004.xml
+    rdp = RdpFactory.create("10.5281/zenodo.badex3", "zenodo", token="123")
+    assert len(rdp.metadata.titles) == 1
+    assert rdp.metadata.titles[0].text == "One Title in English, no params"
+    assert rdp.metadata.titles[0].type is None
+
+    # Test another setup (n fields none with params) --> artefacts/005.xml
+    rdp = RdpFactory.create("10.5281/zenodo.badex4", "zenodo", token="123")
+    assert len(rdp.metadata.titles) == 2
+    assert rdp.metadata.titles[0].text == "Several titles, none with params"
+    assert rdp.metadata.titles[0].type is None
+    assert rdp.metadata.titles[1].text == "Einige Titel, keiner mit Parametern"
+    assert rdp.metadata.titles[1].type is None
+
+    # Test another setup (n fields all with params) --> artefacts/006.xml
+    rdp = RdpFactory.create("10.5281/zenodo.badex5", "zenodo", token="123")
+    assert len(rdp.metadata.titles) == 2
+    assert rdp.metadata.titles[0].text == "Two titles, one without params"
+    assert rdp.metadata.titles[0].type is None
+    assert rdp.metadata.titles[1].text == "Und einer mit einem Parameter"
+    assert rdp.metadata.titles[1].type == "TranslatedTitle"

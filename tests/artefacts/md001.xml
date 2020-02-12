@@ -20,7 +20,8 @@
             </creator>
           </creators>
           <titles>
-            <title>s-sized Training and Evaluation  Data for Publication "Using Supervised Learning to Classify Metadata of Research Data by Discipline of Research"</title>
+            <title xml:lang="en">s-sized Training and Evaluation  Data for Publication "Using Supervised Learning to Classify Metadata of Research Data by Discipline of Research"</title>
+            <title titleType="TranslatedTitle">Irgend ein deutscher Titel mit einem Hinweis, wie toll die Publikation ist.</title>
           </titles>
           <publisher>Zenodo</publisher>
           <publicationYear>2019</publicationYear>

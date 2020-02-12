@@ -9,7 +9,7 @@
 import requests
 from typing import Generator
 
-from breadp.rdp.metadata import MetadataFactory, Metadata
+from breadp.rdp.metadata.factory import MetadataFactory, Metadata
 from breadp.rdp.data import DataFactory, Data
 from breadp.util.util import Bundle
 

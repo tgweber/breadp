@@ -20,7 +20,7 @@
             </creator>
           </creators>
           <titles>
-            <title titleType="TranslatedTitle">survey.csv  </title>
+            <title>One Title in English, no params</title>
           </titles>
           <publisher>Zenodo</publisher>
           <publicationYear>2019</publicationYear>
@@ -47,19 +47,8 @@
             <rights rightsURI="info:eu-repo/semantics/openAccess">Open Access</rights>
           </rightsList>
           <descriptions>
-              <description descriptionType="Abstract">Dies ist ein deutscher Abstrakt,
-                  auch wenn Worte wie check oder evaluation vorkommen. Im Endeffekt zählt hoffentlich die Mehrzahl der Worte. Hier ein weiterer Satz. Und noch einer. Dieser Abstract muss über 300 Worte lang werden. Dann schlägt der Test fehl. So richtig fehl. Dann läuten die Alarmglocken und es geht jählings hinab in das Höllenreich der niedrigen Metrics scores. So viele kleine Wörter fehlen noch,
-              daher ein kleines Eigenzitat: 
-              Lebenszyklus-Modelle für Forschungsdaten sind oft abstrakt und einfach. Hierin liegt die Gefahr, ein zu einfaches Bild der komplexen Forschungsdatenlandschaft zu zeichnen. Die Analyse von 90 dieser Modelle führt zu zwei Ansätzen, die Qualität dieser Modelle zu bewerten. Die Uneinheitlichkeit in der Terminologie erschwert einen direkten Vergleich zwischen den Modellen, wohingegen eine empirische Evaluierung der Modelle in Reichweite liegt.
-
-              Lebenszyklus-Modelle für Forschungsdaten sind oft abstrakt und einfach. Hierin liegt die Gefahr, ein zu einfaches Bild der komplexen Forschungsdatenlandschaft zu zeichnen. Die Analyse von 90 dieser Modelle führt zu zwei Ansätzen, die Qualität dieser Modelle zu bewerten. Die Uneinheitlichkeit in der Terminologie erschwert einen direkten Vergleich zwischen den Modellen, wohingegen eine empirische Evaluierung der Modelle in Reichweite liegt.
-
-              Lebenszyklus-Modelle für Forschungsdaten sind oft abstrakt und einfach. Hierin liegt die Gefahr, ein zu einfaches Bild der komplexen Forschungsdatenlandschaft zu zeichnen. Die Analyse von 90 dieser Modelle führt zu zwei Ansätzen, die Qualität dieser Modelle zu bewerten. Die Uneinheitlichkeit in der Terminologie erschwert einen direkten Vergleich zwischen den Modellen, wohingegen eine empirische Evaluierung der Modelle in Reichweite liegt.
-
-              Lebenszyklus-Modelle für Forschungsdaten sind oft abstrakt und einfach. Hierin liegt die Gefahr, ein zu einfaches Bild der komplexen Forschungsdatenlandschaft zu zeichnen. Die Analyse von 90 dieser Modelle führt zu zwei Ansätzen, die Qualität dieser Modelle zu bewerten. Die Uneinheitlichkeit in der Terminologie erschwert einen direkten Vergleich zwischen den Modellen, wohingegen eine empirische Evaluierung der Modelle in Reichweite liegt.
-          </description>
-
-            <description descriptionType="Other">Python, tensorflow, ipython this is English. Methods are important. See our paper on importance of methods.</description>
+            <description descriptionType="Abstract">&lt;p&gt;Automated classification of metadata of research data by their discipline(s) of research can be used in scientometric research, by repository service providers, and in the context of research data aggregation services. Openly available metadata of the DataCite index for research data were used to compile a large training and evaluation set comprised of 609,524 records. This is the cleaned and vectorized version with a feature selection of small size.&lt;/p&gt;</description>
+            <description descriptionType="TechnicalInfo">Python, tensorflow, ipython</description>
           </descriptions>
         </resource>
       </metadata>
