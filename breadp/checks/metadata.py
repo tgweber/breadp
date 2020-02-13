@@ -97,6 +97,8 @@ class DataCiteDescriptionsTypeCheck(Check):
 
     def _do_check(self, rdp):
         types = []
+        if len(rdp.metadata.descriptions) == 0:
+            return(False, ListResult(types, "No descriptions retrievable"))
         for d in rdp.metadata.descriptions:
             if d.type:
                 types.append(d.type)
@@ -200,3 +202,27 @@ class TitlesJustAFileNameCheck(Check):
             else:
                 bools.append(False)
         return(success, ListResult(bools, msg))
+
+class TitlesTypeCheck(Check):
+    """ Checks the types of all titles (None if not given)
+
+    Methods
+    -------
+    _do_check(self, rdp)
+        returns a ListResult (of all types of titles as str)
+    """
+    def __init__(self):
+        Check.__init__(self)
+        self.id = 10
+        self.version = "0.0.1"
+        self.desc = "checks what types the titles have"
+
+    def _do_check(self, rdp):
+        types = []
+        success = False
+        msg = "No titles retrievable"
+        for t in rdp.metadata.titles:
+            success = True
+            msg = ""
+            types.append(t.type)
+        return(success, ListResult(types, msg))

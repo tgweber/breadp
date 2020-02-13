@@ -7,11 +7,11 @@
 #
 ################################################################################
 
-from collections import OrderedDict
+from collections import Counter, OrderedDict
 from datetime import datetime
 
 from breadp.util.log import Log, EvaluationLogEntry
-from breadp.checks.result import BooleanResult
+from breadp.checks.result import BooleanResult, ListResult, MetricResult
 
 class Evaluation(object):
     """ Base class and interface to evaluate RDPs
@@ -98,7 +98,7 @@ class EvaluationPart(object):
         Score of this part of the evaluation, value between 0 and 1
         Defaults to -1 before evaluate_part was called
     """
-    def __init__(self, int: weight=1):
+    def __init__(self, weight=1):
         self.weight = weight
         self.score = 0
 
@@ -113,7 +113,7 @@ class SingleCheckEvaluationPart(EvaluationPart):
    check: Check
         Check to be evaluated.
    """
-   def __init__(self, Check: check, int: weight=1):
+   def __init__(self, check, weight=1):
        EvaluationPart.__init__(self, weight)
        self.check = check
 
@@ -121,7 +121,7 @@ class SingleCheckEvaluationPart(EvaluationPart):
        if not self.check.success:
            return 0
        else:
-           self._evaluate_part()
+           return self._evaluate_part()
 
    def _evaluate_part(self):
        raise NotImplementedError("_evaluate_part must be implemented by a subclass")
@@ -137,8 +137,8 @@ class IsBetweenEvaluationPart(SingleCheckEvaluationPart):
     high: float
         Higher bound of the comparison (the higher bound is included in the comparison)
     """
-    def __init__(self, Check: check, float: low, float: high, int: weight=1):
-        SingleCheckEvaluationPart(self, check, weight)
+    def __init__(self, check, low, high, weight=1):
+        SingleCheckEvaluationPart.__init__(self, check, weight)
         self.low = low
         self.high = high
 
@@ -149,6 +149,8 @@ class IsBetweenEvaluationPart(SingleCheckEvaluationPart):
             else:
                 return 0
         if isinstance(self.check.result, ListResult):
+            if len(self.check.result.outcome) == 0:
+                return 0
             w = 1/len(self.check.result.outcome)
             score = 0
             for r in self.check.result.outcome:
@@ -156,39 +158,103 @@ class IsBetweenEvaluationPart(SingleCheckEvaluationPart):
                     score += w
             return score
 
-class IsOrContainsEvaluationPart(SingleCheckEvaluationPart):
-    """ evaluates to 1 if the given item is identical to the result of the checkor is
-        contained in a ListResult, 0 otherwise.
+class IsIdenticalToEvaluationPart(SingleCheckEvaluationPart):
+    """ evaluates to 1 if the given comparatum is identical to the result of the
+        check, 0 otherwise
 
     comparatum: div
         object to compare to
     """
-    def __init__(self, Check: check, comparatum, int: weight=1):
-        SingleCheckEvaluationPart(self, check, weight)
+    def __init__(self, check, comparatum, weight=1):
+        SingleCheckEvaluationPart.__init__(self, check, weight)
         self.comparatum = comparatum
 
     def _evaluate_part(self):
-        if isinstance(self.check.result, ListResult):
-            for r in self.check.result.outcome:
-                if r == self.comparatum:
-                    return 1
+        if isinstance(self.check.result, ListResult) \
+           and isinstance(self.comparatum, list):
+            if Counter(self.check.result.outcome) == Counter(comparatum):
+                return 1
             return 0
         if self.comparatum == self.check.result.outcome:
             return 1
         return 0
 
-class IsNotOrDoesNotContainEvaluationPart(SingleCheckEvaluationPart):
-    """ evaluates to 0 if the given item is identical to the result of the check or is
-        contained in a ListResult, 1 otherwise.
+class ContainsEvaluationPart(SingleCheckEvaluationPart):
+    """ The score is 1 if all items are contained in the ListResult.
+        Is 0 when the result is not of type ListResult
+
+    items: div
+        object to look for in ListResult
     """
-    def __init__(self, Check: check, comparatum, int: weight=1):
-        SingleCheckEvaluationPart(self, check, weight)
-        self.complement = IsOrContainsEvaluationPart(check, comparatum, weight)
+    def __init__(self, check, items, weight=1):
+        SingleCheckEvaluationPart.__init__(self, check, weight)
+        self.items = items
 
-    def _evaluate_part(Self):
-        return 1 - self.complement._evaluate_part()
+    def _evaluate_part(self):
+        if not isinstance(self.check.result, ListResult):
+            return 0
+        for i in self.items:
+            if i in self.check.result.outcome:
+                return 1
+        return 0
 
-class CompositeEvaluation(Evaluation, BatchEvaluation):
+class DoesNotContainEvaluationPart(SingleCheckEvaluationPart):
+    """ The score is 1 if all items are not contained in the ListResult.
+        Is 0 when the result is not of type ListResult
+
+    items: div
+        object to look for in ListResult
+    """
+    def __init__(self, check, items, weight=1):
+        SingleCheckEvaluationPart.__init__(self, check, weight)
+        self.items = items
+
+    def _evaluate_part(self):
+        if not isinstance(self.check.result, ListResult):
+            return 0
+        for i in self.items:
+            if i in self.check.result.outcome:
+                return 0
+        return 1
+
+class AllTrueEvaluationPart(SingleCheckEvaluationPart):
+    """ The score is 1 if all list items of ListResult are True.
+        0 otherwise, or if the result is not of type ListResult.
+    """
+    def _evaluate_part(self):
+        for r in self.check.result.outcome:
+            if not r:
+               return 0
+        return 1
+
+class AllFalseEvaluationPart(SingleCheckEvaluationPart):
+    """ The score is 1 if all list items of ListResult are False.
+        0 otherwise, or if the result is not of type ListResult.
+    """
+    def __init__(self, check, weight=1):
+        SingleCheckEvaluationPart.__init__(self, check, weight)
+        self.reverse = AllTrueEvaluationPart(check, weight)
+
+    def _evaluate_part(self):
+        return 1 - self.reverse._evaluate_part()
+
+class ContainsItemExactlyNTimesEvaluationPart(SingleCheckEvaluationPart):
+    """ The score is 1 if item is exactly n times in ListResult of check.
+        0 otherwise, or if the result is not of type ListResult
+    """
+    def __init__(self, check, item, n, weight=1):
+        SingleCheckEvaluationPart.__init__(self, check, weight)
+        self.item = item
+        self.n = n
+
+    def _evaluate_part(self):
+        if not isinstance(self.check.result, ListResult):
+            return 0
+        if self.n == self.check.result.outcome.count(self.item):
+            return 1
+        return 0
+
+class CompositeEvaluation(BatchEvaluation):
     """ Evaluation that is composed of EvaluationParts
     """
     def __init__(self):
@@ -196,7 +262,7 @@ class CompositeEvaluation(Evaluation, BatchEvaluation):
         self.evaluation_parts = []
         self.total_weights = 0
 
-    def add_evaluation_part(self, EvaluationPart: ep):
+    def add_evaluation_part(self, ep):
         # Checks are only added once, even if different evaluation parts
         # use the same check!
         self.checks[type(ep.check).__name__] = ep.check
@@ -206,5 +272,7 @@ class CompositeEvaluation(Evaluation, BatchEvaluation):
     def _do_evaluate(self, rdp):
         score = 0
         for ep in self.evaluation_parts:
-            score += ep.evaluate_part() * (ep.weight/self.total_weights)
-        return score
+            epep = ep.evaluate_part()
+            score += epep * (ep.weight/self.total_weights)
+            # print("{} {} {} {}".format(type(ep).__name__, ep.check.success, score, epep))
+        return round(score, 10)

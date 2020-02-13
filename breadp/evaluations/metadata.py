@@ -6,85 +6,73 @@
 # This file contains all Evaluation-related tests
 #
 ################################################################################
-from breadp.evaluations import BatchEvaluation, \
-        Evaluation, \
-        MandatoryRecommendedEvaluation, \
-        SimpleAndEvaluation
-from breadp.rdp.metadata.datacite import DataCiteMetadata
-from breadp.checks.metadata import     DataCiteDescriptionsTypeCheck, \
-    DescriptionsLengthCheck, \
-    DescriptionsLanguageCheck, \
-    DescriptionsNumberCheck
+import sys
 
-class DescriptionEvaluation(BatchEvaluation, CompositeEvaluation):
+from breadp.evaluations import \
+    AllFalseEvaluationPart, \
+    BatchEvaluation, \
+    CompositeEvaluation, \
+    ContainsEvaluationPart, \
+    ContainsItemExactlyNTimesEvaluationPart, \
+    DoesNotContainEvaluationPart, \
+    Evaluation, \
+    IsBetweenEvaluationPart, \
+    SimpleAndEvaluation
+from breadp.rdp.metadata.datacite import DataCiteMetadata
+from breadp.checks.metadata import \
+    DataCiteDescriptionsTypeCheck, \
+    DescriptionsLanguageCheck, \
+    DescriptionsLengthCheck, \
+    DescriptionsNumberCheck, \
+    TitlesJustAFileNameCheck, \
+    TitlesLanguageCheck, \
+    TitlesTypeCheck
+
+class DescriptionEvaluation(CompositeEvaluation):
     """ Evaluation for descriptions of the metadata of an RDP
     """
-    def __init__(self, mandatory_check_weight):
-        MandatoryRecommendedEvaluation.__init__(self, mandatory_check_weight)
+    def __init__(self):
+
+        CompositeEvaluation.__init__(self)
         self.version = "0.0.1"
         self.id = 1
-        self._add_evaluation_part(
+        self.add_evaluation_part(
             IsBetweenEvaluationPart(
                 DescriptionsNumberCheck(),
                 1.0,
-                15.0,
+                sys.float_info.max,
                 4)
         )
-        self._add_evaluation_part(
+        self.add_evaluation_part(
             IsBetweenEvaluationPart(
                 DescriptionsLengthCheck(),
-                0.0,
+                3.0,
                 300.0,
                 4)
         )
-        self._add_evaluation_part(
-            IsOrContainsEvaluationPart(
+        self.add_evaluation_part(
+            ContainsEvaluationPart(
                 DescriptionsLanguageCheck(),
-                "en",
+                ["en"],
                 4)
         )
+        ddtc = DataCiteDescriptionsTypeCheck()
+        self.add_evaluation_part(ContainsEvaluationPart(ddtc, ["Abstract"]))
+        self.add_evaluation_part(
+            DoesNotContainEvaluationPart(
+                ddtc,
+                ["SeriesInformation", "TableOfContents", "Other"])
+        )
 
-    def _do_evaluate(self, rdp):
-        if type(rdp.metadata) == DataCiteMetadata:
-            self._add_evaluation_part(
-                IsOrContainsEvaluationPart(
-                    DataCiteDescriptionsTypeCheck(),
-                    "Abstract",
-                    1)
-            )
-            self._add_evaluation_part(
-                IsNotOrDoesNotContainsEvaluationPart(
-                    DataCiteDescriptionsTypeCheck(),
-                    "Abstract",
-                    1)
-            )
-        CompositeEvaluation._do_evaluate(self, rdp)
-
-
-            for dt in self.checks["DataCiteDescriptionTypeCheck"].result.outcome:
-                if dt not in ("Abstract", "Methods", "TechnicalInfo"):
-                    add = 0
-            evaluation += add
-            if "Abstract" in self.checks["DataCiteDescriptionTypeCheck"].result.outcome:
-                evaluation += self.evaluation_score_part
-
-        return round(evaluation,10)
-
-class TitleEvaluation(BatchEvaluation, MandatoryRecommendedEvaluation):
+class TitleEvaluation(CompositeEvaluation):
     """ Evaluation for the titles of the metadata of an RDP
     """
-    def __init__(self, mandatory_check_weight):
-        MandatoryRecommendedEvaluation.__init__(self, mandatory_check_weight)
+    def __init__(self):
+        CompositeEvaluation.__init__(self)
         self.version = "0.0.1"
         self.id = 2
-        self._add_mandatory_check(TitlesLanguageCheck())
-        self._add_mandatory_check(TitlesJustAFileNameCheck())
-
-    def _do_evaluate(self, rdp):
-        evaluation = 0
-        self._calculate_evaluation_weights()
-
-
-
-
-        partial_factor_descriptionsLengthCheck = 0
+        self.add_evaluation_part(AllFalseEvaluationPart(TitlesJustAFileNameCheck()))
+        self.add_evaluation_part(
+            ContainsItemExactlyNTimesEvaluationPart(TitlesTypeCheck(), None, 1)
+        )
+        self.add_evaluation_part(ContainsEvaluationPart(TitlesLanguageCheck(), ["en"]))
