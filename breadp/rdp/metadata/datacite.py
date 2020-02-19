@@ -17,6 +17,7 @@ class DataCiteMetadata(OaiPmhMetadata):
     def __init__(self):
         self._descriptions = []
         self._titles = []
+        self._formats = []
 
     @property
     def pid(self) -> str:
@@ -45,6 +46,7 @@ class DataCiteMetadata(OaiPmhMetadata):
                 else:
                     self._descriptions.append(Description(d))
         return self._descriptions
+
     @property
     def titles(self):
         if len(self._titles) == 0 and "titles" in self.md.keys():
@@ -68,3 +70,13 @@ class DataCiteMetadata(OaiPmhMetadata):
                 else:
                     self._titles.append(Title(t))
         return self._titles
+
+    @property
+    def formats(self):
+        if len(self._formats) == 0 and "formats" in self.md.keys():
+            if isinstance(self.md["formats"]["format"], list):
+                self._formats = self.md["formats"]["format"]
+            else:
+                self._formats.append(self.md["formats"]["format"])
+        return self._formats
+

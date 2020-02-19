@@ -34,6 +34,9 @@ class Metadata(object):
     @property
     def titles(self):
         raise NotImplementedError("Must be implemented by subclasses of Metadata.")
+    @property
+    def formats(self):
+        raise NotImplementedError("Must be implemented by subclasses of Metadata.")
 
 class Description(object):
     """ Base class and interface for descriptions as a metadata field of RDPs

@@ -42,6 +42,9 @@
             <relatedIdentifier relatedIdentifierType="DOI" relationType="Compiles" resourceTypeGeneral="Dataset">10.5281/zenodo.3490329</relatedIdentifier>
             <relatedIdentifier relatedIdentifierType="DOI" relationType="IsVersionOf">10.5281/zenodo.3490395</relatedIdentifier>
           </relatedIdentifiers>
+          <formats>
+              <format>application/json</format>
+          </formats>
           <rightsList>
             <rights rightsURI="http://creativecommons.org/licenses/by/4.0/legalcode">Creative Commons Attribution 4.0 International</rights>
             <rights rightsURI="info:eu-repo/semantics/openAccess">Open Access</rights>

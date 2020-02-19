@@ -7,6 +7,8 @@
 #
 ################################################################################
 from langdetect import detect
+import os
+import pandas as pd
 import re
 
 from breadp.checks import Check
@@ -226,3 +228,53 @@ class TitlesTypeCheck(Check):
             msg = ""
             types.append(t.type)
         return(success, ListResult(types, msg))
+
+class FormatsContainValidMediaTypeCheck(Check):
+    """ Checks the formats whether some of them are valid IANA MediaTypes
+        Canonical source: https://www.iana.org/assignments/media-types/media-types.xhtml
+        Retrieved 2020-02-19 for this version
+
+    Methods
+    -------
+    _do_check(self, rdp)
+        returns a BooleanResult (indicating the existence of valid media types)
+    """
+    def __init__(self):
+        Check.__init__(self)
+        self.id = 11
+        self.version = "0.0.1"
+        self.desc = "checks if valid IANA media types are part of the formats"
+
+    def _do_check(self, rdp):
+        iana_file_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'mediatypes.csv')
+        iana = pd.read_csv(iana_file_path)
+        for isin in iana.Template.isin(rdp.metadata.formats):
+            if isin:
+                return(True, BooleanResult(True, ""))
+        return(True, BooleanResult(False, "No valid media types found"))
+
+class FormatsAreValidMediaTypeCheck(Check):
+    """ Checks whether all formats are valid IANA MediaTypes
+        Canonical source: https://www.iana.org/assignments/media-types/media-types.xhtml
+        Retrieved 2020-02-19 for this version
+    Methods
+    -------
+    _do_check(self, rdp)
+        returns a BooleanResult (indicating the existence of valid media types)
+    """
+
+    def __init__(self):
+        Check.__init__(self)
+        self.id = 12
+        self.version = "0.0.1"
+        self.desc = "checks if all formats are valid IANA media types"
+
+    def _do_check(self, rdp):
+        iana_file_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'mediatypes.csv')
+        iana = pd.read_csv(iana_file_path)
+        if len(rdp.metadata.formats) < 1:
+            return(True, BooleanResult(False, "No formates found!"))
+        for f in rdp.metadata.formats:
+            if f not in iana.Template.tolist():
+                return(True, BooleanResult(False, "{} is not a valid format".format(f)))
+        return(True, BooleanResult(True, ""))
