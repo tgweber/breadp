@@ -9,7 +9,11 @@
 
 from collections import OrderedDict
 
-from breadp.rdp.metadata import Description, Title, OaiPmhMetadata
+from breadp.rdp.metadata import \
+    Description, \
+    Rights, \
+    Title, \
+    OaiPmhMetadata
 
 class DataCiteMetadata(OaiPmhMetadata):
     """ DataCite Metadata Object
@@ -18,6 +22,7 @@ class DataCiteMetadata(OaiPmhMetadata):
         self._descriptions = []
         self._titles = []
         self._formats = []
+        self._rights = []
 
     @property
     def pid(self) -> str:
@@ -79,4 +84,30 @@ class DataCiteMetadata(OaiPmhMetadata):
             else:
                 self._formats.append(self.md["formats"]["format"])
         return self._formats
+
+    @property
+    def rights(self):
+        import pprint
+        if len(self._rights) == 0 and "rightsList" in self.md.keys() and \
+            self.md["rightsList"] is not None:
+            if isinstance(self.md["rightsList"].get("rights", None), OrderedDict):
+                self._rights.append(
+                    createRightsObjectFromOrderedDict(self.md["rightsList"]["rights"])
+                )
+            elif isinstance(self.md["rightsList"].get("rights", None), list):
+                for r in self.md["rightsList"]["rights"]:
+                    r["rights"] = r.get("#text", "")
+                    self._rights.append(createRightsObjectFromOrderedDict(r))
+        pprint.pprint(self.md["rightsList"])
+        return self._rights
+
+def createRightsObjectFromOrderedDict(r):
+    ro = Rights(r.get("rights", ""), r.get("@rightsURI", None))
+    if r.get("@schemeURI", "").startswith("https://spdx.org/licenses") \
+        or r.get("@rightsIdentifierScheme", "").lower == "spdx":
+        ro.spdx = r.get("@rightsIdentifier", None)
+    return ro
+
+
+
 

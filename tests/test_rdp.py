@@ -82,12 +82,16 @@ def test_rdp_zenodo(mock_get):
     assert rdp.metadata.formats[0] == "application/json"
     assert rdp.metadata.formats[1] == "text/csv"
     assert len(rdp.data) == 2
+    assert rdp.metadata.rights[0].text == "Creative Commons Attribution 4.0 International"
+    assert rdp.metadata.rights[0].uri == "http://creativecommons.org/licenses/by/4.0/legalcode"
+    assert rdp.metadata.rights[0].spdx == "CC-BY-4.0"
 
     # Test "bad" example (empty fields) --> artefacts/002.xml
     rdp = RdpFactory.create("10.5281/zenodo.badex1", "zenodo", token="123")
     assert len(rdp.metadata.descriptions) == 0
     assert len(rdp.metadata.titles) == 0
     assert len(rdp.metadata.formats) == 0
+    assert len(rdp.metadata.rights) == 0
 
     # Test another setup (one field with params) --> artefacts/003.xml
     rdp = RdpFactory.create("10.5281/zenodo.badex2", "zenodo", token="123")
@@ -96,6 +100,13 @@ def test_rdp_zenodo(mock_get):
     assert rdp.metadata.titles[0].type == "TranslatedTitle"
     assert len(rdp.metadata.formats) == 1
     assert rdp.metadata.formats[0] == "application/json"
+    assert len(rdp.metadata.rights) == 2
+    assert rdp.metadata.rights[0].text == "Creative Commons Attribution 4.0 International"
+    assert rdp.metadata.rights[0].uri == "http://creativecommons.org/licenses/by/4.0/legalcode"
+    assert rdp.metadata.rights[0].spdx == None
+    assert rdp.metadata.rights[1].text == "Open Access"
+    assert rdp.metadata.rights[1].uri == "info:eu-repo/semantics/openAccess"
+
 
     # Test another setup (one field without params) --> artefacts/004.xml
     rdp = RdpFactory.create("10.5281/zenodo.badex3", "zenodo", token="123")

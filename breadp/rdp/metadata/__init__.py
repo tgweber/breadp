@@ -37,6 +37,9 @@ class Metadata(object):
     @property
     def formats(self):
         raise NotImplementedError("Must be implemented by subclasses of Metadata.")
+    @property
+    def rightss(self):
+        raise NotImplementedError("Must be implemented by subclasses of Metadata.")
 
 class Description(object):
     """ Base class and interface for descriptions as a metadata field of RDPs
@@ -65,6 +68,23 @@ class Title(object):
     def __init__(self, text, ttype=None):
         self.text = text
         self.type = ttype
+
+class Rights(object):
+    """ Base class and interface of rights/licenses as part of metadata of RDPs
+
+    Attributes
+    ----------
+    text: str
+        The text field of the license/rights information
+    uri: str
+        URI poiniting to the text of the license/rights information
+    spdx: str
+        SPDX identifier as specified on https://spdx.org/licenses/
+    """
+    def __init__(self, text, uri=None, spdx=None):
+        self.text = text
+        self.uri = uri
+        self.spdx = spdx
 
 class OaiPmhMetadata(Metadata):
     """ Base class and interface for all OAI-PMH-based Metadata objects
