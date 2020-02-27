@@ -100,7 +100,7 @@ def test_rdp_zenodo(mock_get):
     assert rdp.metadata.titles[0].type == "TranslatedTitle"
     assert len(rdp.metadata.formats) == 1
     assert rdp.metadata.formats[0] == "application/json"
-    assert len(rdp.metadata.rights) == 2
+    assert len(rdp.metadata.rights) == 3
     assert rdp.metadata.rights[0].text == "Creative Commons Attribution 4.0 International"
     assert rdp.metadata.rights[0].uri == "http://creativecommons.org/licenses/by/4.0/legalcode"
     assert rdp.metadata.rights[0].spdx == None

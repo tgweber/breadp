@@ -46,8 +46,9 @@
               <format>application/json</format>
           </formats>
           <rightsList>
-            <rights rightsURI="http://creativecommons.org/licenses/by/4.0/legalcode">Creative Commons Attribution 4.0 International</rights>
-            <rights rightsURI="info:eu-repo/semantics/openAccess">Open Access</rights>
+              <rights rightsURI="http://creativecommons.org/licenses/by/4.0/legalcode" schemeURI="https://spdxx.org/licenses">Creative Commons Attribution 4.0 International</rights>
+            <rights rightsURI="info:eu-repo/semantics/openAccess" rightsIdentifierScheme="spdx">Open Access</rights>
+            <rights rightsURI="info:eu-repo/semantics/openAccess" rightsIdentifierScheme="spdx" rightsIdentifier="Idonotexistasarightsidentifier">Open Access</rights>
           </rightsList>
           <descriptions>
               <description descriptionType="Abstract">Dies ist ein deutscher Abstrakt,

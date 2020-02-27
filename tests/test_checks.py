@@ -18,6 +18,7 @@ from breadp.checks.metadata import DataCiteDescriptionsTypeCheck, \
         DescriptionsLanguageCheck, \
         DescriptionsLengthCheck, \
         FormatsAreValidMediaTypeCheck, \
+        RightsHaveValidSPDXIdentifier, \
         TitlesJustAFileNameCheck, \
         TitlesLanguageCheck, \
         TitlesLengthCheck, \
@@ -239,3 +240,29 @@ def test_formats_are_valid_media_types(mock_get):
     assert check.success
     assert not check.result.outcome[0]
     assert not check.result.outcome[1]
+
+@mock.patch('requests.get', side_effect=mocked_requests_get)
+def test_rights_have_valid_spdx_identifier(mock_get):
+    check = RightsHaveValidSPDXIdentifier()
+    assert base_init_check_test(check, 13)
+
+    # Successful check
+    rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
+    check.check(rdp)
+    assert check.success
+    assert check.result.outcome[0]
+
+    rdp = RdpFactory.create("10.5281/zenodo.badex1", "zenodo", token="123")
+    check.check(rdp)
+    assert check.success
+    assert len(check.result.outcome) == 0
+    assert check.result.msg == "No rights objects found!"
+
+    rdp = RdpFactory.create("10.5281/zenodo.badex2", "zenodo", token="123")
+    check.check(rdp)
+    assert check.success
+    assert not check.result.outcome[0]
+    assert not check.result.outcome[1]
+    assert not check.result.outcome[2]
+    assert check.result.msg == "Idonotexistasarightsidentifier is not a valid SPDX identifier"
+    print(check.result.msg)

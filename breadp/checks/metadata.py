@@ -6,6 +6,7 @@
 # This file contains all code related for metadata checks
 #
 ################################################################################
+import json
 from langdetect import detect
 import os
 import pandas as pd
@@ -255,7 +256,40 @@ class FormatsAreValidMediaTypeCheck(Check):
         for f in rdp.metadata.formats:
             msg = ""
             if f not in iana.Template.tolist():
-                msg += "{} is not a valid format "
+                msg += "{} is not a valid format ".format(f)
+                valid.append(False)
+            else:
+                valid.append(True)
+        return(True, ListResult(valid, msg))
+
+class RightsHaveValidSPDXIdentifier(Check):
+    """ CHecks wheter all rights have valid SPDX licenses identifiers
+        Canonical source: https://github.com/spdx/license-list-data/blob/master/json/licenses.json
+        Retrieved 2020-02-26 for this version
+    Methods
+    -------
+    _do_check(self, rdp)
+        returns a ListResult (indicating valid SPDX identifiers)
+    """
+    def __init__(self):
+        Check.__init__(self)
+        self.id = 13
+        self.version = "0.0.1"
+        self.desc = "checks whether rights have valid SPDX identifiers"
+
+    def _do_check(self, rdp):
+        valid = []
+        spdx_file_path = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)), 'licenses.json'
+        )
+        with open(spdx_file_path, "r") as f:
+            licenses_dict = json.load(f)
+        licenses = pd.DataFrame(licenses_dict["licenses"])
+        msg = "No rights objects found!"
+        for r in rdp.metadata.rights:
+            msg = ""
+            if r.spdx not in licenses.licenseId.tolist():
+                msg += "{} is not a valid SPDX identifier".format(r.spdx)
                 valid.append(False)
             else:
                 valid.append(True)

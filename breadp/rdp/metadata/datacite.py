@@ -87,7 +87,6 @@ class DataCiteMetadata(OaiPmhMetadata):
 
     @property
     def rights(self):
-        import pprint
         if len(self._rights) == 0 and "rightsList" in self.md.keys() and \
             self.md["rightsList"] is not None:
             if isinstance(self.md["rightsList"].get("rights", None), OrderedDict):
@@ -98,16 +97,11 @@ class DataCiteMetadata(OaiPmhMetadata):
                 for r in self.md["rightsList"]["rights"]:
                     r["rights"] = r.get("#text", "")
                     self._rights.append(createRightsObjectFromOrderedDict(r))
-        pprint.pprint(self.md["rightsList"])
         return self._rights
 
 def createRightsObjectFromOrderedDict(r):
     ro = Rights(r.get("rights", ""), r.get("@rightsURI", None))
     if r.get("@schemeURI", "").startswith("https://spdx.org/licenses") \
-        or r.get("@rightsIdentifierScheme", "").lower == "spdx":
+        or r.get("@rightsIdentifierScheme", "").lower() == "spdx":
         ro.spdx = r.get("@rightsIdentifier", None)
     return ro
-
-
-
-
