@@ -17,7 +17,6 @@ from breadp.checks.metadata import DataCiteDescriptionsTypeCheck, \
         DescriptionsNumberCheck, \
         DescriptionsLanguageCheck, \
         DescriptionsLengthCheck, \
-        FormatsContainValidMediaTypeCheck, \
         FormatsAreValidMediaTypeCheck, \
         TitlesJustAFileNameCheck, \
         TitlesLanguageCheck, \
@@ -212,32 +211,6 @@ def test_titles_just_a_filename_check(mock_get):
     assert check.result.outcome[0]
 
 @mock.patch('requests.get', side_effect=mocked_requests_get)
-def test_formats_contain_valid_media_types(mock_get):
-    check = FormatsContainValidMediaTypeCheck()
-    assert base_init_check_test(check, 11)
-
-    # Successful check
-    rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
-    check.check(rdp)
-    assert check.success
-    assert check.result.outcome
-
-    rdp = RdpFactory.create("10.5281/zenodo.badex1", "zenodo", token="123")
-    check.check(rdp)
-    assert check.success
-    assert not check.result.outcome
-
-    rdp = RdpFactory.create("10.5281/zenodo.badex4", "zenodo", token="123")
-    check.check(rdp)
-    assert check.success
-    assert check.result.outcome
-
-    rdp = RdpFactory.create("10.5281/zenodo.badex5", "zenodo", token="123")
-    check.check(rdp)
-    assert check.success
-    assert not check.result.outcome
-
-@mock.patch('requests.get', side_effect=mocked_requests_get)
 def test_formats_are_valid_media_types(mock_get):
     check = FormatsAreValidMediaTypeCheck()
     assert base_init_check_test(check, 12)
@@ -246,20 +219,23 @@ def test_formats_are_valid_media_types(mock_get):
     rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
     check.check(rdp)
     assert check.success
-    print(check.result.msg)
-    assert check.result.outcome
+    assert check.result.outcome[0]
+    assert check.result.outcome[1]
 
     rdp = RdpFactory.create("10.5281/zenodo.badex1", "zenodo", token="123")
     check.check(rdp)
     assert check.success
-    assert not check.result.outcome
+    assert len(check.result.outcome) == 0
+    assert check.result.msg == "No formats found!"
 
     rdp = RdpFactory.create("10.5281/zenodo.badex4", "zenodo", token="123")
     check.check(rdp)
     assert check.success
-    assert not check.result.outcome
+    assert check.result.outcome[0]
+    assert not check.result.outcome[1]
 
     rdp = RdpFactory.create("10.5281/zenodo.badex5", "zenodo", token="123")
     check.check(rdp)
     assert check.success
-    assert not check.result.outcome
+    assert not check.result.outcome[0]
+    assert not check.result.outcome[1]

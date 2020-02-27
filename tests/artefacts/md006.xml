@@ -45,6 +45,7 @@
           </relatedIdentifiers>
           <formats>
               <format>something/Imadeup</format>
+              <format>something</format>
           </formats>
           <rightsList>
             <rights rightsURI="http://creativecommons.org/licenses/by/4.0/legalcode">Creative Commons Attribution 4.0 International</rights>

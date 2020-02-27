@@ -17,13 +17,15 @@ from breadp.evaluations import \
     DoesNotContainEvaluationPart, \
     Evaluation, \
     IsBetweenEvaluationPart, \
-    SimpleAndEvaluation
+    SimpleAndEvaluation, \
+    TheMoreTrueTheBetterEvaluationPart
 from breadp.rdp.metadata.datacite import DataCiteMetadata
 from breadp.checks.metadata import \
     DataCiteDescriptionsTypeCheck, \
     DescriptionsLanguageCheck, \
     DescriptionsLengthCheck, \
     DescriptionsNumberCheck, \
+    FormatsAreValidMediaTypeCheck, \
     TitlesJustAFileNameCheck, \
     TitlesLanguageCheck, \
     TitlesTypeCheck
@@ -76,3 +78,16 @@ class TitleEvaluation(CompositeEvaluation):
             ContainsItemExactlyNTimesEvaluationPart(TitlesTypeCheck(), None, 1)
         )
         self.add_evaluation_part(ContainsEvaluationPart(TitlesLanguageCheck(), ["en"]))
+
+class FormatEvaluation(CompositeEvaluation):
+    """ Evaluation for the format specification of the metadata of an RDP
+    """
+    def __init__(self):
+        CompositeEvaluation.__init__(self)
+        self.version = "0.0.1"
+        self.id = 3
+        self.add_evaluation_part(
+            TheMoreTrueTheBetterEvaluationPart(FormatsAreValidMediaTypeCheck())
+        )
+
+

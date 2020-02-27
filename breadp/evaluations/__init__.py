@@ -78,6 +78,9 @@ class BatchEvaluation(Evaluation):
         return ("", success)
 
 class SimpleAndEvaluation(Evaluation):
+    """ This evaluation aggregates several checks with a BooleanResult and
+        Returns 1 if all are True, 0 otherwise
+    """
     def _do_evaluate(self, rdp):
         for checkName, check in self.checks.items():
             if not isinstance(check.result, BooleanResult):
@@ -253,6 +256,21 @@ class ContainsItemExactlyNTimesEvaluationPart(SingleCheckEvaluationPart):
         if self.n == self.check.result.outcome.count(self.item):
             return 1
         return 0
+
+class TheMoreTrueTheBetterEvaluationPart(SingleCheckEvaluationPart):
+    """ The score is the ratio of all items in the ListResult which are bools and True
+        over all items in the list. 0 if the list is empty or not of type ListResult
+    """
+    def _evaluate_part(self):
+        if not isinstance(self.check.result, ListResult):
+            return 0
+        if len(self.check.result.outcome) == 0:
+            return 0
+        trueAndBool = 0
+        for item in self.check.result.outcome:
+            if isinstance(item, bool) and item:
+                trueAndBool += 1
+        return trueAndBool/len(self.check.result.outcome)
 
 class CompositeEvaluation(BatchEvaluation):
     """ Evaluation that is composed of EvaluationParts
