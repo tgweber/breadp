@@ -18,7 +18,8 @@ from breadp.checks.metadata import DataCiteDescriptionsTypeCheck, \
         DescriptionsLanguageCheck, \
         DescriptionsLengthCheck, \
         FormatsAreValidMediaTypeCheck, \
-        RightsHaveValidSPDXIdentifier, \
+        RightsHaveValidSPDXIdentifierCheck, \
+        RightsHasAtLeastOneLicenseCheck, \
         TitlesJustAFileNameCheck, \
         TitlesLanguageCheck, \
         TitlesLengthCheck, \
@@ -243,7 +244,7 @@ def test_formats_are_valid_media_types(mock_get):
 
 @mock.patch('requests.get', side_effect=mocked_requests_get)
 def test_rights_have_valid_spdx_identifier(mock_get):
-    check = RightsHaveValidSPDXIdentifier()
+    check = RightsHaveValidSPDXIdentifierCheck()
     assert base_init_check_test(check, 13)
 
     # Successful check
@@ -265,4 +266,28 @@ def test_rights_have_valid_spdx_identifier(mock_get):
     assert not check.result.outcome[1]
     assert not check.result.outcome[2]
     assert check.result.msg == "Idonotexistasarightsidentifier is not a valid SPDX identifier"
-    print(check.result.msg)
+
+@mock.patch('requests.get', side_effect=mocked_requests_get)
+def test_rights_has_at_least_one_license(mock_get):
+    check = RightsHasAtLeastOneLicenseCheck()
+    assert base_init_check_test(check, 14)
+
+    # Successful check
+    rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
+    check.check(rdp)
+    assert check.success
+    assert check.result.outcome
+
+    rdp = RdpFactory.create("10.5281/zenodo.badex1", "zenodo", token="123")
+    check.check(rdp)
+    assert check.success
+    assert not check.result.outcome
+    assert check.result.msg == "No rights with URI retrievable: No rights specified"
+
+
+    rdp = RdpFactory.create("10.5281/zenodo.badex2", "zenodo", token="123")
+    check.check(rdp)
+    assert check.success
+    assert not check.result.outcome
+    assert check.result.msg.startswith("No rights with URI retrievable:")
+

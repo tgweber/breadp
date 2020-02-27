@@ -17,6 +17,7 @@ from breadp.evaluations import \
     DoesNotContainEvaluationPart, \
     Evaluation, \
     IsBetweenEvaluationPart, \
+    IsTrueEvaluationPart, \
     SimpleAndEvaluation, \
     TheMoreTrueTheBetterEvaluationPart
 from breadp.rdp.metadata.datacite import DataCiteMetadata
@@ -26,6 +27,8 @@ from breadp.checks.metadata import \
     DescriptionsLengthCheck, \
     DescriptionsNumberCheck, \
     FormatsAreValidMediaTypeCheck, \
+    RightsHaveValidSPDXIdentifierCheck, \
+    RightsHasAtLeastOneLicenseCheck, \
     TitlesJustAFileNameCheck, \
     TitlesLanguageCheck, \
     TitlesTypeCheck
@@ -90,4 +93,14 @@ class FormatEvaluation(CompositeEvaluation):
             TheMoreTrueTheBetterEvaluationPart(FormatsAreValidMediaTypeCheck())
         )
 
-
+class RightsEvaluation(CompositeEvaluation):
+    """ Evaluation for the rights specification of the metadata of an RDP
+    """
+    def __init__(self):
+        CompositeEvaluation.__init__(self)
+        self.version = "0.0.1"
+        self.id = 4
+        self.add_evaluation_part(IsTrueEvaluationPart(RightsHasAtLeastOneLicenseCheck(),2))
+        self.add_evaluation_part(
+            TheMoreTrueTheBetterEvaluationPart(RightsHaveValidSPDXIdentifierCheck())
+        )

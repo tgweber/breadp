@@ -11,6 +11,8 @@ from langdetect import detect
 import os
 import pandas as pd
 import re
+import requests
+
 
 from breadp.checks import Check
 from breadp.checks.result import BooleanResult, \
@@ -262,10 +264,11 @@ class FormatsAreValidMediaTypeCheck(Check):
                 valid.append(True)
         return(True, ListResult(valid, msg))
 
-class RightsHaveValidSPDXIdentifier(Check):
-    """ CHecks wheter all rights have valid SPDX licenses identifiers
+class RightsHaveValidSPDXIdentifierCheck(Check):
+    """ Checks whether all rights have valid SPDX licenses identifiers
         Canonical source: https://github.com/spdx/license-list-data/blob/master/json/licenses.json
         Retrieved 2020-02-26 for this version
+
     Methods
     -------
     _do_check(self, rdp)
@@ -294,3 +297,38 @@ class RightsHaveValidSPDXIdentifier(Check):
             else:
                 valid.append(True)
         return(True, ListResult(valid, msg))
+
+class RightsHasAtLeastOneLicenseCheck(Check):
+    """ Checks whether at least one license statement is among the rights
+        of the metadata of the RDP
+
+    Methods
+    -------
+    _do_check(self, rdp)
+        returns a BooleanResult, indicating whether there is a license statement
+    """
+    def __init__(self):
+        Check.__init__(self)
+        self.id = 14
+        self.version = "0.0.1"
+        self.desc = "checks whether at least one license statement is present"
+
+    def _do_check(self, rdp):
+        msg = ""
+        if len(rdp.metadata.rights) == 0:
+            msg = "No rights specified"
+        for ro in rdp.metadata.rights:
+            if not ro.uri and not ro.uri.startswith("info:eu-repo"):
+                continue
+            try:
+                response = requests.head(ro.uri)
+                if response.status_code > 199 and response.status_code < 400:
+                    return (True, BooleanResult(True, ""))
+                else:
+                    msg = "No license retrieveable: {}".format(status_code)
+                    return (True, BooleanResult(False, msg))
+            except Exception as e:
+                msg += "{}: {}".format(type(e), e)
+                continue
+        print(msg)
+        return (True, BooleanResult(False, "No rights with URI retrievable: {}".format(msg)))
