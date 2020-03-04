@@ -20,6 +20,7 @@ from breadp.checks.metadata import DataCiteDescriptionsTypeCheck, \
         FormatsAreValidMediaTypeCheck, \
         RightsHaveValidSPDXIdentifierCheck, \
         RightsHasAtLeastOneLicenseCheck, \
+        SubjectsHaveQualifiedSubjects, \
         TitlesJustAFileNameCheck, \
         TitlesLanguageCheck, \
         TitlesLengthCheck, \
@@ -291,3 +292,27 @@ def test_rights_has_at_least_one_license(mock_get):
     assert not check.result.outcome
     assert check.result.msg.startswith("No rights with URI retrievable:")
 
+
+@mock.patch('requests.get', side_effect=mocked_requests_get)
+def test_rights_has_at_least_one_license(mock_get):
+    check = SubjectsHaveQualifiedSubjects()
+    assert base_init_check_test(check, 15)
+
+    # Successful check
+    rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
+    check.check(rdp)
+    assert check.success
+    assert check.result.outcome[0]
+    assert check.result.outcome[1]
+
+    rdp = RdpFactory.create("10.5281/zenodo.badex1", "zenodo", token="123")
+    check.check(rdp)
+    assert check.success
+    assert len(check.result.outcome) == 0
+    assert check.result.msg == "No subjects retrievable"
+
+    rdp = RdpFactory.create("10.5281/zenodo.badex2", "zenodo", token="123")
+    check.check(rdp)
+    assert check.success
+    assert not check.result.outcome[0]
+    assert check.result.outcome[4]

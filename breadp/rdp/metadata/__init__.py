@@ -38,7 +38,10 @@ class Metadata(object):
     def formats(self):
         raise NotImplementedError("Must be implemented by subclasses of Metadata.")
     @property
-    def rightss(self):
+    def rights(self):
+        raise NotImplementedError("Must be implemented by subclasses of Metadata.")
+    @property
+    def subjects(self):
         raise NotImplementedError("Must be implemented by subclasses of Metadata.")
 
 class Description(object):
@@ -85,6 +88,23 @@ class Rights(object):
         self.text = text
         self.uri = uri
         self.spdx = spdx
+
+class Subject(object):
+    """ Base class and interface of subjects as part of metadata of RDPs
+
+    Attributes
+    ----------
+    text: str
+        The payload of the subject
+    scheme: str
+        The name of the scheme of the subjects (not controlled)
+    uri: str
+        The uri to the scheme of the subject
+    """
+    def __init__(self, text, scheme=None, uri=None):
+        self.text = text
+        self.scheme = scheme
+        self.uri = uri
 
 class OaiPmhMetadata(Metadata):
     """ Base class and interface for all OAI-PMH-based Metadata objects

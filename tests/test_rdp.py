@@ -85,6 +85,14 @@ def test_rdp_zenodo(mock_get):
     assert rdp.metadata.rights[0].text == "Creative Commons Attribution 4.0 International"
     assert rdp.metadata.rights[0].uri == "http://creativecommons.org/licenses/by/4.0/legalcode"
     assert rdp.metadata.rights[0].spdx == "CC-BY-4.0"
+    assert len(rdp.metadata.subjects) == 2
+    assert rdp.metadata.subjects[0].scheme == "wikidata"
+    assert rdp.metadata.subjects[0].uri == "https://www.wikidata.org/wiki/"
+    assert rdp.metadata.subjects[0].text == "Q2539"
+    assert rdp.metadata.subjects[1].scheme == "dewey"
+    assert rdp.metadata.subjects[1].uri == "https://dewey.info/"
+    assert rdp.metadata.subjects[1].text == "000 computer science"
+
 
     # Test "bad" example (empty fields) --> artefacts/002.xml
     rdp = RdpFactory.create("10.5281/zenodo.badex1", "zenodo", token="123")

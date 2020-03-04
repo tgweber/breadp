@@ -332,3 +332,31 @@ class RightsHasAtLeastOneLicenseCheck(Check):
                 continue
         print(msg)
         return (True, BooleanResult(False, "No rights with URI retrievable: {}".format(msg)))
+
+class SubjectsHaveQualifiedSubjects(Check):
+    """ Checks subjects have qualified subjects (subjects are either specified
+        by a scheme name or a scheme URI"
+
+    Methods
+    -------
+    _do_check(self, rdp)
+        returns a ListResult, indicating which subjects are qualified
+    """
+    def __init__(self):
+        Check.__init__(self)
+        self.id = 15
+        self.version = "0.0.1"
+        self.desc = "checks whether the subjects are qualified"
+
+    def _do_check(self, rdp):
+        qualified = []
+        msg = ""
+        if len(rdp.metadata.rights) == 0:
+            msg = "No subjects retrievable"
+        for so in rdp.metadata.subjects:
+            if so.uri or so.scheme:
+                qualified.append(True)
+            else:
+                qualified.append(False)
+        return (True, ListResult(qualified, msg))
+
