@@ -333,7 +333,7 @@ class RightsHasAtLeastOneLicenseCheck(Check):
         print(msg)
         return (True, BooleanResult(False, "No rights with URI retrievable: {}".format(msg)))
 
-class SubjectsHaveQualifiedSubjects(Check):
+class SubjectsAreQualifiedCheck(Check):
     """ Checks subjects have qualified subjects (subjects are either specified
         by a scheme name or a scheme URI"
 
@@ -360,3 +360,46 @@ class SubjectsHaveQualifiedSubjects(Check):
                 qualified.append(False)
         return (True, ListResult(qualified, msg))
 
+class SubjectsNumberCheck(Check):
+    """ Checks the number of subjects
+
+    Methods
+    -------
+    _do_check(self, rdp)
+        returns a MetricResult, indicating the number of subjects
+    """
+    def __init__(self):
+        Check.__init__(self)
+        self.id = 16
+        self.version = "0.0.1"
+        self.desc = "checks the number of subjects"
+
+    def _do_check(self, rdp):
+        return (True, MetricResult(len(rdp.metadata.subjects), ""))
+
+
+class SubjectsHaveDdcCheck(Check):
+    """ Checks whether the subjects contain a valid DDC field of study specification.
+
+    Methods
+    -------
+    _do_check(self, rdp)
+        returns a BooleanResult, indicating the existance of a valid DDC field
+        of study specification
+    """
+    def __init__(self):
+        Check.__init__(self)
+        self.id = 17
+        self.version = "0.0.1"
+        self.desc = "checks whether the subjects contain a DDC field of study specification"
+
+    def _do_check(self, rdp):
+        for so in rdp.metadata.subjects:
+            if re.match("^(ddc|dewey)|ddc$", so.scheme, re.IGNORECASE) \
+              or "dewey.info" in so.uri:
+                if re.match("^\d\d\d", so.text):
+                    return (True, BooleanResult(
+                        True,
+                        "{} is a DDC field of study specificiation".format(so.text))
+                    )
+        return (True, BooleanResult(False, "No DDC field of study specification found"))

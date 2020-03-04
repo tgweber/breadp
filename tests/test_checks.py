@@ -20,7 +20,9 @@ from breadp.checks.metadata import DataCiteDescriptionsTypeCheck, \
         FormatsAreValidMediaTypeCheck, \
         RightsHaveValidSPDXIdentifierCheck, \
         RightsHasAtLeastOneLicenseCheck, \
-        SubjectsHaveQualifiedSubjects, \
+        SubjectsAreQualifiedCheck, \
+        SubjectsHaveDdcCheck, \
+        SubjectsNumberCheck, \
         TitlesJustAFileNameCheck, \
         TitlesLanguageCheck, \
         TitlesLengthCheck, \
@@ -294,8 +296,8 @@ def test_rights_has_at_least_one_license(mock_get):
 
 
 @mock.patch('requests.get', side_effect=mocked_requests_get)
-def test_rights_has_at_least_one_license(mock_get):
-    check = SubjectsHaveQualifiedSubjects()
+def test_subjects_are_qualified_check(mock_get):
+    check = SubjectsAreQualifiedCheck()
     assert base_init_check_test(check, 15)
 
     # Successful check
@@ -316,3 +318,45 @@ def test_rights_has_at_least_one_license(mock_get):
     assert check.success
     assert not check.result.outcome[0]
     assert check.result.outcome[4]
+
+@mock.patch('requests.get', side_effect=mocked_requests_get)
+def test_subjects_number_check(mock_get):
+    check = SubjectsNumberCheck()
+    assert base_init_check_test(check, 16)
+
+    # Successful check
+    rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
+    check.check(rdp)
+    assert check.success
+    assert check.result.outcome == 2
+
+    rdp = RdpFactory.create("10.5281/zenodo.badex1", "zenodo", token="123")
+    check.check(rdp)
+    assert check.success
+    assert check.result.outcome == 0
+
+    rdp = RdpFactory.create("10.5281/zenodo.badex2", "zenodo", token="123")
+    check.check(rdp)
+    assert check.success
+    assert check.result.outcome == 5
+
+@mock.patch('requests.get', side_effect=mocked_requests_get)
+def test_subjects_have_ddc(mock_get):
+    check = SubjectsHaveDdcCheck()
+    assert base_init_check_test(check, 17)
+
+    # Successful check
+    rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
+    check.check(rdp)
+    assert check.success
+    assert check.result.outcome == True
+
+    rdp = RdpFactory.create("10.5281/zenodo.badex1", "zenodo", token="123")
+    check.check(rdp)
+    assert check.success
+    assert check.result.outcome == False
+
+    rdp = RdpFactory.create("10.5281/zenodo.badex2", "zenodo", token="123")
+    check.check(rdp)
+    assert check.success
+    assert check.result.outcome == False
