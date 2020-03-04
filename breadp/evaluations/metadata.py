@@ -29,6 +29,10 @@ from breadp.checks.metadata import \
     FormatsAreValidMediaTypeCheck, \
     RightsHaveValidSPDXIdentifierCheck, \
     RightsHasAtLeastOneLicenseCheck, \
+    SubjectsNumberCheck, \
+    SubjectsHaveDdcCheck, \
+    SubjectsAreQualifiedCheck, \
+    SubjectsHaveWikidataKeywordsCheck, \
     TitlesJustAFileNameCheck, \
     TitlesLanguageCheck, \
     TitlesTypeCheck
@@ -104,3 +108,22 @@ class RightsEvaluation(CompositeEvaluation):
         self.add_evaluation_part(
             TheMoreTrueTheBetterEvaluationPart(RightsHaveValidSPDXIdentifierCheck())
         )
+
+class SubjectEvaluation(CompositeEvaluation):
+    """ Evaluation for the subject specification of the metadata of an RDP
+    """
+    def __init__(self):
+        CompositeEvaluation.__init__(self)
+        self.version = "0.0.1"
+        self.id = 5
+        self.add_evaluation_part(
+            TheMoreTrueTheBetterEvaluationPart(SubjectsAreQualifiedCheck())
+        )
+        self.add_evaluation_part(
+            IsBetweenEvaluationPart(
+                SubjectsNumberCheck(),
+                1.0,
+                sys.float_info.max,)
+        )
+        self.add_evaluation_part(IsTrueEvaluationPart(SubjectsHaveDdcCheck(),2))
+        self.add_evaluation_part(IsTrueEvaluationPart(SubjectsHaveWikidataKeywordsCheck(),2))

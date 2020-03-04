@@ -360,7 +360,7 @@ def test_subjects_have_ddc(mock_get):
     rdp = RdpFactory.create("10.5281/zenodo.badex2", "zenodo", token="123")
     check.check(rdp)
     assert check.success
-    assert check.result.outcome == Fals
+    assert check.result.outcome == False
 
 @mock.patch('requests.get', side_effect=mocked_requests_get)
 def test_subjects_have_wiki_keynames(mock_get):
