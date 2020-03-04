@@ -335,7 +335,7 @@ class RightsHasAtLeastOneLicenseCheck(Check):
 
 class SubjectsAreQualifiedCheck(Check):
     """ Checks subjects have qualified subjects (subjects are either specified
-        by a scheme name or a scheme URI"
+        by a scheme name or a scheme URI)"
 
     Methods
     -------
@@ -403,3 +403,27 @@ class SubjectsHaveDdcCheck(Check):
                         "{} is a DDC field of study specificiation".format(so.text))
                     )
         return (True, BooleanResult(False, "No DDC field of study specification found"))
+
+class SubjectsHaveWikidataKeywordsCheck(Check):
+    """ Checks whether the subjects contain keynames for field of study specification.
+
+    Methods
+    -------
+    _do_check(self, rdp)
+        returns a BooleanResult, indicating the existance of a valid DDC field
+        of study specification
+    """
+    def __init__(self):
+        Check.__init__(self)
+        self.id = 18
+        self.version = "0.0.1"
+        self.desc = "checks whether the subjects contain a keyword with wikidata qid"
+
+    def _do_check(self, rdp):
+        for so in rdp.metadata.subjects:
+            if so.uri.startswith("https://www.wikidata.org/wiki"):
+                if re.match("q\d+", so.text, re.IGNORECASE):
+                    return (True, BooleanResult(
+                        True, "{} is a wikidata keyword ".format(so.text))
+                    )
+        return (True, BooleanResult(False, "No wikidata keyword found"))
