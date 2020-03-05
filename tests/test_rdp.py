@@ -62,14 +62,24 @@ def test_rdp_unspecified():
 
 # Checks the functionality of a zenodo RDP
 @mock.patch('requests.get', side_effect=mocked_requests_get)
-def test_rdp_zenodo(mock_get):
-    # "good" example (n fields, some with params) --> artefacts/md001.xml
+def test_rdp_zenodo_pid(mock_get):
     rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
     assert rdp.pid == "10.5281/zenodo.3490396"
     assert rdp.metadata.pid == "10.5281/zenodo.3490396"
+
+@mock.patch('requests.get', side_effect=mocked_requests_get)
+def test_rdp_zenodo_description(mock_get):
+    rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
     assert len(rdp.metadata.descriptions) > 0
     assert len(rdp.metadata.descriptions[0].text) > 15
     assert rdp.metadata.descriptions[0].type == "Abstract"
+
+    rdp = RdpFactory.create("10.5281/zenodo.badex1", "zenodo", token="123")
+    assert len(rdp.metadata.descriptions) == 0
+
+@mock.patch('requests.get', side_effect=mocked_requests_get)
+def test_rdp_zenodo_title(mock_get):
+    rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
     assert len(rdp.metadata.titles) == 2
     assert rdp.metadata.titles[0].type is None
     assert rdp.metadata.titles[0].text == "s-sized Training and Evaluation" \
@@ -78,42 +88,14 @@ def test_rdp_zenodo(mock_get):
     assert rdp.metadata.titles[1].type == "TranslatedTitle"
     assert rdp.metadata.titles[1].text == "Irgend ein deutscher Titel mit einem" \
             " Hinweis, wie toll die Publikation ist."
-    assert len(rdp.metadata.formats) == 2
-    assert rdp.metadata.formats[0] == "application/json"
-    assert rdp.metadata.formats[1] == "text/csv"
-    assert len(rdp.data) == 2
-    assert rdp.metadata.rights[0].text == "Creative Commons Attribution 4.0 International"
-    assert rdp.metadata.rights[0].uri == "http://creativecommons.org/licenses/by/4.0/legalcode"
-    assert rdp.metadata.rights[0].spdx == "CC-BY-4.0"
-    assert len(rdp.metadata.subjects) == 2
-    assert rdp.metadata.subjects[0].scheme == "wikidata"
-    assert rdp.metadata.subjects[0].uri == "https://www.wikidata.org/wiki/"
-    assert rdp.metadata.subjects[0].text == "Q2539"
-    assert rdp.metadata.subjects[1].scheme == "dewey"
-    assert rdp.metadata.subjects[1].uri == "https://dewey.info/"
-    assert rdp.metadata.subjects[1].text == "000 computer science"
 
-
-    # Test "bad" example (empty fields) --> artefacts/002.xml
     rdp = RdpFactory.create("10.5281/zenodo.badex1", "zenodo", token="123")
-    assert len(rdp.metadata.descriptions) == 0
     assert len(rdp.metadata.titles) == 0
-    assert len(rdp.metadata.formats) == 0
-    assert len(rdp.metadata.rights) == 0
 
-    # Test another setup (one field with params) --> artefacts/003.xml
     rdp = RdpFactory.create("10.5281/zenodo.badex2", "zenodo", token="123")
     assert len(rdp.metadata.titles) == 1
     assert rdp.metadata.titles[0].text == "survey.csv"
     assert rdp.metadata.titles[0].type == "TranslatedTitle"
-    assert len(rdp.metadata.formats) == 1
-    assert rdp.metadata.formats[0] == "application/json"
-    assert len(rdp.metadata.rights) == 3
-    assert rdp.metadata.rights[0].text == "Open Access"
-    assert rdp.metadata.rights[0].uri == "info:eu-repo/semantics/openAccess"
-    assert rdp.metadata.rights[1].text == "Creative Commons Attribution 4.0 International"
-    assert rdp.metadata.rights[1].uri == "http://thisurl does not exists"
-    assert rdp.metadata.rights[1].spdx == None
 
     # Test another setup (one field without params) --> artefacts/004.xml
     rdp = RdpFactory.create("10.5281/zenodo.badex3", "zenodo", token="123")
@@ -137,4 +119,60 @@ def test_rdp_zenodo(mock_get):
     assert rdp.metadata.titles[1].text == "Und einer mit einem Parameter"
     assert rdp.metadata.titles[1].type == "TranslatedTitle"
 
+@mock.patch('requests.get', side_effect=mocked_requests_get)
+def test_rdp_zenodo_formats(mock_get):
+    rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
+    assert len(rdp.metadata.formats) == 2
+    assert rdp.metadata.formats[0] == "application/json"
+    assert rdp.metadata.formats[1] == "text/csv"
 
+    rdp = RdpFactory.create("10.5281/zenodo.badex1", "zenodo", token="123")
+    assert len(rdp.metadata.formats) == 0
+
+    rdp = RdpFactory.create("10.5281/zenodo.badex2", "zenodo", token="123")
+    assert len(rdp.metadata.formats) == 1
+    assert rdp.metadata.formats[0] == "application/json"
+
+@mock.patch('requests.get', side_effect=mocked_requests_get)
+def test_rdp_zenodo_rights(mock_get):
+    rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
+    assert rdp.metadata.rights[0].text == "Creative Commons Attribution 4.0 International"
+    assert rdp.metadata.rights[0].uri == "http://creativecommons.org/licenses/by/4.0/legalcode"
+    assert rdp.metadata.rights[0].spdx == "CC-BY-4.0"
+
+    rdp = RdpFactory.create("10.5281/zenodo.badex1", "zenodo", token="123")
+    assert len(rdp.metadata.rights) == 0
+
+    # Test another setup (one field with params) --> artefacts/003.xml
+    rdp = RdpFactory.create("10.5281/zenodo.badex2", "zenodo", token="123")
+    assert len(rdp.metadata.rights) == 3
+    assert rdp.metadata.rights[0].text == "Open Access"
+    assert rdp.metadata.rights[0].uri == "info:eu-repo/semantics/openAccess"
+    assert rdp.metadata.rights[1].text == "Creative Commons Attribution 4.0 International"
+    assert rdp.metadata.rights[1].uri == "http://thisurl does not exists"
+    assert rdp.metadata.rights[1].spdx == None
+
+@mock.patch('requests.get', side_effect=mocked_requests_get)
+def test_rdp_zenodo_subjects(mock_get):
+    rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
+    assert len(rdp.metadata.subjects) == 2
+    assert rdp.metadata.subjects[0].scheme == "wikidata"
+    assert rdp.metadata.subjects[0].uri == "https://www.wikidata.org/wiki/"
+    assert rdp.metadata.subjects[0].text == "Q2539"
+    assert rdp.metadata.subjects[1].scheme == "dewey"
+    assert rdp.metadata.subjects[1].uri == "https://dewey.info/"
+    assert rdp.metadata.subjects[1].text == "000 computer science"
+
+#@mock.patch('requests.get', side_effect=mocked_requests_get)
+#def test_rdp_zenodo_creators(mock_get):
+#    rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
+#    assert rdp.metadata.creators[0].name == "Weber, Tobias"
+#    assert rdp.metadata.creators[0].givenName == "Tobias"
+#    assert rdp.metadata.creators[0].familyName == "Weber"
+#    assert rdp.metadata.creators[0].affiliation == "Leibniz Supercomputing Centre"
+#    assert rdp.metadata.creators[0].orcid == "0000-0003-1815-7041"
+
+@mock.patch('requests.get', side_effect=mocked_requests_get)
+def test_rdp_zenodo_data(mock_get):
+    rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
+    assert len(rdp.data) == 2
