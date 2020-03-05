@@ -14,7 +14,7 @@
           <identifier identifierType="DOI">10.5281/zenodo.3490396</identifier>
           <creators>
             <creator>
-              <creatorName>Weber, Tobias</creatorName>
+              <creatorName nameType="Personal">Weber, Tobias</creatorName>
               <nameIdentifier nameIdentifierScheme="ORCID">0000-0003-1815-7041</nameIdentifier>
               <nameIdentifier schemeURI="https://ieeexplore.ieee.org/author/">37086586368</nameIdentifier>
               <affiliation>Leibniz Supercomputing Centre</affiliation>

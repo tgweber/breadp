@@ -117,7 +117,23 @@ class Subject(object):
         self.scheme = scheme
         self.uri = uri
 
-class Person(object):
+class PersonOrInstitution(object):
+    """ Base class and interface for objects that could be listed as either
+        persons or institutions
+
+    Attributes
+    ----------
+    name: str
+        Name of the person/institution
+    """
+    def __init__(self, name, person=True):
+        self.name = name
+        self.person = person
+
+    def __getattr__(self, name):
+        return None
+
+class Person(PersonOrInstitution):
     """ Base class and interface for persons as part of metadata of RDPs
 
     Attributes
@@ -134,6 +150,7 @@ class Person(object):
         ORCiD of the person
     """
     def __init__(self, name, affiliation=None, orcid=None):
+        PersonOrInstitution.__init__(self, name, True)
         self.name = name
         if ", " in self.name:
             self.givenName = self.name.split(", ")[1]

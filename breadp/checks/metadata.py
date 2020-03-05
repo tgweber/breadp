@@ -461,7 +461,7 @@ class CreatorsFamilyAndGivenNameCheck(Check):
     Methods
     -------
     _do_check(self, rdp)
-        returns a BooleanResult, indicating the existence of distinguishable
+        returns a ListResult of bools, indicating the existence of distinguishable
         family and given names
     """
     def __init__(self):
@@ -476,7 +476,32 @@ class CreatorsFamilyAndGivenNameCheck(Check):
             valid.append(hasfamilyAndGivenName(po))
         return (True, ListResult(valid, ""))
 
+class CreatorsContainInstitutionsCheck(Check):
+    """ Checks whether the creators contain institutions
+
+    Methods
+    -------
+    _do_check(self, rdp)
+        returns a BooleanResult, indicating whether an institution is part of the creators.
+
+    """
+    def __init__(self):
+        Check.__init__(self)
+        self.id = 21
+        self.version = "0.0.1"
+        self.desc = "checks whether the creators contain institutions"
+
+    def _do_check(self, rdp):
+        if len(rdp.metadata.creators) < 1:
+            return (False, BooleanResult(None, "no creators"))
+        for po in rdp.metadata.creators:
+            if not po.person:
+                return(True, BooleanResult(True, "{} is an institution".format(po.name)))
+        return (True, BooleanResult(False, ""))
+
 def isValidOrcid(orcid):
+    """ checks whether the given orcid is valid and the checksum is valid
+    """
     # Test format
     if not re.match("^\d\d\d\d-\d\d\d\d-\d\d\d\d-\d\d\d(\d|X)", orcid):
         return False

@@ -14,6 +14,7 @@ from breadp.rdp.metadata import \
     Description, \
     OaiPmhMetadata, \
     Person, \
+    PersonOrInstitution, \
     Rights, \
     Subject, \
     Title
@@ -129,13 +130,13 @@ class DataCiteMetadata(OaiPmhMetadata):
            and isinstance(self.md["creators"], OrderedDict):
             if isinstance(self.md["creators"].get("creator", None), OrderedDict):
                 self._creators.append(
-                    createPersonObjectFromOrderedDict(self.md["creators"]["creator"])
+                    createPersonOrInstitutionObjectFromOrderedDict(self.md["creators"]["creator"])
                 )
             elif isinstance(self.md["creators"].get("creator", None), list):
                 for p in self.md["creators"]["creator"]:
                     if isinstance(p, OrderedDict):
                         self._creators.append(
-                            createPersonObjectFromOrderedDict(p)
+                            createPersonOrInstitutionObjectFromOrderedDict(p)
                         )
         return self._creators
 
@@ -153,9 +154,19 @@ def createSubjectObjectFromOrderedDict(s):
         s.get("@schemeURI", "")
     )
 
-def createPersonObjectFromOrderedDict(p):
+def createPersonOrInstitutionObjectFromOrderedDict(p):
+    nameField = p.get("creatorName", p.get("contributorName", None))
+    if isinstance(nameField, OrderedDict):
+        if nameField.get("@nameType", None) == "Organizational":
+            return PersonOrInstitution(nameField["#text"], False)
+        # after this p is considered to be a person
+        else:
+            name = nameField["#text"]
+    else:
+        name = nameField
+
     po = Person(
-        p["creatorName"],
+        name,
         p.get("affiliation", None)
     )
 

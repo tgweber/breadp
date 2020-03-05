@@ -189,6 +189,9 @@ def test_rdp_zenodo_creators(mock_get):
     assert rdp.metadata.creators[0].orcid is None
 
 
+    rdp = RdpFactory.create("10.5281/zenodo.badex3", "zenodo", token="123")
+    assert rdp.metadata.creators[1].name == "Leibniz Rechenzentrum"
+
 @mock.patch('requests.get', side_effect=mocked_requests_get)
 def test_rdp_zenodo_data(mock_get):
     rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")

@@ -14,6 +14,7 @@ from unittest import mock
 from util import mocked_requests_get, mocked_requests_head, base_init_check_test
 from breadp.checks import IsValidDoiCheck, DoiResolvesCheck
 from breadp.checks.metadata import \
+        CreatorsContainInstitutionsCheck, \
         CreatorsOrcidCheck, \
         CreatorsFamilyAndGivenNameCheck, \
         DataCiteDescriptionsTypeCheck, \
@@ -440,3 +441,25 @@ def test_creators_family_and_given_name_check(mock_get):
     assert check.success
     assert not check.result.outcome[0]
     assert check.result.outcome[1]
+
+
+@mock.patch('requests.get', side_effect=mocked_requests_get)
+def test_creators_contain_institutions_check(mock_get):
+    check = CreatorsContainInstitutionsCheck()
+    assert base_init_check_test(check, 21)
+
+    # Successful check
+    rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
+    check.check(rdp)
+    assert check.success
+    assert not check.result.outcome
+
+    rdp = RdpFactory.create("10.5281/zenodo.badex1", "zenodo", token="123")
+    check.check(rdp)
+    assert not check.success
+
+    rdp = RdpFactory.create("10.5281/zenodo.badex3", "zenodo", token="123")
+    check.check(rdp)
+    assert check.success
+    assert check.result.outcome
+    assert check.result.msg == "Leibniz Rechenzentrum is an institution"
