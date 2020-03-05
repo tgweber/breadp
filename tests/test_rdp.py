@@ -172,11 +172,11 @@ def test_rdp_zenodo_creators(mock_get):
     assert rdp.metadata.creators[0].name == "Weber, Tobias"
     assert rdp.metadata.creators[0].givenName == "Tobias"
     assert rdp.metadata.creators[0].familyName == "Weber"
-    assert rdp.metadata.creators[0].affiliation == "Leibniz Supercomputing Centre"
+    assert rdp.metadata.creators[0].affiliations[0] == "Leibniz Supercomputing Centre"
     assert rdp.metadata.creators[0].orcid == "0000-0003-1815-7041"
     assert rdp.metadata.creators[1].givenName == "Nelson"
     assert rdp.metadata.creators[1].familyName == "Tavares de Sousa"
-    assert rdp.metadata.creators[1].affiliation == "Software Engineering Group, Kiel University (Germany)"
+    assert rdp.metadata.creators[1].affiliations[0] == "Software Engineering Group, Kiel University (Germany)"
     assert rdp.metadata.creators[1].orcid == "0000-0003-1866-7156"
 
     rdp = RdpFactory.create("10.5281/zenodo.badex1", "zenodo", token="123")

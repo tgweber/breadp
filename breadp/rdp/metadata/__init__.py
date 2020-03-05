@@ -141,7 +141,7 @@ class Person(object):
         else:
             self.givenName = None
             self.familyName = None
-        self.affiliation = affiliation
+        self.affiliations = [affiliation]
         self.orcid = orcid
 
 class OaiPmhMetadata(Metadata):

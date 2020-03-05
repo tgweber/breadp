@@ -158,8 +158,7 @@ def createPersonObjectFromOrderedDict(p):
         p["creatorName"],
         p.get("affiliation", None)
     )
-    import pprint
-    pprint.pprint(p)
+
     if po.familyName is None:
         po.familyName = p.get("familyName")
     if po.givenName is None:
