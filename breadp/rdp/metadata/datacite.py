@@ -27,6 +27,7 @@ class DataCiteMetadata(OaiPmhMetadata):
         self._descriptions = []
         self._formats = []
         self._rights = []
+        self._sizes = []
         self._subjects = []
         self._titles = []
 
@@ -139,6 +140,18 @@ class DataCiteMetadata(OaiPmhMetadata):
                             createPersonOrInstitutionObjectFromOrderedDict(p)
                         )
         return self._creators
+
+    @property
+    def sizes(self):
+        if len(self._sizes) == 0 and "sizes" in self.md.keys() \
+           and isinstance(self.md["sizes"], OrderedDict):
+            if isinstance(self.md["sizes"].get("size", None), str):
+                self._sizes = [self.md["sizes"]["size"]]
+            if isinstance(self.md["sizes"].get("size", None), list):
+                for s in self.md["sizes"]["size"]:
+                    self._sizes.append(s)
+        return self._sizes
+
 
 def createRightsObjectFromOrderedDict(r):
     ro = Rights(r.get("rights", ""), r.get("@rightsURI", None))

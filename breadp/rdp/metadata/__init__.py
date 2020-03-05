@@ -32,6 +32,8 @@ class Metadata(object):
         Keywords describing the RDP
     creators: list<Person>
         Creators of the RDP
+    sizes: list<str>
+        Size specification for the RDP
     """
     @property
     def descriptions(self):
@@ -53,6 +55,9 @@ class Metadata(object):
         raise NotImplementedError("Must be implemented by subclasses of Metadata.")
     @property
     def creators(self):
+        raise NotImplementedError("Must be implemented by subclasses of Metadata.")
+    @property
+    def sizes(self):
         raise NotImplementedError("Must be implemented by subclasses of Metadata.")
 
 class Description(object):

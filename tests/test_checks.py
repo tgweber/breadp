@@ -25,6 +25,8 @@ from breadp.checks.metadata import \
         isValidOrcid, \
         RightsHaveValidSPDXIdentifierCheck, \
         RightsHasAtLeastOneLicenseCheck, \
+        SizesNumberCheck, \
+        SizesByteSizeCheck, \
         SubjectsAreQualifiedCheck, \
         SubjectsHaveDdcCheck, \
         SubjectsHaveWikidataKeywordsCheck, \
@@ -471,3 +473,45 @@ def test_creators_contain_institutions_check(mock_get):
     assert check.success
     assert check.result.outcome
     assert check.result.msg == "Leibniz Rechenzentrum is an institution"
+
+@mock.patch('requests.get', side_effect=mocked_requests_get)
+def test_sizes_number_check(mock_get):
+    check = SizesNumberCheck()
+    assert base_init_check_test(check, 22)
+
+    # Successful check
+    rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
+    check.check(rdp)
+    assert check.success
+    assert check.result.outcome == 1
+
+    rdp = RdpFactory.create("10.5281/zenodo.badex1", "zenodo", token="123")
+    check.check(rdp)
+    assert check.success
+    assert check.result.outcome == 0
+
+    rdp = RdpFactory.create("10.5281/zenodo.badex3", "zenodo", token="123")
+    check.check(rdp)
+    assert check.success
+    assert check.result.outcome == 2
+
+@mock.patch('requests.get', side_effect=mocked_requests_get)
+def test_sizes_number_check(mock_get):
+    check = SizesByteSizeCheck()
+    assert base_init_check_test(check, 23)
+
+    # Successful check
+    rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
+    check.check(rdp)
+    assert check.success
+    assert check.result.outcome[0]
+
+    rdp = RdpFactory.create("10.5281/zenodo.badex1", "zenodo", token="123")
+    check.check(rdp)
+    assert not check.success
+
+    rdp = RdpFactory.create("10.5281/zenodo.badex2", "zenodo", token="123")
+    check.check(rdp)
+    assert check.success
+    assert not check.result.outcome[0]
+    assert check.result.outcome[1]

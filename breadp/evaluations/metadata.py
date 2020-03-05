@@ -18,6 +18,7 @@ from breadp.evaluations import \
     Evaluation, \
     IsBetweenEvaluationPart, \
     IsFalseEvaluationPart, \
+    IsIdenticalToEvaluationPart, \
     IsTrueEvaluationPart, \
     SimpleAndEvaluation, \
     TheMoreTrueTheBetterEvaluationPart
@@ -33,6 +34,8 @@ from breadp.checks.metadata import \
     FormatsAreValidMediaTypeCheck, \
     RightsHaveValidSPDXIdentifierCheck, \
     RightsHasAtLeastOneLicenseCheck, \
+    SizesNumberCheck, \
+    SizesByteSizeCheck, \
     SubjectsNumberCheck, \
     SubjectsHaveDdcCheck, \
     SubjectsAreQualifiedCheck, \
@@ -144,3 +147,17 @@ class CreatorEvaluation(CompositeEvaluation):
             TheMoreTrueTheBetterEvaluationPart(CreatorsFamilyAndGivenNameCheck())
         )
         self.add_evaluation_part(IsFalseEvaluationPart(CreatorsContainInstitutionsCheck()))
+
+class SizeEvaluation(CompositeEvaluation):
+    """ Evaluation for the size specification of the metadata of an RDP
+    """
+    def __init__(self):
+        CompositeEvaluation.__init__(self)
+        self.version = "0.0.1"
+        self.id = 7
+        self.add_evaluation_part(IsIdenticalToEvaluationPart(SizesNumberCheck(),1))
+        self.add_evaluation_part(ContainsItemExactlyNTimesEvaluationPart(
+            SizesByteSizeCheck(),
+            True,
+            1
+        ))

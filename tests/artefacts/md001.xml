@@ -48,6 +48,9 @@
             <relatedIdentifier relatedIdentifierType="DOI" relationType="Compiles" resourceTypeGeneral="Dataset">10.5281/zenodo.3490329</relatedIdentifier>
             <relatedIdentifier relatedIdentifierType="DOI" relationType="IsVersionOf">10.5281/zenodo.3490395</relatedIdentifier>
           </relatedIdentifiers>
+          <sizes>
+              <size>12000kb</size>
+          </sizes>
           <formats>
               <format>application/json</format>
               <format>text/csv</format>

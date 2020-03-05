@@ -188,11 +188,24 @@ def test_rdp_zenodo_creators(mock_get):
     assert rdp.metadata.creators[0].familyName is None
     assert rdp.metadata.creators[0].orcid is None
 
-
     rdp = RdpFactory.create("10.5281/zenodo.badex3", "zenodo", token="123")
     assert rdp.metadata.creators[1].name == "Leibniz Rechenzentrum"
+
+@mock.patch('requests.get', side_effect=mocked_requests_get)
+def test_rdp_zenodo_size(mock_get):
+    rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
+    assert rdp.metadata.sizes[0] == "12000kb"
+
+    rdp = RdpFactory.create("10.5281/zenodo.badex1", "zenodo", token="123")
+    assert len(rdp.metadata.sizes) == 0
+
+    rdp = RdpFactory.create("10.5281/zenodo.badex2", "zenodo", token="123")
+    assert len(rdp.metadata.sizes) == 2
+    assert rdp.metadata.sizes[0] == "120 records"
+    assert rdp.metadata.sizes[1] == "12 GB"
 
 @mock.patch('requests.get', side_effect=mocked_requests_get)
 def test_rdp_zenodo_data(mock_get):
     rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
     assert len(rdp.data) == 2
+

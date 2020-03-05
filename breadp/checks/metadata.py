@@ -499,6 +499,54 @@ class CreatorsContainInstitutionsCheck(Check):
                 return(True, BooleanResult(True, "{} is an institution".format(po.name)))
         return (True, BooleanResult(False, ""))
 
+class SizesNumberCheck(Check):
+    """ Checks the number of size specifications
+
+    Methods
+    -------
+    _do_check(self, rdp)
+        returns a MetricResult, indicating the number of size specifications
+
+    """
+    def __init__(self):
+        Check.__init__(self)
+        self.id = 22
+        self.version = "0.0.1"
+        self.desc = "checks the number of size specifications"
+
+    def _do_check(self, rdp):
+            return (True, MetricResult(len(rdp.metadata.sizes), ""))
+
+class SizesByteSizeCheck(Check):
+    """ Checks which of the size specifications have a valid *byte-specification,
+        i.e. a number followed by a (k|m|g|t|p|e|z|y)g unit (case-insensivite)
+
+    Methods
+    -------
+    _do_check(self, rdp)
+        returns a ListResult of Booleans, indicating which size specification
+        has a valid *byte-specification
+
+    """
+    def __init__(self):
+        Check.__init__(self)
+        self.id = 23
+        self.version = "0.0.1"
+        self.desc = "checks which size specifications are valid *byte specifications"
+
+    def _do_check(self, rdp):
+        valid = []
+        if len(rdp.metadata.sizes) < 1:
+            return (False, ListResult([], "no sizes"))
+        for s in rdp.metadata.sizes:
+            if re.match("^\d+\s*(k|m|g|t|p|e|z|y){0,1}b$", s, re.IGNORECASE):
+                valid.append(True)
+            else:
+                valid.append(False)
+        return (True, ListResult(valid, ""))
+
+
+
 def isValidOrcid(orcid):
     """ checks whether the given orcid is valid and the checksum is valid
     """
