@@ -412,3 +412,8 @@ def test_creators_orcid_check(mock_get):
     assert check.success
     assert not check.result.outcome[0]
 
+    rdp = RdpFactory.create("10.5281/zenodo.badex4", "zenodo", token="123")
+    check.check(rdp)
+    assert check.success
+    assert check.result.outcome[0]
+

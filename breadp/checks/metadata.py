@@ -452,26 +452,28 @@ class CreatorsOrcidCheck(Check):
                 valid.append(False)
                 continue
             # Test format
-            if not re.match("^\d\d\d\d-\d\d\d\d-\d\d\d\d-\d\d\d(\d|X)", po.orcid):
-                valid.append(False)
-                continue
-            # Test checksum
-            total = 0
-            digitsRead = 0
-            for char in po.orcid:
-                if char == "-":
-                    continue
-                if char == "X":
-                    digit = 10
-                else:
-                    digit = int(char)
-                digitsRead += 1
-                if digitsRead <= 15:
-                    total = (total + digit) * 2
-                else:
-                    checksum = digit
-            if ((12 - (total % 11)) %11) != checksum:
-                valid.append(False)
-                continue
-            valid.append(True)
+            valid.append(isValidOrcid(po.orcid))
         return (True, ListResult(valid, ""))
+
+def isValidOrcid(orcid):
+    # Test format
+    if not re.match("^\d\d\d\d-\d\d\d\d-\d\d\d\d-\d\d\d(\d|X)", orcid):
+        return False
+    # Test checksum
+    total = 0
+    digitsRead = 0
+    for char in orcid:
+        if char == "-":
+            continue
+        if char == "X":
+            digit = 10
+        else:
+            digit = int(char)
+        digitsRead += 1
+        if digitsRead <= 15:
+            total = (total + digit) * 2
+        else:
+            checksum = digit
+    if ((12 - (total % 11)) %11) != checksum:
+        return False
+    return True
