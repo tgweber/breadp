@@ -13,7 +13,9 @@ from unittest import mock
 
 from util import mocked_requests_get, mocked_requests_head, base_init_check_test
 from breadp.checks import IsValidDoiCheck, DoiResolvesCheck
-from breadp.checks.metadata import DataCiteDescriptionsTypeCheck, \
+from breadp.checks.metadata import \
+        CreatorsOrcidCheck, \
+        DataCiteDescriptionsTypeCheck, \
         DescriptionsNumberCheck, \
         DescriptionsLanguageCheck, \
         DescriptionsLengthCheck, \
@@ -342,7 +344,7 @@ def test_subjects_number_check(mock_get):
     assert check.result.outcome == 5
 
 @mock.patch('requests.get', side_effect=mocked_requests_get)
-def test_subjects_have_ddc(mock_get):
+def test_subjects_have_ddc_check(mock_get):
     check = SubjectsHaveDdcCheck()
     assert base_init_check_test(check, 17)
 
@@ -350,20 +352,20 @@ def test_subjects_have_ddc(mock_get):
     rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
     check.check(rdp)
     assert check.success
-    assert check.result.outcome == True
+    assert check.result.outcome
 
     rdp = RdpFactory.create("10.5281/zenodo.badex1", "zenodo", token="123")
     check.check(rdp)
     assert check.success
-    assert check.result.outcome == False
+    assert not check.result.outcome
 
     rdp = RdpFactory.create("10.5281/zenodo.badex2", "zenodo", token="123")
     check.check(rdp)
     assert check.success
-    assert check.result.outcome == False
+    assert not check.result.outcome
 
 @mock.patch('requests.get', side_effect=mocked_requests_get)
-def test_subjects_have_wiki_keynames(mock_get):
+def test_subjects_have_wikidata_keywords_check(mock_get):
     check = SubjectsHaveWikidataKeywordsCheck()
     assert base_init_check_test(check, 18)
 
@@ -371,14 +373,42 @@ def test_subjects_have_wiki_keynames(mock_get):
     rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
     check.check(rdp)
     assert check.success
-    assert check.result.outcome == True
+    assert check.result.outcome
 
     rdp = RdpFactory.create("10.5281/zenodo.badex1", "zenodo", token="123")
     check.check(rdp)
     assert check.success
-    assert check.result.outcome == False
+    assert not check.result.outcome
 
     rdp = RdpFactory.create("10.5281/zenodo.badex2", "zenodo", token="123")
     check.check(rdp)
     assert check.success
-    assert check.result.outcome == False
+    assert not check.result.outcome
+
+@mock.patch('requests.get', side_effect=mocked_requests_get)
+def test_creators_orcid_check(mock_get):
+    check = CreatorsOrcidCheck()
+    assert base_init_check_test(check, 19)
+
+    # Successful check
+    rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
+    check.check(rdp)
+    assert check.success
+    assert check.result.outcome[0]
+    assert check.result.outcome[1]
+
+    rdp = RdpFactory.create("10.5281/zenodo.badex1", "zenodo", token="123")
+    check.check(rdp)
+    assert check.success
+    assert len(check.result.outcome) == 0
+
+    rdp = RdpFactory.create("10.5281/zenodo.badex2", "zenodo", token="123")
+    check.check(rdp)
+    assert check.success
+    assert not check.result.outcome[0]
+
+    rdp = RdpFactory.create("10.5281/zenodo.badex3", "zenodo", token="123")
+    check.check(rdp)
+    assert check.success
+    assert not check.result.outcome[0]
+

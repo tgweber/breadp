@@ -427,3 +427,51 @@ class SubjectsHaveWikidataKeywordsCheck(Check):
                         True, "{} is a wikidata keyword ".format(so.text))
                     )
         return (True, BooleanResult(False, "No wikidata keyword found"))
+
+class CreatorsOrcidCheck(Check):
+    """ Checks whether the creators have valid orcids
+        Documentation with regard to ORCiDs has been retrieved from
+        https://support.orcid.org/hc/en-us/articles/360006897674-Structure-of-the-ORCID-Identifier
+        (2020-03-04)
+
+    Methods
+    -------
+    _do_check(self, rdp)
+        returns a BooleanResult, indicating the existence of valid orcids
+    """
+    def __init__(self):
+        Check.__init__(self)
+        self.id = 19
+        self.version = "0.0.1"
+        self.desc = "checks whether the creators have valid orcids"
+
+    def _do_check(self, rdp):
+        valid = []
+        for po in rdp.metadata.creators:
+            if po.orcid is None:
+                valid.append(False)
+                continue
+            # Test format
+            if not re.match("^\d\d\d\d-\d\d\d\d-\d\d\d\d-\d\d\d(\d|X)", po.orcid):
+                valid.append(False)
+                continue
+            # Test checksum
+            total = 0
+            digitsRead = 0
+            for char in po.orcid:
+                if char == "-":
+                    continue
+                if char == "X":
+                    digit = 10
+                else:
+                    digit = int(char)
+                digitsRead += 1
+                if digitsRead <= 15:
+                    total = (total + digit) * 2
+                else:
+                    checksum = digit
+            if ((12 - (total % 11)) %11) != checksum:
+                valid.append(False)
+                continue
+            valid.append(True)
+        return (True, ListResult(valid, ""))

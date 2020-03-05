@@ -162,9 +162,9 @@ def createPersonObjectFromOrderedDict(p):
         p["nameIdentifier"] = [p["nameIdentifier"]]
 
     for ni in p.get("nameIdentifier", None):
-        import pprint
-        pprint.pprint(ni)
         if isinstance(ni, OrderedDict):
+            if isinstance(ni.get("nameIdentifier", None), str):
+                ni["#text"] = ni["nameIdentifier"]
             if re.match("^orcid$", ni.get("@nameIdentifierScheme", ""), re.IGNORECASE) \
                or ni.get("@schemeURI", "").startswith("https://orcid.org"):
                 po.orcid = ni["#text"]
