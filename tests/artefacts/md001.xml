@@ -20,7 +20,9 @@
               <affiliation>Leibniz Supercomputing Centre</affiliation>
             </creator>
             <creator>
-                <creatorName>Tavares de Sousa, Nelson</creatorName>
+                <creatorName>Nelson Tavares de Sousa</creatorName>
+                <givenName>Nelson</givenName>
+                <familyName>Tavares de Sousa</familyName>
                 <nameIdentifier schemeURI="https://orcid.org">0000-0003-1866-7156</nameIdentifier>
                 <affiliation>Software Engineering Group, Kiel University (Germany)</affiliation>
             </creator>

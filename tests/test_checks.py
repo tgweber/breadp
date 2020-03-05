@@ -15,6 +15,7 @@ from util import mocked_requests_get, mocked_requests_head, base_init_check_test
 from breadp.checks import IsValidDoiCheck, DoiResolvesCheck
 from breadp.checks.metadata import \
         CreatorsOrcidCheck, \
+        CreatorsFamilyAndGivenNameCheck, \
         DataCiteDescriptionsTypeCheck, \
         DescriptionsNumberCheck, \
         DescriptionsLanguageCheck, \
@@ -417,3 +418,25 @@ def test_creators_orcid_check(mock_get):
     assert check.success
     assert check.result.outcome[0]
 
+@mock.patch('requests.get', side_effect=mocked_requests_get)
+def test_creators_family_and_given_name_check(mock_get):
+    check = CreatorsFamilyAndGivenNameCheck()
+    assert base_init_check_test(check, 20)
+
+    # Successful check
+    rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
+    check.check(rdp)
+    assert check.success
+    assert check.result.outcome[0]
+    assert check.result.outcome[1]
+
+    rdp = RdpFactory.create("10.5281/zenodo.badex1", "zenodo", token="123")
+    check.check(rdp)
+    assert check.success
+    assert len(check.result.outcome) == 0
+
+    rdp = RdpFactory.create("10.5281/zenodo.badex2", "zenodo", token="123")
+    check.check(rdp)
+    assert check.success
+    assert not check.result.outcome[0]
+    assert check.result.outcome[1]

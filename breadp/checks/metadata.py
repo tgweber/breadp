@@ -455,6 +455,27 @@ class CreatorsOrcidCheck(Check):
             valid.append(isValidOrcid(po.orcid))
         return (True, ListResult(valid, ""))
 
+class CreatorsFamilyAndGivenNameCheck(Check):
+    """ Checks whether the creators have distinguishable family and given names
+
+    Methods
+    -------
+    _do_check(self, rdp)
+        returns a BooleanResult, indicating the existence of distinguishable
+        family and given names
+    """
+    def __init__(self):
+        Check.__init__(self)
+        self.id = 20
+        self.version = "0.0.1"
+        self.desc = "checks whether the creators distinguishable family and given names"
+
+    def _do_check(self, rdp):
+        valid = []
+        for po in rdp.metadata.creators:
+            valid.append(hasfamilyAndGivenName(po))
+        return (True, ListResult(valid, ""))
+
 def isValidOrcid(orcid):
     # Test format
     if not re.match("^\d\d\d\d-\d\d\d\d-\d\d\d\d-\d\d\d(\d|X)", orcid):
@@ -477,3 +498,10 @@ def isValidOrcid(orcid):
     if ((12 - (total % 11)) %11) != checksum:
         return False
     return True
+
+def hasfamilyAndGivenName(po):
+    if isinstance(po.familyName, str) and len(po.familyName) > 0:
+        if isinstance(po.givenName, str) and len(po.givenName) > 0:
+            return True
+    return False
+

@@ -158,10 +158,16 @@ def createPersonObjectFromOrderedDict(p):
         p["creatorName"],
         p.get("affiliation", None)
     )
+    import pprint
+    pprint.pprint(p)
+    if po.familyName is None:
+        po.familyName = p.get("familyName")
+    if po.givenName is None:
+        po.givenName = p.get("givenName")
     if isinstance(p.get("nameIdentifier", None), OrderedDict):
         p["nameIdentifier"] = [p["nameIdentifier"]]
 
-    for ni in p.get("nameIdentifier", None):
+    for ni in p.get("nameIdentifier", []):
         if isinstance(ni, OrderedDict):
             if isinstance(ni.get("nameIdentifier", None), str):
                 ni["#text"] = ni["nameIdentifier"]
