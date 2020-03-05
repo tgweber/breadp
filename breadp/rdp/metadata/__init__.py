@@ -24,6 +24,14 @@ class Metadata(object):
         Identifier for the RDP
     titles: list<Title>
         Titles of the RDP
+    formats: list<str>
+        Formats of the RDP
+    rights: list<Rights>
+        Legal information about the RDP
+    subjects: list<Subject>
+        Keywords describing the RDP
+    creators: list<Person>
+        Creators of the RDP
     """
     @property
     def descriptions(self):
@@ -42,6 +50,9 @@ class Metadata(object):
         raise NotImplementedError("Must be implemented by subclasses of Metadata.")
     @property
     def subjects(self):
+        raise NotImplementedError("Must be implemented by subclasses of Metadata.")
+    @property
+    def creators(self):
         raise NotImplementedError("Must be implemented by subclasses of Metadata.")
 
 class Description(object):
@@ -90,7 +101,7 @@ class Rights(object):
         self.spdx = spdx
 
 class Subject(object):
-    """ Base class and interface of subjects as part of metadata of RDPs
+    """ Base class and interface for subjects as part of metadata of RDPs
 
     Attributes
     ----------
@@ -105,6 +116,33 @@ class Subject(object):
         self.text = text
         self.scheme = scheme
         self.uri = uri
+
+class Person(object):
+    """ Base class and interface for persons as part of metadata of RDPs
+
+    Attributes
+    ----------
+    name: str
+        Name of the person
+    givenName: str
+        Given name of the person
+    familiyName: str
+        Familiy name of the person
+    affiliation: str
+        Affiliation of the person
+    orcid: str
+        ORCiD of the person
+    """
+    def __init__(self, name, affiliation=None, orcid=None):
+        self.name = name
+        if ", " in self.name:
+            self.givenName = self.name.split(", ")[1]
+            self.familyName = self.name.split(", ")[0]
+        else:
+            self.givenName = None
+            self.familyName = None
+        self.affiliation = affiliation
+        self.orcid = orcid
 
 class OaiPmhMetadata(Metadata):
     """ Base class and interface for all OAI-PMH-based Metadata objects

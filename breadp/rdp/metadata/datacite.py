@@ -8,23 +8,26 @@
 ################################################################################
 
 from collections import OrderedDict
+import re
 
 from breadp.rdp.metadata import \
     Description, \
+    OaiPmhMetadata, \
+    Person, \
     Rights, \
     Subject, \
-    Title, \
-    OaiPmhMetadata
+    Title
 
 class DataCiteMetadata(OaiPmhMetadata):
     """ DataCite Metadata Object
     """
     def __init__(self):
+        self._creators = []
         self._descriptions = []
-        self._titles = []
         self._formats = []
         self._rights = []
         self._subjects = []
+        self._titles = []
 
     @property
     def pid(self) -> str:
@@ -120,6 +123,22 @@ class DataCiteMetadata(OaiPmhMetadata):
                     )
         return self._subjects
 
+    @property
+    def creators(self):
+        if len(self._creators) == 0 and "creators" in self.md.keys() \
+           and isinstance(self.md["creators"], OrderedDict):
+            if isinstance(self.md["creators"].get("creator", None), OrderedDict):
+                self._creators.append(
+                    createPersonObjectFromOrderedDict(self.md["creators"]["creator"])
+                )
+            elif isinstance(self.md["creators"].get("creator", None), list):
+                for p in self.md["creators"]["creator"]:
+                    if isinstance(p, OrderedDict):
+                        self._creators.append(
+                            createPersonObjectFromOrderedDict(p)
+                        )
+        return self._creators
+
 def createRightsObjectFromOrderedDict(r):
     ro = Rights(r.get("rights", ""), r.get("@rightsURI", None))
     if r.get("@schemeURI", "").startswith("https://spdx.org/licenses") \
@@ -133,3 +152,20 @@ def createSubjectObjectFromOrderedDict(s):
         s.get("@subjectScheme", ""),
         s.get("@schemeURI", "")
     )
+
+def createPersonObjectFromOrderedDict(p):
+    po = Person(
+        p["creatorName"],
+        p.get("affiliation", None)
+    )
+    if isinstance(p.get("nameIdentifier", None), OrderedDict):
+        p["nameIdentifier"] = [p["nameIdentifier"]]
+
+    for ni in p.get("nameIdentifier", None):
+        import pprint
+        pprint.pprint(ni)
+        if isinstance(ni, OrderedDict):
+            if re.match("^orcid$", ni.get("@nameIdentifierScheme", ""), re.IGNORECASE) \
+               or ni.get("@schemeURI", "").startswith("https://orcid.org"):
+                po.orcid = ni["#text"]
+    return po

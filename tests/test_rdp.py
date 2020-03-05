@@ -151,6 +151,7 @@ def test_rdp_zenodo_rights(mock_get):
     assert rdp.metadata.rights[1].text == "Creative Commons Attribution 4.0 International"
     assert rdp.metadata.rights[1].uri == "http://thisurl does not exists"
     assert rdp.metadata.rights[1].spdx == None
+    assert len(rdp.metadata.rights) == 3
 
 @mock.patch('requests.get', side_effect=mocked_requests_get)
 def test_rdp_zenodo_subjects(mock_get):
@@ -162,15 +163,31 @@ def test_rdp_zenodo_subjects(mock_get):
     assert rdp.metadata.subjects[1].scheme == "dewey"
     assert rdp.metadata.subjects[1].uri == "https://dewey.info/"
     assert rdp.metadata.subjects[1].text == "000 computer science"
+    assert len(rdp.metadata.subjects) == 2
 
-#@mock.patch('requests.get', side_effect=mocked_requests_get)
-#def test_rdp_zenodo_creators(mock_get):
-#    rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
-#    assert rdp.metadata.creators[0].name == "Weber, Tobias"
-#    assert rdp.metadata.creators[0].givenName == "Tobias"
-#    assert rdp.metadata.creators[0].familyName == "Weber"
-#    assert rdp.metadata.creators[0].affiliation == "Leibniz Supercomputing Centre"
-#    assert rdp.metadata.creators[0].orcid == "0000-0003-1815-7041"
+@mock.patch('requests.get', side_effect=mocked_requests_get)
+def test_rdp_zenodo_creators(mock_get):
+    rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
+    assert len(rdp.metadata.creators) == 2
+    assert rdp.metadata.creators[0].name == "Weber, Tobias"
+    assert rdp.metadata.creators[0].givenName == "Tobias"
+    assert rdp.metadata.creators[0].familyName == "Weber"
+    assert rdp.metadata.creators[0].affiliation == "Leibniz Supercomputing Centre"
+    assert rdp.metadata.creators[0].orcid == "0000-0003-1815-7041"
+    assert rdp.metadata.creators[1].givenName == "Nelson"
+    assert rdp.metadata.creators[1].familyName == "Tavares de Sousa"
+    assert rdp.metadata.creators[1].affiliation == "Software Engineering Group, Kiel University (Germany)"
+    assert rdp.metadata.creators[1].orcid == "0000-0003-1866-7156"
+
+    rdp = RdpFactory.create("10.5281/zenodo.badex1", "zenodo", token="123")
+    assert len(rdp.metadata.creators) == 0
+
+    rdp = RdpFactory.create("10.5281/zenodo.badex2", "zenodo", token="123")
+    assert rdp.metadata.creators[0].name == "Tobias Weber"
+    assert rdp.metadata.creators[0].givenName is None
+    assert rdp.metadata.creators[0].familyName is None
+    assert rdp.metadata.creators[0].orcid is None
+
 
 @mock.patch('requests.get', side_effect=mocked_requests_get)
 def test_rdp_zenodo_data(mock_get):
