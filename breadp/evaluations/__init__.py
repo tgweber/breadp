@@ -231,13 +231,22 @@ class AllTrueEvaluationPart(SingleCheckEvaluationPart):
         return 1
 
 class IsTrueEvaluationPart(SingleCheckEvaluationPart):
-    """ If the check's outcome is true this parts returns 1, else 0
+    """ If the check's outcome is true this part returns 1, else 0
     """
     def _evaluate_part(self):
         if self.check.result.outcome:
             return 1
         else:
             return 0
+
+class IsFalseEvaluationPart(SingleCheckEvaluationPart):
+    """ If the check's outcome is false this part returns 1, else 0
+    """
+    def _evaluate_part(self):
+        if self.check.result.outcome:
+            return 0
+        else:
+            return 1
 
 class AllFalseEvaluationPart(SingleCheckEvaluationPart):
     """ The score is 1 if all list items of ListResult are False.

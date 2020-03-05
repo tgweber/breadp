@@ -27,6 +27,7 @@ from breadp.evaluations import \
     SimpleAndEvaluation
 from breadp.evaluations.doi import DoiEvaluation
 from breadp.evaluations.metadata import \
+    CreatorEvaluation, \
     DescriptionEvaluation, \
     FormatEvaluation, \
     RightsEvaluation, \
@@ -174,3 +175,27 @@ def test_subject_evaluation(mock_get, mock_head):
     e.evaluate(rdp)
     assert len(e.log) == 4
     assert e.log.log[-1].evaluation == round(2/6,10)
+
+@mock.patch('requests.get', side_effect=mocked_requests_get)
+@mock.patch('requests.head', side_effect=mocked_requests_head)
+def test_creator_evaluation(mock_get, mock_head):
+    e = CreatorEvaluation()
+    rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
+    e.evaluate(rdp)
+    assert len(e.log) == 1
+    assert e.log.log[-1].evaluation == 1
+
+    rdp = RdpFactory.create("10.5281/zenodo.badex1", "zenodo", token="123")
+    e.evaluate(rdp)
+    assert len(e.log) == 2
+    assert e.log.log[-1].evaluation == 0
+
+    rdp = RdpFactory.create("10.5281/zenodo.badex2", "zenodo", token="123")
+    e.evaluate(rdp)
+    assert len(e.log) == 3
+    assert e.log.log[-1].evaluation == round(3/24,10)
+
+    rdp = RdpFactory.create("10.5281/zenodo.badex3", "zenodo", token="123")
+    e.evaluate(rdp)
+    assert len(e.log) == 4
+    assert e.log.log[-1].evaluation == 0

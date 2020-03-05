@@ -437,7 +437,7 @@ class CreatorsOrcidCheck(Check):
     Methods
     -------
     _do_check(self, rdp)
-        returns a BooleanResult, indicating the existence of valid orcids
+        returns a ListResult of bools, indicating the existence of valid orcids
     """
     def __init__(self):
         Check.__init__(self)

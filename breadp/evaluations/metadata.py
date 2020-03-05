@@ -17,11 +17,15 @@ from breadp.evaluations import \
     DoesNotContainEvaluationPart, \
     Evaluation, \
     IsBetweenEvaluationPart, \
+    IsFalseEvaluationPart, \
     IsTrueEvaluationPart, \
     SimpleAndEvaluation, \
     TheMoreTrueTheBetterEvaluationPart
 from breadp.rdp.metadata.datacite import DataCiteMetadata
 from breadp.checks.metadata import \
+    CreatorsOrcidCheck, \
+    CreatorsFamilyAndGivenNameCheck, \
+    CreatorsContainInstitutionsCheck, \
     DataCiteDescriptionsTypeCheck, \
     DescriptionsLanguageCheck, \
     DescriptionsLengthCheck, \
@@ -127,3 +131,16 @@ class SubjectEvaluation(CompositeEvaluation):
         )
         self.add_evaluation_part(IsTrueEvaluationPart(SubjectsHaveDdcCheck(),2))
         self.add_evaluation_part(IsTrueEvaluationPart(SubjectsHaveWikidataKeywordsCheck(),2))
+
+class CreatorEvaluation(CompositeEvaluation):
+    """ Evaluation for the creator specification of the metadata of an RDP
+    """
+    def __init__(self):
+        CompositeEvaluation.__init__(self)
+        self.version = "0.0.1"
+        self.id = 6
+        self.add_evaluation_part(TheMoreTrueTheBetterEvaluationPart(CreatorsOrcidCheck(),10))
+        self.add_evaluation_part(
+            TheMoreTrueTheBetterEvaluationPart(CreatorsFamilyAndGivenNameCheck())
+        )
+        self.add_evaluation_part(IsFalseEvaluationPart(CreatorsContainInstitutionsCheck()))

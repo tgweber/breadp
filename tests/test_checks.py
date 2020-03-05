@@ -22,6 +22,7 @@ from breadp.checks.metadata import \
         DescriptionsLanguageCheck, \
         DescriptionsLengthCheck, \
         FormatsAreValidMediaTypeCheck, \
+        isValidOrcid, \
         RightsHaveValidSPDXIdentifierCheck, \
         RightsHasAtLeastOneLicenseCheck, \
         SubjectsAreQualifiedCheck, \
@@ -387,6 +388,12 @@ def test_subjects_have_wikidata_keywords_check(mock_get):
     assert check.success
     assert not check.result.outcome
 
+def test_is_valid_orcid():
+    assert isValidOrcid("0000-0003-1815-7041")
+    assert not isValidOrcid("0000-0003-1815-7042")
+    assert not isValidOrcid("abcd-0003-1815-7042")
+    assert not isValidOrcid("0000-0003-1815-704X")
+
 @mock.patch('requests.get', side_effect=mocked_requests_get)
 def test_creators_orcid_check(mock_get):
     check = CreatorsOrcidCheck()
@@ -413,11 +420,13 @@ def test_creators_orcid_check(mock_get):
     check.check(rdp)
     assert check.success
     assert not check.result.outcome[0]
+    assert not check.result.outcome[1]
 
     rdp = RdpFactory.create("10.5281/zenodo.badex4", "zenodo", token="123")
     check.check(rdp)
     assert check.success
     assert check.result.outcome[0]
+
 
 @mock.patch('requests.get', side_effect=mocked_requests_get)
 def test_creators_family_and_given_name_check(mock_get):
@@ -441,7 +450,6 @@ def test_creators_family_and_given_name_check(mock_get):
     assert check.success
     assert not check.result.outcome[0]
     assert check.result.outcome[1]
-
 
 @mock.patch('requests.get', side_effect=mocked_requests_get)
 def test_creators_contain_institutions_check(mock_get):
