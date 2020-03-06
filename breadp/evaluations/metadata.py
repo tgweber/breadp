@@ -16,6 +16,7 @@ from breadp.evaluations import \
     ContainsItemExactlyNTimesEvaluationPart, \
     DoesNotContainEvaluationPart, \
     Evaluation, \
+    InListEvaluationPart, \
     IsBetweenEvaluationPart, \
     IsFalseEvaluationPart, \
     IsIdenticalToEvaluationPart, \
@@ -27,6 +28,10 @@ from breadp.checks.metadata import \
     CreatorsOrcidCheck, \
     CreatorsFamilyAndGivenNameCheck, \
     CreatorsContainInstitutionsCheck, \
+    ContributorsOrcidCheck, \
+    ContributorsFamilyAndGivenNameCheck, \
+    ContributorsContainInstitutionsCheck, \
+    ContributorsTypeCheck, \
     DataCiteDescriptionsTypeCheck, \
     DescriptionsLanguageCheck, \
     DescriptionsLengthCheck, \
@@ -181,3 +186,37 @@ class VersionEvaluation(CompositeEvaluation):
         self.version = "0.0.1"
         self.id = 9
         self.add_evaluation_part(IsTrueEvaluationPart(VersionSpecifiedCheck()))
+
+class ContributorEvaluation(CompositeEvaluation):
+    """ Evaluation for the contributor specification of the metadata of an RDP
+    """
+    def __init__(self):
+        CompositeEvaluation.__init__(self)
+        self.version = "0.0.1"
+        self.id = 10
+        self.add_evaluation_part(
+            TheMoreTrueTheBetterEvaluationPart(ContributorsOrcidCheck(),10)
+        )
+        self.add_evaluation_part(
+            TheMoreTrueTheBetterEvaluationPart(ContributorsFamilyAndGivenNameCheck())
+        )
+        self.add_evaluation_part(
+            IsFalseEvaluationPart(ContributorsContainInstitutionsCheck())
+        )
+        self.add_evaluation_part(
+            InListEvaluationPart(ContributorsTypeCheck(),
+                ["ContactPerson",
+                 "DataCollector",
+                 "DataCurator",
+                 "HostingInstitution",
+                 "ProjectLeader",
+                 "ProjectManager",
+                 "ProjectMember",
+                 "Researcher",
+                 "RightsHolder",
+                 "WorkPackageLeader"
+                ],
+                3
+        )
+        )
+

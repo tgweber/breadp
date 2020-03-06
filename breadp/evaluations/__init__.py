@@ -290,6 +290,25 @@ class TheMoreTrueTheBetterEvaluationPart(SingleCheckEvaluationPart):
                 trueAndBool += 1
         return trueAndBool/len(self.check.result.outcome)
 
+class InListEvaluationPart(SingleCheckEvaluationPart):
+    """ The score is the ratio of all items in the ListResult which are also member
+        of the specified comparata list. 0 if the list eis empty or not of type ListResult
+    """
+    def __init__(self, check, comparata, weight=1):
+        SingleCheckEvaluationPart.__init__(self, check, weight)
+        self.comparata = comparata
+
+    def _evaluate_part(self):
+        if not isinstance(self.check.result, ListResult):
+            return 0
+        if len(self.check.result.outcome) == 0:
+            return 0
+        inList = 0
+        for item in self.check.result.outcome:
+            if item in self.comparata:
+                inList += 1
+        return inList/len(self.check.result.outcome)
+
 class CompositeEvaluation(BatchEvaluation):
     """ Evaluation that is composed of EvaluationParts
     """

@@ -603,6 +603,98 @@ class LanguageSpecifiedCheck(Check):
                                   )
         )
 
+class ContributorsOrcidCheck(Check):
+    """ Checks whether the contributors have valid orcids
+        Documentation with regard to ORCiDs has been retrieved from
+        https://support.orcid.org/hc/en-us/articles/360006897674-Structure-of-the-ORCID-Identifier
+        (2020-03-04)
+
+    Methods
+    -------
+    _do_check(self, rdp)
+        returns a ListResult of bools, indicating the existence of valid orcids
+    """
+    def __init__(self):
+        Check.__init__(self)
+        self.id = 26
+        self.version = "0.0.1"
+        self.desc = "checks whether the contributors have valid orcids"
+
+    def _do_check(self, rdp):
+        valid = []
+        for po in rdp.metadata.contributors:
+            if po.orcid is None:
+                valid.append(False)
+                continue
+            # Test format
+            valid.append(isValidOrcid(po.orcid))
+        return (True, ListResult(valid, ""))
+
+class ContributorsFamilyAndGivenNameCheck(Check):
+    """ Checks whether the contributors have distinguishable family and given names
+
+    Methods
+    -------
+    _do_check(self, rdp)
+        returns a ListResult of bools, indicating the existence of distinguishable
+        family and given names
+    """
+    def __init__(self):
+        Check.__init__(self)
+        self.id = 27
+        self.version = "0.0.1"
+        self.desc = "checks whether the contributors distinguishable family and given names"
+
+    def _do_check(self, rdp):
+        valid = []
+        for po in rdp.metadata.contributors:
+            valid.append(hasfamilyAndGivenName(po))
+        return (True, ListResult(valid, ""))
+
+class ContributorsContainInstitutionsCheck(Check):
+    """ Checks whether the contributors contain institutions
+
+    Methods
+    -------
+    _do_check(self, rdp)
+        returns a BooleanResult, indicating whether an institution is part of the contributors.
+
+    """
+    def __init__(self):
+        Check.__init__(self)
+        self.id = 28
+        self.version = "0.0.1"
+        self.desc = "checks whether the contributors contain institutions"
+
+    def _do_check(self, rdp):
+        if len(rdp.metadata.contributors) < 1:
+            return (False, BooleanResult(None, "no contributors"))
+        for po in rdp.metadata.contributors:
+            if not po.person:
+                return(True, BooleanResult(True, "{} is an institution".format(po.name)))
+        return (True, BooleanResult(False, ""))
+
+class ContributorsTypeCheck(Check):
+    """ Checks whether the type of the contributors
+
+    Methods
+    -------
+    _do_check(self, rdp)
+        returns a ListResult of str, indicating the type of each contributor.
+
+    """
+    def __init__(self):
+        Check.__init__(self)
+        self.id = 29
+        self.version = "0.0.1"
+        self.desc = "checks whether the contributors contain institutions"
+
+    def _do_check(self, rdp):
+        types = []
+        for po in rdp.metadata.contributors:
+            types.append(po.type)
+        return (True, ListResult(types, ""))
+
 def isValidOrcid(orcid):
     """ checks whether the given orcid is valid and the checksum is valid
     """

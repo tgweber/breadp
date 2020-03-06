@@ -17,6 +17,10 @@ from breadp.checks.metadata import \
         CreatorsContainInstitutionsCheck, \
         CreatorsOrcidCheck, \
         CreatorsFamilyAndGivenNameCheck, \
+        ContributorsContainInstitutionsCheck, \
+        ContributorsOrcidCheck, \
+        ContributorsFamilyAndGivenNameCheck, \
+        ContributorsTypeCheck, \
         DataCiteDescriptionsTypeCheck, \
         DescriptionsNumberCheck, \
         DescriptionsLanguageCheck, \
@@ -563,3 +567,73 @@ def test_language_specified_check(mock_get):
     assert not check.result.outcome
     assert check.result.msg == "'bribrabru' is not a valid ISO-639-1 code"
 
+@mock.patch('requests.get', side_effect=mocked_requests_get)
+def test_contributors_orcid_check(mock_get):
+    check = ContributorsOrcidCheck()
+    assert base_init_check_test(check, 26)
+
+    # Successful check
+    rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
+    check.check(rdp)
+    assert check.success
+    assert check.result.outcome[0]
+    assert check.result.outcome[1]
+
+    rdp = RdpFactory.create("10.5281/zenodo.badex1", "zenodo", token="123")
+    check.check(rdp)
+    assert check.success
+    assert len(check.result.outcome) == 0
+
+@mock.patch('requests.get', side_effect=mocked_requests_get)
+def test_contributors_family_and_given_name_check(mock_get):
+    check = ContributorsFamilyAndGivenNameCheck()
+    assert base_init_check_test(check, 27)
+
+    # Successful check
+    rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
+    check.check(rdp)
+    assert check.success
+    assert check.result.outcome[0]
+    assert check.result.outcome[1]
+
+    rdp = RdpFactory.create("10.5281/zenodo.badex1", "zenodo", token="123")
+    check.check(rdp)
+    assert check.success
+    assert len(check.result.outcome) == 0
+
+@mock.patch('requests.get', side_effect=mocked_requests_get)
+def test_contributors_contain_institutions_check(mock_get):
+    check = ContributorsContainInstitutionsCheck()
+    assert base_init_check_test(check, 28)
+
+    # Successful check
+    rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
+    check.check(rdp)
+    assert check.success
+    assert not check.result.outcome
+
+    rdp = RdpFactory.create("10.5281/zenodo.badex1", "zenodo", token="123")
+    check.check(rdp)
+    assert not check.success
+
+@mock.patch('requests.get', side_effect=mocked_requests_get)
+def test_contributors_type_check(mock_get):
+    check = ContributorsTypeCheck()
+    assert base_init_check_test(check, 29)
+
+    # Successful check
+    rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
+    check.check(rdp)
+    assert check.success
+    assert check.result.outcome[0] == "ContactPerson"
+    assert check.result.outcome[1] == "ProjectMember"
+
+    rdp = RdpFactory.create("10.5281/zenodo.badex1", "zenodo", token="123")
+    check.check(rdp)
+    assert check.success
+    assert len(check.result.outcome) == 0
+
+    rdp = RdpFactory.create("10.5281/zenodo.badex2", "zenodo", token="123")
+    check.check(rdp)
+    assert check.success
+    assert check.result.outcome[0] == "Editor"

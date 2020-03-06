@@ -200,16 +200,6 @@ def createSubjectObjectFromOrderedDict(s):
         s.get("@schemeURI", "")
     )
 
-def createPersonOrInstitutionObjectFromOrderedDict(p):
-    nameField = p.get("creatorName", p.get("contributorName", None))
-    if isinstance(nameField, OrderedDict):
-        if nameField.get("@nameType", None) == "Organizational":
-            return PersonOrInstitution(nameField["#text"], False)
-        # after this p is considered to be a person
-        else:
-            name = nameField["#text"]
-    else:
-        name = nameField
 def createRightsObjectFromOrderedDict(r):
     ro = Rights(r.get("rights", ""), r.get("@rightsURI", None))
     if r.get("@schemeURI", "").startswith("https://spdx.org/licenses") \
@@ -231,7 +221,11 @@ def createPersonOrInstitutionObjectFromOrderedDict(p):
             return PersonOrInstitution(nameField["#text"], False)
         # after this p is considered to be a person
         else:
-            name = nameField["#text"]
+            name = nameField.get("#text",
+                 nameField.get("creatorName",
+                     nameField.get("contributorName")
+                  )
+            )
     else:
         name = nameField
 
