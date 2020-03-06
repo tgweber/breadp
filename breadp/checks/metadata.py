@@ -279,19 +279,19 @@ class RightsHaveValidSPDXIdentifierCheck(Check):
         self.id = 13
         self.version = "0.0.1"
         self.desc = "checks whether rights have valid SPDX identifiers"
-
-    def _do_check(self, rdp):
-        valid = []
         spdx_file_path = os.path.join(
             os.path.dirname(os.path.abspath(__file__)), 'licenses.json'
         )
         with open(spdx_file_path, "r") as f:
             licenses_dict = json.load(f)
-        licenses = pd.DataFrame(licenses_dict["licenses"])
+        self.licenses = pd.DataFrame(licenses_dict["licenses"])
+
+    def _do_check(self, rdp):
+        valid = []
         msg = "No rights objects found!"
         for r in rdp.metadata.rights:
             msg = ""
-            if r.spdx not in licenses.licenseId.tolist():
+            if r.spdx not in self.licenses.licenseId.tolist():
                 msg += "{} is not a valid SPDX identifier".format(r.spdx)
                 valid.append(False)
             else:
@@ -545,7 +545,63 @@ class SizesByteSizeCheck(Check):
                 valid.append(False)
         return (True, ListResult(valid, ""))
 
+class VersionSpecifiedCheck(Check):
+    """ Checks whether the version of the RDP is specified in semantic versioning format.
 
+    Methods
+    -------
+    _do_check(self, rdp)
+        returns a BooleanResult, indicating whether the version of the RDP is specified
+        in semantic versioning format.
+    """
+    def __init__(self):
+        Check.__init__(self)
+        self.id = 24
+        self.version = "0.0.1"
+        self.desc = "checks whether the version of the RDP is specified in semantic versioning format"
+
+    def _do_check(self, rdp):
+        if rdp.metadata.version is None:
+            return(False, BooleanResult(False, "no version specified"))
+        if re.match("^\d+\.\d+\.\d+(-\S+){0,1}$", rdp.metadata.version):
+            return (True, BooleanResult(True, ""))
+        return(True, BooleanResult(False,
+                                   "'{}' is not in semantic versioning format".format(
+                                       rdp.metadata.version)
+                                  )
+        )
+
+class LanguageSpecifiedCheck(Check):
+    """ Checks whether the language of the RDP is specified as a ISO-639-1 code.
+        Canonical source: https://pkgstore.datahub.io/core/language-codes/language-codes-full_json/data/573588525f24edb215c07bec3c309153/language-codes-full_json.json
+        Retrieved 2020-03-06 for this version
+
+    Methods
+    -------
+    _do_check(self, rdp)
+        returns a BooleanResult, indicating whether the language of the RDP is
+        specified as a ISO 639-1 code.
+    """
+    def __init__(self):
+        Check.__init__(self)
+        self.id = 25
+        self.version = "0.0.1"
+        self.desc = "checks whether the language of the RDP is specified as a ISO 639-1 code"
+        iso_file_path = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)), 'iso-639.json'
+        )
+        self.iso_codes = pd.read_json(iso_file_path)
+
+    def _do_check(self, rdp):
+        if rdp.metadata.language is None:
+            return (False, BooleanResult(False, "no language specified"))
+        if rdp.metadata.language in self.iso_codes.alpha2.tolist():
+            return (True, BooleanResult(True, ""))
+        return(True, BooleanResult(False,
+                                   "'{}' is not a valid ISO-639-1 code".format(
+                                       rdp.metadata.language)
+                                  )
+        )
 
 def isValidOrcid(orcid):
     """ checks whether the given orcid is valid and the checksum is valid

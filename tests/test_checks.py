@@ -23,6 +23,7 @@ from breadp.checks.metadata import \
         DescriptionsLengthCheck, \
         FormatsAreValidMediaTypeCheck, \
         isValidOrcid, \
+        LanguageSpecifiedCheck, \
         RightsHaveValidSPDXIdentifierCheck, \
         RightsHasAtLeastOneLicenseCheck, \
         SizesNumberCheck, \
@@ -34,7 +35,8 @@ from breadp.checks.metadata import \
         TitlesJustAFileNameCheck, \
         TitlesLanguageCheck, \
         TitlesLengthCheck, \
-        TitlesNumberCheck
+        TitlesNumberCheck, \
+        VersionSpecifiedCheck
 
 from breadp.rdp.rdp import RdpFactory, Rdp
 
@@ -515,3 +517,49 @@ def test_sizes_number_check(mock_get):
     assert check.success
     assert not check.result.outcome[0]
     assert check.result.outcome[1]
+
+@mock.patch('requests.get', side_effect=mocked_requests_get)
+def test_version_specified_check(mock_get):
+    check = VersionSpecifiedCheck()
+    assert base_init_check_test(check, 24)
+
+    # Successful check
+    rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
+    check.check(rdp)
+    assert check.success
+    assert check.result.outcome
+
+    rdp = RdpFactory.create("10.5281/zenodo.badex1", "zenodo", token="123")
+    check.check(rdp)
+    assert not check.success
+    assert not check.result.outcome
+
+    rdp = RdpFactory.create("10.5281/zenodo.badex2", "zenodo", token="123")
+    check.check(rdp)
+    assert check.success
+    assert not check.result.outcome
+    assert check.result.msg == "'34' is not in semantic versioning format"
+
+@mock.patch('requests.get', side_effect=mocked_requests_get)
+def test_language_specified_check(mock_get):
+    check = LanguageSpecifiedCheck()
+    assert base_init_check_test(check, 25)
+
+    # Successful check
+    rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
+    check.check(rdp)
+    assert check.success
+    print(check.result.msg)
+    assert check.result.outcome
+
+    rdp = RdpFactory.create("10.5281/zenodo.badex1", "zenodo", token="123")
+    check.check(rdp)
+    assert not check.success
+    assert not check.result.outcome
+
+    rdp = RdpFactory.create("10.5281/zenodo.badex2", "zenodo", token="123")
+    check.check(rdp)
+    assert check.success
+    assert not check.result.outcome
+    assert check.result.msg == "'bribrabru' is not a valid ISO-639-1 code"
+

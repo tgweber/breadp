@@ -31,6 +31,7 @@ from breadp.checks.metadata import \
     DescriptionsLanguageCheck, \
     DescriptionsLengthCheck, \
     DescriptionsNumberCheck, \
+    LanguageSpecifiedCheck, \
     FormatsAreValidMediaTypeCheck, \
     RightsHaveValidSPDXIdentifierCheck, \
     RightsHasAtLeastOneLicenseCheck, \
@@ -42,7 +43,8 @@ from breadp.checks.metadata import \
     SubjectsHaveWikidataKeywordsCheck, \
     TitlesJustAFileNameCheck, \
     TitlesLanguageCheck, \
-    TitlesTypeCheck
+    TitlesTypeCheck, \
+    VersionSpecifiedCheck
 
 class DescriptionEvaluation(CompositeEvaluation):
     """ Evaluation for descriptions of the metadata of an RDP
@@ -161,3 +163,21 @@ class SizeEvaluation(CompositeEvaluation):
             True,
             1
         ))
+
+class LanguageEvaluation(CompositeEvaluation):
+    """ Evaluation for the language specification of the metadata of an RDP
+    """
+    def __init__(self):
+        CompositeEvaluation.__init__(self)
+        self.version = "0.0.1"
+        self.id = 8
+        self.add_evaluation_part(IsTrueEvaluationPart(LanguageSpecifiedCheck()))
+
+class VersionEvaluation(CompositeEvaluation):
+    """ Evaluation for the version specification of the metadata of an RDP
+    """
+    def __init__(self):
+        CompositeEvaluation.__init__(self)
+        self.version = "0.0.1"
+        self.id = 9
+        self.add_evaluation_part(IsTrueEvaluationPart(VersionSpecifiedCheck()))
