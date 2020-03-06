@@ -205,6 +205,25 @@ def test_rdp_zenodo_size(mock_get):
     assert rdp.metadata.sizes[1] == "12 GB"
 
 @mock.patch('requests.get', side_effect=mocked_requests_get)
+def test_rdp_zenodo_version(mock_get):
+    rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
+    assert rdp.metadata.version == "1.0.0"
+
+    rdp = RdpFactory.create("10.5281/zenodo.badex1", "zenodo", token="123")
+    assert rdp.metadata.version is None
+
+@mock.patch('requests.get', side_effect=mocked_requests_get)
+def test_rdp_zenodo_language(mock_get):
+    rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
+    assert rdp.metadata.language == "en"
+
+    rdp = RdpFactory.create("10.5281/zenodo.badex1", "zenodo", token="123")
+    assert rdp.metadata.language is None
+
+    rdp = RdpFactory.create("10.5281/zenodo.badex2", "zenodo", token="123")
+    assert rdp.metadata.language == "bribrabru"
+
+@mock.patch('requests.get', side_effect=mocked_requests_get)
 def test_rdp_zenodo_data(mock_get):
     rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
     assert len(rdp.data) == 2

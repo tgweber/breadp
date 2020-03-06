@@ -36,6 +36,7 @@
           <dates>
             <date dateType="Issued">2019-10-15</date>
           </dates>
+          <language>bribrabru</language>
           <resourceType resourceTypeGeneral="Dataset"/>
           <alternateIdentifiers>
             <alternateIdentifier alternateIdentifierType="url">https://zenodo.org/record/3490396</alternateIdentifier>

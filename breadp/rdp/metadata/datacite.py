@@ -30,6 +30,8 @@ class DataCiteMetadata(OaiPmhMetadata):
         self._sizes = []
         self._subjects = []
         self._titles = []
+        self._language = None
+        self._version = None
 
     @property
     def pid(self) -> str:
@@ -152,7 +154,42 @@ class DataCiteMetadata(OaiPmhMetadata):
                     self._sizes.append(s)
         return self._sizes
 
+    @property
+    def language(self):
+        if self._language is None:
+            self._language = self.md.get("language")
+        return self._language
 
+    @property
+    def version(self):
+        if self._version is None:
+            self._version = self.md.get("version")
+        return self._version
+
+def createRightsObjectFromOrderedDict(r):
+    ro = Rights(r.get("rights", ""), r.get("@rightsURI", None))
+    if r.get("@schemeURI", "").startswith("https://spdx.org/licenses") \
+        or r.get("@rightsIdentifierScheme", "").lower() == "spdx":
+        ro.spdx = r.get("@rightsIdentifier", None)
+    return ro
+
+def createSubjectObjectFromOrderedDict(s):
+    return Subject(
+        s.get("subject", ""),
+        s.get("@subjectScheme", ""),
+        s.get("@schemeURI", "")
+    )
+
+def createPersonOrInstitutionObjectFromOrderedDict(p):
+    nameField = p.get("creatorName", p.get("contributorName", None))
+    if isinstance(nameField, OrderedDict):
+        if nameField.get("@nameType", None) == "Organizational":
+            return PersonOrInstitution(nameField["#text"], False)
+        # after this p is considered to be a person
+        else:
+            name = nameField["#text"]
+    else:
+        name = nameField
 def createRightsObjectFromOrderedDict(r):
     ro = Rights(r.get("rights", ""), r.get("@rightsURI", None))
     if r.get("@schemeURI", "").startswith("https://spdx.org/licenses") \

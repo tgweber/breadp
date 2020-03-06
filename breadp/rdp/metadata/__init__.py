@@ -34,6 +34,10 @@ class Metadata(object):
         Creators of the RDP
     sizes: list<str>
         Size specification for the RDP
+    language: str
+        Language of the RDP
+    version: str
+        Version of the RDP
     """
     @property
     def descriptions(self):
@@ -59,6 +63,43 @@ class Metadata(object):
     @property
     def sizes(self):
         raise NotImplementedError("Must be implemented by subclasses of Metadata.")
+    @property
+    def language(self):
+        raise NotImplementedError("Must be implemented by subclasses of Metadata.")
+    @property
+    def version(self):
+        raise NotImplementedError("Must be implemented by subclasses of Metadata.")
+
+
+class Description(object):
+    """ Base class and interface for descriptions as a metadata field of RDPs
+
+    Attributes
+    ----------
+    text: str
+        The text of the description
+    type: str
+        The type of the description, might be None
+    """
+    def __init__(self, text, dtype=None):
+        self.text = text
+        self.type = dtype
+
+
+class Description(object):
+    """ Base class and interface for descriptions as a metadata field of RDPs
+
+    Attributes
+    ----------
+    text: str
+        The text of the description
+    type: str
+        The type of the description, might be None
+    """
+    def __init__(self, text, dtype=None):
+        self.text = text
+        self.type = dtype
+
 
 class Description(object):
     """ Base class and interface for descriptions as a metadata field of RDPs
