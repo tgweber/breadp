@@ -37,6 +37,22 @@
             <subject subjectScheme="wikidata" schemeURI="https://www.wikidata.org/wiki/">Q2539</subject>
             <subject schemeURI="https://dewey.info/" subjectScheme="dewey">000 computer science</subject>
           </subjects>
+          <contributors>
+            <contributor contributorType="ContactPerson">
+              <contributorName nameType="Personal">Weber, Tobias</contributorName>
+              <nameIdentifier nameIdentifierScheme="ORCID">0000-0003-1815-7041</nameIdentifier>
+              <nameIdentifier schemeURI="https://ieeexplore.ieee.org/author/">37086586368</nameIdentifier>
+              <affiliation>Leibniz Supercomputing Centre</affiliation>
+            </contributor>
+            <contributor contributorType="ProjectMember">
+                <contributorName>Nelson Tavares de Sousa</contributorName>
+                <givenName>Nelson</givenName>
+                <familyName>Tavares de Sousa</familyName>
+                <nameIdentifier schemeURI="https://orcid.org">0000-0003-1866-7156</nameIdentifier>
+                <affiliation>Software Engineering Group, Kiel University (Germany)</affiliation>
+                <affiliation>GeRDI</affiliation>
+            </contributor>
+          </contributors>
           <dates>
             <date dateType="Issued">2019-10-15</date>
           </dates>

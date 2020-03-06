@@ -224,7 +224,25 @@ def test_rdp_zenodo_language(mock_get):
     assert rdp.metadata.language == "bribrabru"
 
 @mock.patch('requests.get', side_effect=mocked_requests_get)
+def test_rdp_zenodo_contributors(mock_get):
+    rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
+    assert len(rdp.metadata.contributors) == 2
+    assert rdp.metadata.contributors[0].name == "Weber, Tobias"
+    assert rdp.metadata.contributors[0].givenName == "Tobias"
+    assert rdp.metadata.contributors[0].familyName == "Weber"
+    assert rdp.metadata.contributors[0].affiliations[0] == "Leibniz Supercomputing Centre"
+    assert rdp.metadata.contributors[0].type == "ContactPerson"
+    assert rdp.metadata.contributors[0].orcid == "0000-0003-1815-7041"
+    assert rdp.metadata.contributors[1].givenName == "Nelson"
+    assert rdp.metadata.contributors[1].familyName == "Tavares de Sousa"
+    assert rdp.metadata.contributors[1].affiliations[0] == "Software Engineering Group, Kiel University (Germany)"
+    assert rdp.metadata.contributors[1].orcid == "0000-0003-1866-7156"
+    assert rdp.metadata.contributors[1].type == "ProjectMember"
+
+    rdp = RdpFactory.create("10.5281/zenodo.badex1", "zenodo", token="123")
+    assert len(rdp.metadata.contributors) == 0
+
+@mock.patch('requests.get', side_effect=mocked_requests_get)
 def test_rdp_zenodo_data(mock_get):
     rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
     assert len(rdp.data) == 2
-

@@ -30,7 +30,7 @@ class Metadata(object):
         Legal information about the RDP
     subjects: list<Subject>
         Keywords describing the RDP
-    creators: list<Person>
+    creators: list<PersonOrInstitution>
         Creators of the RDP
     sizes: list<str>
         Size specification for the RDP
@@ -38,6 +38,8 @@ class Metadata(object):
         Language of the RDP
     version: str
         Version of the RDP
+    contributors: list<PersonOrInstitution>
+        Contributors to the RDP
     """
     @property
     def descriptions(self):
@@ -69,6 +71,24 @@ class Metadata(object):
     @property
     def version(self):
         raise NotImplementedError("Must be implemented by subclasses of Metadata.")
+    @property
+    def contributors(self):
+        raise NotImplementedError("Must be implemented by subclasses of Metadata.")
+
+
+class Description(object):
+    """ Base class and interface for descriptions as a metadata field of RDPs
+
+    Attributes
+    ----------
+    text: str
+        The text of the description
+    type: str
+        The type of the description, might be None
+    """
+    def __init__(self, text, dtype=None):
+        self.text = text
+        self.type = dtype
 
 
 class Description(object):
@@ -206,6 +226,7 @@ class Person(PersonOrInstitution):
             self.familyName = None
         self.affiliations = [affiliation]
         self.orcid = orcid
+        self.type = None
 
 class OaiPmhMetadata(Metadata):
     """ Base class and interface for all OAI-PMH-based Metadata objects

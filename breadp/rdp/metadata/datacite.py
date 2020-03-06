@@ -32,6 +32,7 @@ class DataCiteMetadata(OaiPmhMetadata):
         self._titles = []
         self._language = None
         self._version = None
+        self._contributors = []
 
     @property
     def pid(self) -> str:
@@ -144,6 +145,24 @@ class DataCiteMetadata(OaiPmhMetadata):
         return self._creators
 
     @property
+    def contributors(self):
+        if len(self._contributors) == 0 and "contributors" in self.md.keys() \
+           and isinstance(self.md["contributors"], OrderedDict):
+            if isinstance(self.md["contributors"].get("contributor", None), OrderedDict):
+                self._contributors.append(
+                    createPersonOrInstitutionObjectFromOrderedDict(
+                        self.md["contributors"]["contributor"]
+                    )
+                )
+            elif isinstance(self.md["contributors"].get("contributor", None), list):
+                for p in self.md["contributors"]["contributor"]:
+                    if isinstance(p, OrderedDict):
+                        self._contributors.append(
+                            createPersonOrInstitutionObjectFromOrderedDict(p)
+                        )
+        return self._contributors
+
+    @property
     def sizes(self):
         if len(self._sizes) == 0 and "sizes" in self.md.keys() \
            and isinstance(self.md["sizes"], OrderedDict):
@@ -166,6 +185,7 @@ class DataCiteMetadata(OaiPmhMetadata):
             self._version = self.md.get("version")
         return self._version
 
+
 def createRightsObjectFromOrderedDict(r):
     ro = Rights(r.get("rights", ""), r.get("@rightsURI", None))
     if r.get("@schemeURI", "").startswith("https://spdx.org/licenses") \
@@ -215,10 +235,13 @@ def createPersonOrInstitutionObjectFromOrderedDict(p):
     else:
         name = nameField
 
-    po = Person(
-        name,
-        p.get("affiliation", None)
-    )
+    po = Person(name)
+    affiliations = p.get("affiliation", None)
+    if isinstance(affiliations, str):
+        affiliations = [affiliations]
+    po.affiliations = affiliations
+    po.type = p.get("@contributorType", None)
+
 
     if po.familyName is None:
         po.familyName = p.get("familyName")
