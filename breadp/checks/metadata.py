@@ -330,8 +330,31 @@ class RightsHasAtLeastOneLicenseCheck(Check):
             except Exception as e:
                 msg += "{}: {}".format(type(e), e)
                 continue
-        print(msg)
         return (True, BooleanResult(False, "No rights with URI retrievable: {}".format(msg)))
+
+class RightsAreOpenCheck(Check):
+    """ Checks whether rights are open, i.e. their usage is not restricted in a
+        way that necessitates interaction with the rightsholder.
+
+    Methods
+    -------
+    _do_check(self, rdp)
+        returns a BooleanResult, indicating whether the rights are open
+    """
+    def __init__(self):
+        Check.__init__(self)
+        self.id = 30
+        self.version = "0.0.1"
+        self.desc = "checks whether the rights are open"
+
+    def _do_check(self, rdp):
+        msg = ""
+        if len(rdp.metadata.rights) == 0:
+            msg = "No rights specified"
+        for ro in rdp.metadata.rights:
+            if rightsAreOpen(ro):
+                return (True, BooleanResult(True, "{} is open".format(ro.text)))
+        return (True, BooleanResult(False, "Rights are not open (or not specified)"))
 
 class SubjectsAreQualifiedCheck(Check):
     """ Checks subjects have qualified subjects (subjects are either specified
@@ -726,3 +749,14 @@ def hasfamilyAndGivenName(po):
             return True
     return False
 
+def rightsAreOpen(ro):
+    """ checks a rights object and returns True if it is open, i.e. its usage
+        not restricted in a way that necessitates interation with the rights
+        holder. False otherwise (also if rights object is unknown).
+    """
+    if ro.spdx is not None and re.match("CC-(0|BY-\d\.\d|BY-SA-\d\-\d)", ro.spdx):
+        return True
+    if ro.uri is not None and \
+       re.match("https://creativecommons.org/(publicdomain.*|licenses/(by|by-sa)/\d\.\d)", ro.uri):
+        return True
+    return False

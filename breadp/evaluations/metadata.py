@@ -16,6 +16,7 @@ from breadp.evaluations import \
     ContainsItemExactlyNTimesEvaluationPart, \
     DoesNotContainEvaluationPart, \
     Evaluation, \
+    FunctionEvaluationPart, \
     InListEvaluationPart, \
     IsBetweenEvaluationPart, \
     IsFalseEvaluationPart, \
@@ -38,6 +39,7 @@ from breadp.checks.metadata import \
     DescriptionsNumberCheck, \
     LanguageSpecifiedCheck, \
     FormatsAreValidMediaTypeCheck, \
+    RightsAreOpenCheck, \
     RightsHaveValidSPDXIdentifierCheck, \
     RightsHasAtLeastOneLicenseCheck, \
     SizesNumberCheck, \
@@ -220,3 +222,30 @@ class ContributorEvaluation(CompositeEvaluation):
         )
         )
 
+class ContributorRightsEvaluation(CompositeEvaluation):
+    """ Evaluation for the combination of contributor and rights specification
+        of the metadata of an RDP.
+    """
+    def __init__(self):
+        CompositeEvaluation.__init__(self)
+        self.version = "0.0.1"
+        self.id = 11
+
+        def rightsHolderIfRightsClosed(checks):
+            rightsAreOpenCheck = checks[0]
+            contributorsTypeCheck = checks[1]
+            if rightsAreOpenCheck.result.outcome:
+                return 1
+            elif "RightsHolder" in contributorsTypeCheck.result.outcome:
+                return 1
+            else:
+                return 0
+
+        self.add_evaluation_part(
+            FunctionEvaluationPart(
+                [ RightsAreOpenCheck(),
+                  ContributorsTypeCheck()
+                ],
+                rightsHolderIfRightsClosed
+            )
+        )

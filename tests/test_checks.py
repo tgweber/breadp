@@ -28,6 +28,7 @@ from breadp.checks.metadata import \
         FormatsAreValidMediaTypeCheck, \
         isValidOrcid, \
         LanguageSpecifiedCheck, \
+        RightsAreOpenCheck, \
         RightsHaveValidSPDXIdentifierCheck, \
         RightsHasAtLeastOneLicenseCheck, \
         SizesNumberCheck, \
@@ -308,6 +309,28 @@ def test_rights_has_at_least_one_license(mock_get):
     assert not check.result.outcome
     assert check.result.msg.startswith("No rights with URI retrievable:")
 
+@mock.patch('requests.get', side_effect=mocked_requests_get)
+def test_rights_are_open_check(mock_get):
+    check = RightsAreOpenCheck()
+    assert base_init_check_test(check, 30)
+
+    # Successful check
+    rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
+    check.check(rdp)
+    assert check.success
+    assert check.result.outcome
+
+    rdp = RdpFactory.create("10.5281/zenodo.badex3", "zenodo", token="123")
+    check.check(rdp)
+    assert check.success
+    assert not check.result.outcome
+    assert check.result.msg == "Rights are not open (or not specified)"
+
+
+    rdp = RdpFactory.create("10.5281/zenodo.badex2", "zenodo", token="123")
+    check.check(rdp)
+    assert check.success
+    assert not check.result.outcome
 
 @mock.patch('requests.get', side_effect=mocked_requests_get)
 def test_subjects_are_qualified_check(mock_get):
@@ -637,3 +660,8 @@ def test_contributors_type_check(mock_get):
     check.check(rdp)
     assert check.success
     assert check.result.outcome[0] == "Editor"
+
+    rdp = RdpFactory.create("10.5281/zenodo.badex3", "zenodo", token="123")
+    check.check(rdp)
+    assert check.success
+    assert check.result.outcome[0] == "RightsHolder"

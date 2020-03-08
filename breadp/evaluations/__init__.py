@@ -129,6 +129,26 @@ class SingleCheckEvaluationPart(EvaluationPart):
    def _evaluate_part(self):
        raise NotImplementedError("_evaluate_part must be implemented by a subclass")
 
+class MultipleCheckEvaluationPart(EvaluationPart):
+   """ This is an evaluation part which consists of sevaral checks
+   Attribute
+   ---------
+   checks: list<Check>
+       Checks to be evaluated
+   """
+   def __init__(self, checks, weight=1):
+       EvaluationPart.__init__(self, weight)
+       self.checks = checks
+
+   def evaluate_part(self):
+       for c in self.checks:
+           if not c.success:
+               return 0
+       return self._evaluate_part()
+
+   def _evaluate_part(self):
+       raise NotImplementedError("_evaluate_part must be implemented by a subclass")
+
 class IsBetweenEvaluationPart(SingleCheckEvaluationPart):
     """ The more of the results are between the (included) bounds, the higher
         the score
@@ -309,6 +329,17 @@ class InListEvaluationPart(SingleCheckEvaluationPart):
                 inList += 1
         return inList/len(self.check.result.outcome)
 
+class FunctionEvaluationPart(MultipleCheckEvaluationPart):
+    """ The evalution part is carried out by a function that takes checks
+        and returns the value
+    """
+    def __init__(self, checks, callback, weight=1):
+        MultipleCheckEvaluationPart.__init__(self, checks, weight)
+        self.callback = callback
+
+    def _evaluate_part(self):
+        return self.callback(self.checks)
+
 class CompositeEvaluation(BatchEvaluation):
     """ Evaluation that is composed of EvaluationParts
     """
@@ -320,7 +351,14 @@ class CompositeEvaluation(BatchEvaluation):
     def add_evaluation_part(self, ep):
         # Checks are only added once, even if different evaluation parts
         # use the same check!
-        self.checks[type(ep.check).__name__] = ep.check
+        if isinstance(ep, SingleCheckEvaluationPart):
+            checks = [ep.check]
+        else:
+            checks = ep.checks
+
+        for c in checks:
+            self.checks[type(c).__name__] = c
+
         self.evaluation_parts.append(ep)
         self.total_weights += ep.weight
 

@@ -31,6 +31,17 @@
             <subject subjectScheme="dewey">12 Some non-existant field of study</subject>
             <subject schemeURI="https://wikidata.org/wiki">123-i-am-not-a-qid</subject>
           </subjects>
+          <contributors>
+              <contributor contributorType="RightsHolder">
+                  <contributorName>Christina Hammock Koch</contributorName>
+                  <nameIdentifier 
+                      nameIdentifierScheme="wikidata"
+                      schemeURI="https://www.wikidata.org/wiki/"
+                  >
+                      Q13500192
+                  </nameIdentifier>
+              </contributor>
+          </contributors>
           <dates>
             <date dateType="Issued">2019-10-15</date>
           </dates>
@@ -42,10 +53,6 @@
             <relatedIdentifier relatedIdentifierType="DOI" relationType="Compiles" resourceTypeGeneral="Dataset">10.5281/zenodo.3490329</relatedIdentifier>
             <relatedIdentifier relatedIdentifierType="DOI" relationType="IsVersionOf">10.5281/zenodo.3490395</relatedIdentifier>
           </relatedIdentifiers>
-          <rightsList>
-            <rights rightsURI="http://creativecommons.org/licenses/by/4.0/legalcode">Creative Commons Attribution 4.0 International</rights>
-            <rights rightsURI="info:eu-repo/semantics/openAccess">Open Access</rights>
-          </rightsList>
           <descriptions>
             <description descriptionType="Abstract">&lt;p&gt;Automated classification of metadata of research data by their discipline(s) of research can be used in scientometric research, by repository service providers, and in the context of research data aggregation services. Openly available metadata of the DataCite index for research data were used to compile a large training and evaluation set comprised of 609,524 records. This is the cleaned and vectorized version with a feature selection of small size.&lt;/p&gt;</description>
             <description descriptionType="TechnicalInfo">Python, tensorflow, ipython</description>
