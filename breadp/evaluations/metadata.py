@@ -10,6 +10,7 @@ import sys
 
 from breadp.evaluations import \
     AllFalseEvaluationPart, \
+    AllTrueEvaluationPart, \
     BatchEvaluation, \
     CompositeEvaluation, \
     ContainsAllEvaluationPart, \
@@ -44,6 +45,8 @@ from breadp.checks.metadata import \
     FormatsAreValidMediaTypeCheck, \
     LanguageSpecifiedCheck, \
     PublicationYearCheck, \
+    RelatedResourceMetadataCheck, \
+    RelatedResourceTypeCheck, \
     RightsAreOpenCheck, \
     RightsHaveValidSPDXIdentifierCheck, \
     RightsHasAtLeastOneLicenseCheck, \
@@ -316,3 +319,39 @@ class DatesEvaluation(CompositeEvaluation):
             )
         )
 
+
+class RelatedResourcesEvaluation(CompositeEvaluation):
+    """ Evaluation for the specification of related resources to an RDP
+    """
+    def __init__(self):
+        CompositeEvaluation.__init__(self)
+        self.version = "0.0.1"
+        self.id = 13
+        self.add_evaluation_part(AllTrueEvaluationPart(RelatedResourceMetadataCheck()))
+        self.add_evaluation_part(
+            InListEvaluationPart(
+                RelatedResourceTypeCheck(),
+                [
+                    "Describes",
+                    "IsDescribedBy",
+                    "HasPart",
+                    "IsPartOf",
+                    "HasMetadata",
+                    "IsMetadataFor",
+                    "HasVersion",
+                    "IsVersionOf",
+                    "IsNewVersionOf",
+                    "IsPreviousVersionOf",
+                    "IsSourceOf",
+                    "IsDerivedFrom",
+                    "References",
+                    "IsReferencedBy",
+                    "IsVariantFormOf",
+                    "IsIdenticalTo",
+                    "IsSupplementTo",
+                    "IsSupplementedBy",
+                    "Documents",
+                    "IsDocumentedBy"
+                ]
+            )
+        )

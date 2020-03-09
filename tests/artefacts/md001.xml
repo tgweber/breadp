@@ -63,7 +63,7 @@
             <alternateIdentifier alternateIdentifierType="url">https://zenodo.org/record/3490396</alternateIdentifier>
           </alternateIdentifiers>
           <relatedIdentifiers>
-            <relatedIdentifier relatedIdentifierType="DOI" relationType="Compiles" resourceTypeGeneral="Dataset">10.5281/zenodo.3490329</relatedIdentifier>
+            <relatedIdentifier relatedIdentifierType="DOI" relationType="IsSourceOf" resourceTypeGeneral="Dataset">10.5281/zenodo.3490329</relatedIdentifier>
             <relatedIdentifier relatedIdentifierType="DOI" relationType="IsVersionOf">10.5281/zenodo.3490395</relatedIdentifier>
           </relatedIdentifiers>
           <sizes>

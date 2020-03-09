@@ -582,7 +582,6 @@ def test_language_specified_check(mock_get):
     rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
     check.check(rdp)
     assert check.success
-    print(check.result.msg)
     assert check.result.outcome
 
     rdp = RdpFactory.create("10.5281/zenodo.badex1", "zenodo", token="123")
@@ -773,7 +772,7 @@ def test_related_resource_type_check(mock_get):
     check.check(rdp)
     assert check.success
     assert len(check.result.outcome) == 2
-    assert check.result.outcome[0] == "Compiles"
+    assert check.result.outcome[0] == "IsSourceOf"
     assert check.result.outcome[1] == "IsVersionOf"
 
     rdp = RdpFactory.create("10.5281/zenodo.badex1", "zenodo", token="123")

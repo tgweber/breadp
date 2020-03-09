@@ -263,10 +263,15 @@ class AllTrueEvaluationPart(SingleCheckEvaluationPart):
         0 otherwise, or if the result is not of type ListResult.
     """
     def _evaluate_part(self):
+        if not isinstance(self.check.result, ListResult):
+            return 0
+        alltrue =  False
         for r in self.check.result.outcome:
             if not r:
                return 0
-        return 1
+            else:
+                alltrue = True
+        return alltrue
 
 class IsTrueEvaluationPart(SingleCheckEvaluationPart):
     """ If the check's outcome is true this part returns 1, else 0
@@ -330,7 +335,7 @@ class TheMoreTrueTheBetterEvaluationPart(SingleCheckEvaluationPart):
 
 class InListEvaluationPart(SingleCheckEvaluationPart):
     """ The score is the ratio of all items in the ListResult which are also member
-        of the specified comparata list. 0 if the list eis empty or not of type ListResult
+        of the specified comparata list. 0 if the list is empty or not of type ListResult
     """
     def __init__(self, check, comparata, weight=1):
         SingleCheckEvaluationPart.__init__(self, check, weight)

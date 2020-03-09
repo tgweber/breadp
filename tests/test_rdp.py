@@ -353,7 +353,7 @@ def test_rdp_related_resources(mock_get):
     assert len(rdp.metadata.relatedResources) == 2
     assert rdp.metadata.relatedResources[0].pid == "10.5281/zenodo.3490329"
     assert rdp.metadata.relatedResources[0].pidType == "DOI"
-    assert rdp.metadata.relatedResources[0].relationType == "Compiles"
+    assert rdp.metadata.relatedResources[0].relationType == "IsSourceOf"
     assert rdp.metadata.relatedResources[1].pid == "10.5281/zenodo.3490395"
     assert rdp.metadata.relatedResources[1].pidType == "DOI"
     assert rdp.metadata.relatedResources[1].relationType == "IsVersionOf"
