@@ -806,6 +806,58 @@ class DatesInformationCheck(Check):
             information.append(d.information)
         return (True, ListResult(information, msg))
 
+class RelatedResourceTypeCheck(Check):
+    """ Checks the type of related resources to the RDP
+
+    Methods
+    -------
+    _do_check(self, rdp)
+        returns a ListResult of str, indicating the types of relation of the RDP to
+        other resources
+
+    """
+    def __init__(self):
+        Check.__init__(self)
+        self.id = 35
+        self.version = "0.0.1"
+        self.desc = "checks the types of relation of the RDP to other resources"
+
+    def _do_check(self, rdp):
+        relationTypes = []
+        msg = "No related resources retrievable"
+        for r in rdp.metadata.relatedResources:
+            msg = ""
+            relationTypes.append(r.relationType)
+        return (True, ListResult(relationTypes, msg))
+
+class RelatedResourceMetadataCheck(Check):
+    """ Checks if a resource is not of type HasMetadata or if it is,
+        it has a resolvable schemeURI and schemeType
+
+    Methods
+    -------
+    _do_check(self, rdp)
+        returns a ListResult of bools, indicating whether metadata are linked properly
+
+    """
+    def __init__(self):
+        Check.__init__(self)
+        self.id = 36
+        self.version = "0.0.1"
+        self.desc = "checks whether metadata are linked properly"
+
+    def _do_check(self, rdp):
+        linkedProperly = []
+        msg = "No related resources retrievable"
+        for r in rdp.metadata.relatedResources:
+            msg = ""
+            if r.relationType == "HasMetadata":
+                if r.schemeURI is None or r.schemeType is None:
+                    linkedProperly.append(False)
+                    continue
+            linkedProperly.append(True)
+        return (True, ListResult(linkedProperly, msg))
+
 def isValidOrcid(orcid):
     """ checks whether the given orcid is valid and the checksum is valid
     """

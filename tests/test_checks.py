@@ -32,6 +32,8 @@ from breadp.checks.metadata import \
         isValidOrcid, \
         LanguageSpecifiedCheck, \
         PublicationYearCheck, \
+        RelatedResourceTypeCheck, \
+        RelatedResourceMetadataCheck, \
         RightsAreOpenCheck, \
         RightsHaveValidSPDXIdentifierCheck, \
         RightsHasAtLeastOneLicenseCheck, \
@@ -760,3 +762,63 @@ def test_dates_issued_year_check(mock_get):
     check.check(rdp)
     assert not check.success
     assert check.result.msg == "No IssueDate retrievable"
+
+@mock.patch('requests.get', side_effect=mocked_requests_get)
+def test_related_resource_type_check(mock_get):
+    check = RelatedResourceTypeCheck()
+    assert base_init_check_test(check, 35)
+
+    # Successful check
+    rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
+    check.check(rdp)
+    assert check.success
+    assert len(check.result.outcome) == 2
+    assert check.result.outcome[0] == "Compiles"
+    assert check.result.outcome[1] == "IsVersionOf"
+
+    rdp = RdpFactory.create("10.5281/zenodo.badex1", "zenodo", token="123")
+    check.check(rdp)
+    assert check.success
+    assert len(check.result.outcome) == 0
+    assert check.result.msg == "No related resources retrievable"
+
+@mock.patch('requests.get', side_effect=mocked_requests_get)
+def test_related_resource_has_metadata_check(mock_get):
+    check = RelatedResourceMetadataCheck()
+    assert base_init_check_test(check, 36)
+
+    # Successful check
+    rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
+    check.check(rdp)
+    assert check.success
+    assert len(check.result.outcome) == 2
+    assert check.result.outcome[0]
+    assert check.result.outcome[1]
+
+    rdp = RdpFactory.create("10.5281/zenodo.badex1", "zenodo", token="123")
+    check.check(rdp)
+    assert check.success
+    assert len(check.result.outcome) == 0
+    assert check.result.msg == "No related resources retrievable"
+
+    # Successful check
+    rdp = RdpFactory.create("10.5281/zenodo.badex2", "zenodo", token="123")
+    check.check(rdp)
+    assert check.success
+    assert len(check.result.outcome) == 3
+    assert check.result.outcome[0]
+    assert not check.result.outcome[1]
+    assert check.result.outcome[2]
+
+@mock.patch('requests.get', side_effect=mocked_requests_get)
+def test_rdp_zenodo_data(mock_get):
+    rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
+    assert len(rdp.data) == 2
+
+    rdp = RdpFactory.create("10.5281/zenodo.badex3", "zenodo", token="123")
+    assert rdp.metadata.type == "Text"
+
+@mock.patch('requests.get', side_effect=mocked_requests_get)
+def test_rdp_zenodo_data(mock_get):
+    rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
+    assert len(rdp.data) == 2
