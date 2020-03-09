@@ -33,7 +33,8 @@
             <subject subjectScheme="url">https://dewey.info/</subject>
           </subjects>
           <dates>
-            <date dateType="Issued">2019-10-15</date>
+            <date dateType="Updated">2019-10-15</date>
+            <date dateType="Updated">2019-10-25</date>
           </dates>
           <resourceType resourceTypeGeneral="Dataset"/>
           <alternateIdentifiers>

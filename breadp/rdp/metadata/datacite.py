@@ -210,7 +210,13 @@ class DataCiteMetadata(OaiPmhMetadata):
                 if isinstance(d, OrderedDict):
                     if d.get("date") is None:
                         d["date"] = d["#text"]
-                    self._dates.append(Date(d["date"], d.get("@dateType")))
+                    self._dates.append(
+                        Date(
+                            d["date"],
+                            d.get("@dateType"),
+                            d.get("@dateInformation")
+                        )
+                    )
         return self._dates
 
 

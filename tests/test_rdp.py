@@ -300,6 +300,7 @@ def test_rdp_zenodo_dates(mock_get):
     assert rdp.metadata.dates[0].end.year == rdp.metadata.dates[0].date.year
     assert rdp.metadata.dates[0].end.month == rdp.metadata.dates[0].date.month
     assert rdp.metadata.dates[0].end.day == rdp.metadata.dates[0].date.day
+    assert rdp.metadata.dates[0].information is None
     assert not rdp.metadata.dates[0].duration
     assert rdp.metadata.dates[1].type == "Created"
     assert rdp.metadata.dates[1].date.year == 2019
@@ -309,15 +310,7 @@ def test_rdp_zenodo_dates(mock_get):
     assert rdp.metadata.dates[1].end.hour == 14
     assert rdp.metadata.dates[1].end.second == 13
     assert rdp.metadata.dates[1].duration
-
-    rdp = RdpFactory.create("10.5281/zenodo.badex1", "zenodo", token="123")
-    assert len(rdp.metadata.dates) == 0
-
-    rdp = RdpFactory.create("10.5281/zenodo.badex2", "zenodo", token="123")
-    assert len(rdp.metadata.dates) == 1
-    assert rdp.metadata.dates[0].type == None
-    assert rdp.metadata.dates[0].date.year == 2019
-    assert rdp.metadata.dates[0].date.month == 10
+    assert rdp.metadata.dates[1].information is None
 
     rdp = RdpFactory.create("10.5281/zenodo.badex1", "zenodo", token="123")
     assert len(rdp.metadata.dates) == 0
@@ -328,6 +321,19 @@ def test_rdp_zenodo_dates(mock_get):
     assert rdp.metadata.dates[0].date.year == 2019
     assert rdp.metadata.dates[0].date.month == 10
     assert rdp.metadata.dates[0].date.day == 15
+    assert rdp.metadata.dates[0].information is None
+
+    rdp = RdpFactory.create("10.5281/zenodo.badex3", "zenodo", token="123")
+    assert rdp.metadata.dates[0].type == "Updated"
+    assert rdp.metadata.dates[0].information == "First revision"
+    assert rdp.metadata.dates[1].type == "Updated"
+    assert rdp.metadata.dates[1].information == "Second revision"
+
+    rdp = RdpFactory.create("10.5281/zenodo.badex4", "zenodo", token="123")
+    assert rdp.metadata.dates[0].type == "Updated"
+    assert rdp.metadata.dates[0].information is None
+    assert rdp.metadata.dates[1].type == "Updated"
+    assert rdp.metadata.dates[1].information is None
 
 @mock.patch('requests.get', side_effect=mocked_requests_get)
 def test_rdp_zenodo_data(mock_get):

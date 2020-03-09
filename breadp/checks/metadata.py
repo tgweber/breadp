@@ -738,6 +738,74 @@ class PublicationYearCheck(Check):
             return (False, MetricResult(sys.float_info.min, "No publicationYear retrievable"))
         return (True, MetricResult(rdp.metadata.publicationYear, ""))
 
+class DatesTypeCheck(Check):
+    """ Checks the types of the dates of the publication
+
+    Methods
+    -------
+    _do_check(self, rdp)
+        returns a ListResult, indicating the types of the dates
+
+    """
+    def __init__(self):
+        Check.__init__(self)
+        self.id = 32
+        self.version = "0.0.1"
+        self.desc = "checks the types of the dates"
+
+    def _do_check(self, rdp):
+        types = []
+        msg = "No dates retrievable"
+        for d in rdp.metadata.dates:
+            msg = ""
+            types.append(d.type)
+        return (True, ListResult(types, msg))
+
+class DatesIssuedYearCheck(Check):
+    """ Checks whether the year of issuance is specified (in the date fields)
+
+    Methods
+    -------
+    _do_check(self, rdp)
+        returns a MetricResult, indicating the year of issuance (in the date fields)
+
+    """
+    def __init__(self):
+        Check.__init__(self)
+        self.id = 33
+        self.version = "0.0.1"
+        self.desc = "checks the year of issuance (in the date fields)"
+
+    def _do_check(self, rdp):
+
+        for d in rdp.metadata.dates:
+            if d.type == "Issued":
+                return (True, MetricResult(d.date.year, ""))
+        return (False, MetricResult(sys.float_info.min, "No IssueDate retrievable"))
+
+class DatesInformationCheck(Check):
+    """ Checks the date information field of the dates of the publication
+
+    Methods
+    -------
+    _do_check(self, rdp)
+        returns a ListResult, indicating the date information fields
+
+    """
+    def __init__(self):
+        Check.__init__(self)
+        self.id = 34
+        self.version = "0.0.1"
+        self.desc = "checks the information field of the dates"
+
+    def _do_check(self, rdp):
+        information = []
+        msg = "No dates retrievable"
+        for d in rdp.metadata.dates:
+            msg = ""
+            information.append(d.information)
+        return (True, ListResult(information, msg))
+
 def isValidOrcid(orcid):
     """ checks whether the given orcid is valid and the checksum is valid
     """

@@ -251,7 +251,7 @@ class Date(object):
     type: str
         Type of the date
     """
-    def __init__(self, dateString, dateType=None):
+    def __init__(self, dateString, dateType=None, information=None):
         if "/" in dateString:
             self.date = parseDateString(dateString.split("/")[0])
             self.end = parseDateString(dateString.split("/")[1])
@@ -261,6 +261,7 @@ class Date(object):
             self.end = self.date
             self.duration = False
         self.type = dateType
+        self.information = information
 
 def parseDateString(dateString):
     """ Function to parse a dateString compliant to ISO 8601 profile specified
