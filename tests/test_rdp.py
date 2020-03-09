@@ -12,6 +12,7 @@ import os
 from unittest import mock
 import pytest
 
+from breadp.rdp.metadata import parseDateString
 from breadp.rdp.metadata.datacite import DataCiteMetadata
 from breadp.rdp.metadata.factory import MetadataFactory
 from breadp.rdp.data import CSVData
@@ -30,6 +31,42 @@ def test_services_exceptions():
     with pytest.raises(NotImplementedError):
         s = Service("http://www.example.com")
         assert s.protocol== "some_protocol"
+
+def test_parseDateString():
+    with pytest.raises(ValueError) as ve:
+        parseDateString("12")
+        assert str(ve) == "'12' is not in a supported format"
+    with pytest.raises(ValueError) as ve:
+        parseDateString("1212/12/12")
+        assert str(ve) == "'1212/12/12' is not in a supported format"
+    with pytest.raises(ValueError) as ve:
+        parseDateString("2013-99")
+        assert str(ve) == "'2013-99' is not in a supported format"
+    with pytest.raises(ValueError) as ve:
+        parseDateString("2013-01-01 20:00")
+        assert str(ve) == "'2013-01-01 20:00' is not in a supported format"
+    with pytest.raises(ValueError) as ve:
+        parseDateString("2013-01-01T20:00")
+        assert str(ve) == "'2013-01-01T20:00' is not in a supported format"
+    with pytest.raises(ValueError) as ve:
+        parseDateString("2013-01-01T20:00+1:00")
+        assert str(ve) == "'2013-01-01T20:00+1:00' is not in a supported format"
+    dt = parseDateString("2019")
+    assert dt.year == 2019
+    dt = parseDateString("2019-12")
+    assert dt.month == 12
+    dt = parseDateString("2019-12-24")
+    assert dt.day == 24
+    dt = parseDateString("2019-12-24T20:01+0100")
+    assert dt.hour == 20
+    assert dt.minute == 1
+    dt = parseDateString("2019-12-24T20:01+01:00")
+    assert dt.hour == 20
+    assert dt.minute == 1
+    dt = parseDateString("2019-12-24T20:01:01+0100")
+    assert dt.second == 1
+    dt = parseDateString("2019-12-24T20:01:01+01:00")
+    assert dt.second == 1
 
 # Checks implemented functionality of the oai-pmh service
 @mock.patch('requests.get', side_effect=mocked_requests_get)
@@ -249,6 +286,48 @@ def test_rdp_zenodo_publicationYear(mock_get):
 
     rdp = RdpFactory.create("10.5281/zenodo.badex1", "zenodo", token="123")
     assert rdp.metadata.publicationYear == None
+
+@mock.patch('requests.get', side_effect=mocked_requests_get)
+def test_rdp_zenodo_dates(mock_get):
+    rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
+    assert len(rdp.metadata.dates) == 2
+    assert rdp.metadata.dates[0].type == "Issued"
+    import pprint
+    pprint.pprint(rdp.metadata.dates[1].date)
+    assert rdp.metadata.dates[0].date.year == 2019
+    assert rdp.metadata.dates[0].date.month == 10
+    assert rdp.metadata.dates[0].date.day == 15
+    assert rdp.metadata.dates[0].end.year == rdp.metadata.dates[0].date.year
+    assert rdp.metadata.dates[0].end.month == rdp.metadata.dates[0].date.month
+    assert rdp.metadata.dates[0].end.day == rdp.metadata.dates[0].date.day
+    assert not rdp.metadata.dates[0].duration
+    assert rdp.metadata.dates[1].type == "Created"
+    assert rdp.metadata.dates[1].date.year == 2019
+    assert rdp.metadata.dates[1].date.month == 3
+    assert rdp.metadata.dates[1].date.day == 1
+    assert rdp.metadata.dates[1].end.day == 4
+    assert rdp.metadata.dates[1].end.hour == 14
+    assert rdp.metadata.dates[1].end.second == 13
+    assert rdp.metadata.dates[1].duration
+
+    rdp = RdpFactory.create("10.5281/zenodo.badex1", "zenodo", token="123")
+    assert len(rdp.metadata.dates) == 0
+
+    rdp = RdpFactory.create("10.5281/zenodo.badex2", "zenodo", token="123")
+    assert len(rdp.metadata.dates) == 1
+    assert rdp.metadata.dates[0].type == None
+    assert rdp.metadata.dates[0].date.year == 2019
+    assert rdp.metadata.dates[0].date.month == 10
+
+    rdp = RdpFactory.create("10.5281/zenodo.badex1", "zenodo", token="123")
+    assert len(rdp.metadata.dates) == 0
+
+    rdp = RdpFactory.create("10.5281/zenodo.badex2", "zenodo", token="123")
+    assert len(rdp.metadata.dates) == 1
+    assert rdp.metadata.dates[0].type == None
+    assert rdp.metadata.dates[0].date.year == 2019
+    assert rdp.metadata.dates[0].date.month == 10
+    assert rdp.metadata.dates[0].date.day == 15
 
 @mock.patch('requests.get', side_effect=mocked_requests_get)
 def test_rdp_zenodo_data(mock_get):

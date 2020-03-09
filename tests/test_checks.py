@@ -28,6 +28,7 @@ from breadp.checks.metadata import \
         FormatsAreValidMediaTypeCheck, \
         isValidOrcid, \
         LanguageSpecifiedCheck, \
+        PublicationYearCheck, \
         RightsAreOpenCheck, \
         RightsHaveValidSPDXIdentifierCheck, \
         RightsHasAtLeastOneLicenseCheck, \
@@ -665,3 +666,19 @@ def test_contributors_type_check(mock_get):
     check.check(rdp)
     assert check.success
     assert check.result.outcome[0] == "RightsHolder"
+
+@mock.patch('requests.get', side_effect=mocked_requests_get)
+def test_publicationYear_check(mock_get):
+    check = PublicationYearCheck()
+    assert base_init_check_test(check, 31)
+
+    # Successful check
+    rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
+    check.check(rdp)
+    assert check.success
+    assert check.result.outcome == 2019
+
+    rdp = RdpFactory.create("10.5281/zenodo.badex1", "zenodo", token="123")
+    check.check(rdp)
+    assert not check.success
+    assert check.result.msg == "No publicationYear retrievable"

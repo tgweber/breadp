@@ -11,6 +11,7 @@ from collections import OrderedDict
 import re
 
 from breadp.rdp.metadata import \
+    Date, \
     Description, \
     OaiPmhMetadata, \
     Person, \
@@ -34,6 +35,7 @@ class DataCiteMetadata(OaiPmhMetadata):
         self._version = None
         self._publicationYear = None
         self._contributors = []
+        self._dates = []
 
     @property
     def pid(self) -> str:
@@ -192,6 +194,24 @@ class DataCiteMetadata(OaiPmhMetadata):
             if self.md.get("publicationYear") is not None:
                 self._publicationYear = int(self.md["publicationYear"])
         return self._publicationYear
+
+    @property
+    def dates(self):
+        if len(self._dates) == 0 and isinstance(self.md["dates"], OrderedDict) \
+          and "date" in self.md["dates"].keys():
+            dateField = self.md["dates"]["date"]
+            if dateField is None:
+                return None
+            if not isinstance(dateField, list):
+                dateField = [ dateField ]
+            for d in dateField:
+                if isinstance(d, str):
+                    self._dates.append((Date(d)))
+                if isinstance(d, OrderedDict):
+                    if d.get("date") is None:
+                        d["date"] = d["#text"]
+                    self._dates.append(Date(d["date"], d.get("@dateType")))
+        return self._dates
 
 
 def createRightsObjectFromOrderedDict(r):

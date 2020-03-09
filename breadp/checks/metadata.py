@@ -12,7 +12,7 @@ import os
 import pandas as pd
 import re
 import requests
-
+import sys
 
 from breadp.checks import Check
 from breadp.checks.result import BooleanResult, \
@@ -717,6 +717,26 @@ class ContributorsTypeCheck(Check):
         for po in rdp.metadata.contributors:
             types.append(po.type)
         return (True, ListResult(types, ""))
+
+class PublicationYearCheck(Check):
+    """ Checks the year of the publication
+
+    Methods
+    -------
+    _do_check(self, rdp)
+        returns a MetricResult, indicating the year of publication
+
+    """
+    def __init__(self):
+        Check.__init__(self)
+        self.id = 31
+        self.version = "0.0.1"
+        self.desc = "checks the year of publication"
+
+    def _do_check(self, rdp):
+        if rdp.metadata.publicationYear is None:
+            return (False, MetricResult(sys.float_info.min, "No publicationYear retrievable"))
+        return (True, MetricResult(rdp.metadata.publicationYear, ""))
 
 def isValidOrcid(orcid):
     """ checks whether the given orcid is valid and the checksum is valid

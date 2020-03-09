@@ -7,8 +7,10 @@
 #
 ################################################################################
 
-import json
 from collections import OrderedDict
+from datetime import datetime
+import json
+import re
 import xmltodict
 
 from breadp.util.util import Bundle
@@ -42,6 +44,8 @@ class Metadata(object):
         Contributors to the RDP
     publicationYear: int
         Year of publication of the RDP
+    dates: list<Date>
+        Dates of interest for the RDP
     """
     @property
     def descriptions(self):
@@ -78,6 +82,9 @@ class Metadata(object):
         raise NotImplementedError("Must be implemented by subclasses of Metadata.")
     @property
     def publicationYear(self):
+        raise NotImplementedError("Must be implemented by subclasses of Metadata.")
+    @property
+    def dates(self):
         raise NotImplementedError("Must be implemented by subclasses of Metadata.")
 
 class Description(object):
@@ -218,6 +225,8 @@ class Person(PersonOrInstitution):
         Affiliation of the person
     orcid: str
         ORCiD of the person
+    type: str
+        Type of the person (only set for contributors)
     """
     def __init__(self, name, affiliation=None, orcid=None):
         PersonOrInstitution.__init__(self, name, True)
@@ -231,6 +240,55 @@ class Person(PersonOrInstitution):
         self.affiliations = [affiliation]
         self.orcid = orcid
         self.type = None
+
+class Date(object):
+    """ Base class and interface for dates as part of metadata of RDPs
+
+    Attributes
+    ----------
+    date: datetime
+        Datetime value of the date
+    type: str
+        Type of the date
+    """
+    def __init__(self, dateString, dateType=None):
+        if "/" in dateString:
+            self.date = parseDateString(dateString.split("/")[0])
+            self.end = parseDateString(dateString.split("/")[1])
+            self.duration = True
+        else:
+            self.date = parseDateString(dateString)
+            self.end = self.date
+            self.duration = False
+        self.type = dateType
+
+def parseDateString(dateString):
+    """ Function to parse a dateString compliant to ISO 8601 profile specified
+        by W3CDTF (https://www.w3.org/TR/NOTE-datetime, retrieved 2020-03-09)
+        or None otherwise
+
+    Argument
+    --------
+    dateString: str
+        String representing a valid date format
+
+    Returns
+    -------
+    Datetime object
+    """
+    # Remedy for "+/-%H:%S" time zone formatting
+    # adapted version from https://stackoverflow.com/a/45300534
+    # Should become superfluous if Python version is >= 3.7
+    if re.match(".*(\+|-)\d{1,2}:\d\d$", dateString):
+        # drop the colon
+        dateString = dateString[:-3] + dateString[-2:]
+    formats = ("%Y", "%Y-%m", "%Y-%m-%d", "%Y-%m-%dT%H:%M%z", "%Y-%m-%dT%H:%M:%S%z")
+    for f in formats:
+        try:
+            return datetime.strptime(dateString, f)
+        except ValueError:
+            continue
+    raise ValueError("'{}' is not in a supported format".format(dateString))
 
 class OaiPmhMetadata(Metadata):
     """ Base class and interface for all OAI-PMH-based Metadata objects
