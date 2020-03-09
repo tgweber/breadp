@@ -32,6 +32,7 @@ class DataCiteMetadata(OaiPmhMetadata):
         self._titles = []
         self._language = None
         self._version = None
+        self._publicationYear = None
         self._contributors = []
 
     @property
@@ -184,6 +185,13 @@ class DataCiteMetadata(OaiPmhMetadata):
         if self._version is None:
             self._version = self.md.get("version")
         return self._version
+
+    @property
+    def publicationYear(self):
+        if self._publicationYear is None:
+            if self.md.get("publicationYear") is not None:
+                self._publicationYear = int(self.md["publicationYear"])
+        return self._publicationYear
 
 
 def createRightsObjectFromOrderedDict(r):

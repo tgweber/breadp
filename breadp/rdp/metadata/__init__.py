@@ -40,6 +40,8 @@ class Metadata(object):
         Version of the RDP
     contributors: list<PersonOrInstitution>
         Contributors to the RDP
+    publicationYear: int
+        Year of publication of the RDP
     """
     @property
     def descriptions(self):
@@ -74,7 +76,9 @@ class Metadata(object):
     @property
     def contributors(self):
         raise NotImplementedError("Must be implemented by subclasses of Metadata.")
-
+    @property
+    def publicationYear(self):
+        raise NotImplementedError("Must be implemented by subclasses of Metadata.")
 
 class Description(object):
     """ Base class and interface for descriptions as a metadata field of RDPs

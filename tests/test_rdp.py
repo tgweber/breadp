@@ -243,6 +243,14 @@ def test_rdp_zenodo_contributors(mock_get):
     assert len(rdp.metadata.contributors) == 0
 
 @mock.patch('requests.get', side_effect=mocked_requests_get)
+def test_rdp_zenodo_publicationYear(mock_get):
+    rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
+    assert rdp.metadata.publicationYear == 2019
+
+    rdp = RdpFactory.create("10.5281/zenodo.badex1", "zenodo", token="123")
+    assert rdp.metadata.publicationYear == None
+
+@mock.patch('requests.get', side_effect=mocked_requests_get)
 def test_rdp_zenodo_data(mock_get):
     rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
     assert len(rdp.data) == 2
