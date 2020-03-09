@@ -35,10 +35,10 @@ from breadp.checks.metadata import \
     ContributorsFamilyAndGivenNameCheck, \
     ContributorsContainInstitutionsCheck, \
     ContributorsTypeCheck, \
-    DataCiteDescriptionsTypeCheck, \
     DatesInformationCheck, \
     DatesIssuedYearCheck, \
     DatesTypeCheck, \
+    DescriptionsTypeCheck, \
     DescriptionsLanguageCheck, \
     DescriptionsLengthCheck, \
     DescriptionsNumberCheck, \
@@ -89,7 +89,7 @@ class DescriptionEvaluation(CompositeEvaluation):
                 ["en"],
                 4)
         )
-        ddtc = DataCiteDescriptionsTypeCheck()
+        ddtc = DescriptionsTypeCheck()
         self.add_evaluation_part(ContainsAllEvaluationPart(ddtc, ["Abstract"]))
         self.add_evaluation_part(
             DoesNotContainEvaluationPart(

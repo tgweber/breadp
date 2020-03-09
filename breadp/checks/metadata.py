@@ -53,13 +53,11 @@ class DescriptionsLengthCheck(Check):
 
     def _do_check(self, rdp):
         lengths = []
-        success = False
         msg = "No descriptions retrievable"
         for d in rdp.metadata.descriptions:
-            success = True
             msg = ""
             lengths.append(len(d.text.split()))
-        return(success, ListResult(lengths, msg))
+        return(True, ListResult(lengths, msg))
 
 class DescriptionsLanguageCheck(Check):
     """ Checks the language of the descriptions
@@ -77,15 +75,13 @@ class DescriptionsLanguageCheck(Check):
 
     def _do_check(self, rdp):
         languages = []
-        success = False
         msg = "No descriptions retrievable"
         for d in rdp.metadata.descriptions:
-            success = True
             msg = ""
             languages.append(detect(d.text))
-        return(success, ListResult(languages, msg))
+        return(True, ListResult(languages, msg))
 
-class DataCiteDescriptionsTypeCheck(Check):
+class DescriptionsTypeCheck(Check):
     """ Checks all description types of DataCite metadata
 
     Methods
@@ -103,7 +99,7 @@ class DataCiteDescriptionsTypeCheck(Check):
     def _do_check(self, rdp):
         types = []
         if len(rdp.metadata.descriptions) == 0:
-            return(False, ListResult(types, "No descriptions retrievable"))
+            return(True, ListResult(types, "No descriptions retrievable"))
         for d in rdp.metadata.descriptions:
             if d.type:
                 types.append(d.type)
@@ -126,7 +122,7 @@ class TitlesNumberCheck(Check):
     def _do_check(self, rdp):
         if not rdp.metadata.titles:
             msg = "No titles could be retrieved"
-            return(False, MetricResult(float(0), msg))
+            return(True, MetricResult(float(0), msg))
         return(True, MetricResult(len(rdp.metadata.titles), ""))
 
 class TitlesLengthCheck(Check):
@@ -145,13 +141,11 @@ class TitlesLengthCheck(Check):
 
     def _do_check(self, rdp):
         lengths = []
-        success = False
         msg = "No titles retrievable"
         for t in rdp.metadata.titles:
-            success = True
             msg = ""
             lengths.append(len(t.text.split()))
-        return(success, ListResult(lengths, msg))
+        return(True, ListResult(lengths, msg))
 
 class TitlesLanguageCheck(Check):
     """ Checks the language of all titles title
@@ -169,13 +163,11 @@ class TitlesLanguageCheck(Check):
 
     def _do_check(self, rdp):
         languages = []
-        success = False
         msg = "No titles retrievable"
         for t in rdp.metadata.titles:
-            success = True
             msg = ""
             languages.append(detect(t.text))
-        return(success, ListResult(languages, msg))
+        return(True, ListResult(languages, msg))
 
 class TitlesJustAFileNameCheck(Check):
     """ Checks whether the titles are (probably) just a file names
@@ -194,19 +186,17 @@ class TitlesJustAFileNameCheck(Check):
 
     def _do_check(self, rdp):
         bools = []
-        success = False
         msg = ""
         if len(rdp.metadata.titles) == 0:
             msg = "No titles retrievable"
         for t in rdp.metadata.titles:
-            success = True
             msg = ""
             if re.match("^\s*\S+\.\S+\s*$", t.text):
                 msg += "{} is probably just a file name;".format(t.text)
                 bools.append(True)
             else:
                 bools.append(False)
-        return(success, ListResult(bools, msg))
+        return(True, ListResult(bools, msg))
 
 class TitlesTypeCheck(Check):
     """ Checks the types of all titles (None if not given)
@@ -224,13 +214,11 @@ class TitlesTypeCheck(Check):
 
     def _do_check(self, rdp):
         types = []
-        success = False
         msg = "No titles retrievable"
         for t in rdp.metadata.titles:
-            success = True
             msg = ""
             types.append(t.type)
-        return(success, ListResult(types, msg))
+        return(True, ListResult(types, msg))
 
 class FormatsAreValidMediaTypeCheck(Check):
     """ Checks which formats are valid IANA MediaTypes
@@ -559,14 +547,14 @@ class SizesByteSizeCheck(Check):
 
     def _do_check(self, rdp):
         valid = []
-        if len(rdp.metadata.sizes) < 1:
-            return (False, ListResult([], "no sizes"))
+        msg = "no sizes specified"
         for s in rdp.metadata.sizes:
+            msg = ""
             if re.match("^\d+\s*(k|m|g|t|p|e|z|y){0,1}b$", s, re.IGNORECASE):
                 valid.append(True)
             else:
                 valid.append(False)
-        return (True, ListResult(valid, ""))
+        return (True, ListResult(valid, msg))
 
 class VersionSpecifiedCheck(Check):
     """ Checks whether the version of the RDP is specified in semantic versioning format.
@@ -617,7 +605,7 @@ class LanguageSpecifiedCheck(Check):
 
     def _do_check(self, rdp):
         if rdp.metadata.language is None:
-            return (False, BooleanResult(False, "no language specified"))
+            return (True, BooleanResult(False, "no language specified"))
         if rdp.metadata.language in self.iso_codes.alpha2.tolist():
             return (True, BooleanResult(True, ""))
         return(True, BooleanResult(False,
@@ -777,7 +765,6 @@ class DatesIssuedYearCheck(Check):
         self.desc = "checks the year of issuance (in the date fields)"
 
     def _do_check(self, rdp):
-
         for d in rdp.metadata.dates:
             if d.type == "Issued":
                 return (True, MetricResult(d.date.year, ""))

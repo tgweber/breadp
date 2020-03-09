@@ -21,13 +21,13 @@ from breadp.checks.metadata import \
         ContributorsOrcidCheck, \
         ContributorsFamilyAndGivenNameCheck, \
         ContributorsTypeCheck, \
-        DataCiteDescriptionsTypeCheck, \
         DatesTypeCheck, \
         DatesInformationCheck, \
         DatesIssuedYearCheck, \
         DescriptionsNumberCheck, \
         DescriptionsLanguageCheck, \
         DescriptionsLengthCheck, \
+        DescriptionsTypeCheck, \
         FormatsAreValidMediaTypeCheck, \
         isValidOrcid, \
         LanguageSpecifiedCheck, \
@@ -47,6 +47,7 @@ from breadp.checks.metadata import \
         TitlesLanguageCheck, \
         TitlesLengthCheck, \
         TitlesNumberCheck, \
+        TitlesTypeCheck, \
         VersionSpecifiedCheck
 
 from breadp.rdp.rdp import RdpFactory, Rdp
@@ -136,7 +137,7 @@ def test_descriptions_length_check(mock_get):
 
     rdp = RdpFactory.create("10.5281/zenodo.badex1", "zenodo", token="123")
     check.check(rdp)
-    assert not check.success
+    assert check.success
     assert len(check.result.outcome) == 0
 
 @mock.patch('requests.get', side_effect=mocked_requests_get)
@@ -151,6 +152,11 @@ def test_descriptions_language_check(mock_get):
     assert len(check.result.outcome) == 2
     assert check.result.outcome[0] == "en"
 
+    rdp = RdpFactory.create("10.5281/zenodo.badex1", "zenodo", token="123")
+    check.check(rdp)
+    assert check.success
+    assert len(check.result.outcome) == 0
+
     rdp = RdpFactory.create("10.5281/zenodo.badex2", "zenodo", token="123")
     check.check(rdp)
     assert check.success
@@ -158,7 +164,7 @@ def test_descriptions_language_check(mock_get):
 
 @mock.patch('requests.get', side_effect=mocked_requests_get)
 def test_datacite_descriptions_types_check(mock_get):
-    check =DataCiteDescriptionsTypeCheck()
+    check = DescriptionsTypeCheck()
     assert base_init_check_test(check, 5)
 
     # Successful check
@@ -167,6 +173,11 @@ def test_datacite_descriptions_types_check(mock_get):
     assert check.success
     assert len(check.result.outcome) == 2
     assert "Abstract" in check.result.outcome
+
+    rdp = RdpFactory.create("10.5281/zenodo.badex1", "zenodo", token="123")
+    check.check(rdp)
+    assert check.success
+    assert len(check.result.outcome) == 0
 
 @mock.patch('requests.get', side_effect=mocked_requests_get)
 def test_titles_number_check(mock_get):
@@ -181,7 +192,7 @@ def test_titles_number_check(mock_get):
 
     rdp = RdpFactory.create("10.5281/zenodo.badex1", "zenodo", token="123")
     check.check(rdp)
-    assert not check.success
+    assert check.success
     assert check.result.outcome == 0
 
 @mock.patch('requests.get', side_effect=mocked_requests_get)
@@ -199,7 +210,8 @@ def test_titles_length_check(mock_get):
 
     rdp = RdpFactory.create("10.5281/zenodo.badex1", "zenodo", token="123")
     check.check(rdp)
-    assert not check.success
+    assert check.success
+    assert len(check.result.outcome) == 0
 
 @mock.patch('requests.get', side_effect=mocked_requests_get)
 def test_titles_language_check(mock_get):
@@ -216,7 +228,8 @@ def test_titles_language_check(mock_get):
 
     rdp = RdpFactory.create("10.5281/zenodo.badex1", "zenodo", token="123")
     check.check(rdp)
-    assert not check.success
+    assert check.success
+    assert len(check.result.outcome) == 0
 
 @mock.patch('requests.get', side_effect=mocked_requests_get)
 def test_titles_just_a_filename_check(mock_get):
@@ -235,6 +248,24 @@ def test_titles_just_a_filename_check(mock_get):
     check.check(rdp)
     assert check.success
     assert check.result.outcome[0]
+
+@mock.patch('requests.get', side_effect=mocked_requests_get)
+def test_titles_type_check(mock_get):
+    check = TitlesTypeCheck()
+    assert base_init_check_test(check, 10)
+
+    # Successful check
+    rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
+    check.check(rdp)
+    assert check.success
+    assert len(check.result.outcome) == 2
+    check.result.outcome[0] is None
+    check.result.outcome[1] == "TranslatedTitle"
+
+    rdp = RdpFactory.create("10.5281/zenodo.badex1", "zenodo", token="123")
+    check.check(rdp)
+    assert check.success
+    assert len(check.result.outcome) == 0
 
 @mock.patch('requests.get', side_effect=mocked_requests_get)
 def test_formats_are_valid_media_types(mock_get):
@@ -543,7 +574,8 @@ def test_sizes_number_check(mock_get):
 
     rdp = RdpFactory.create("10.5281/zenodo.badex1", "zenodo", token="123")
     check.check(rdp)
-    assert not check.success
+    assert check.success
+    assert len(check.result.outcome) == 0
 
     rdp = RdpFactory.create("10.5281/zenodo.badex2", "zenodo", token="123")
     check.check(rdp)
@@ -586,7 +618,7 @@ def test_language_specified_check(mock_get):
 
     rdp = RdpFactory.create("10.5281/zenodo.badex1", "zenodo", token="123")
     check.check(rdp)
-    assert not check.success
+    assert check.success
     assert not check.result.outcome
 
     rdp = RdpFactory.create("10.5281/zenodo.badex2", "zenodo", token="123")

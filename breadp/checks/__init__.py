@@ -131,7 +131,7 @@ class DoiResolvesCheck(Check):
             response = requests.head('https://doi.org/' + rdp.pid)
         except Exception as e:
             msg = "{}: {}".format(type(e), e)
-            return(True, BooleanResult(False, msg))
+            return(False, BooleanResult(False, msg))
 
         if response.status_code != 302:
             msg = "Could not resolve {}, status code: {}".format(

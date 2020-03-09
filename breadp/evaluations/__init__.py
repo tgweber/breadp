@@ -253,6 +253,8 @@ class DoesNotContainEvaluationPart(SingleCheckEvaluationPart):
     def _evaluate_part(self):
         if not isinstance(self.check.result, ListResult):
             return 0
+        if len(self.check.result.outcome) == 0:
+            return 0
         for i in self.items:
             if i in self.check.result.outcome:
                 return 0
@@ -265,13 +267,13 @@ class AllTrueEvaluationPart(SingleCheckEvaluationPart):
     def _evaluate_part(self):
         if not isinstance(self.check.result, ListResult):
             return 0
-        alltrue =  False
+        if len(self.check.result.outcome) == 0:
+            return 0
+
         for r in self.check.result.outcome:
             if not r:
                return 0
-            else:
-                alltrue = True
-        return alltrue
+        return 1
 
 class IsTrueEvaluationPart(SingleCheckEvaluationPart):
     """ If the check's outcome is true this part returns 1, else 0
@@ -300,7 +302,14 @@ class AllFalseEvaluationPart(SingleCheckEvaluationPart):
         self.reverse = AllTrueEvaluationPart(check, weight)
 
     def _evaluate_part(self):
-        return 1 - self.reverse._evaluate_part()
+        if not isinstance(self.check.result, ListResult):
+            return 0
+        if len(self.check.result.outcome) == 0:
+            return 0
+        for r in self.check.result.outcome:
+            if r:
+               return 0
+        return 1
 
 class ContainsItemExactlyNTimesEvaluationPart(SingleCheckEvaluationPart):
     """ The score is 1 if item is exactly n times in ListResult of check.
@@ -391,4 +400,5 @@ class CompositeEvaluation(BatchEvaluation):
         for ep in self.evaluation_parts:
             epep = ep.evaluate_part()
             score += epep * (ep.weight/self.total_weights)
+            print("{}: {}".format(ep, epep))
         return round(score, 10)

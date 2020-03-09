@@ -10,9 +10,9 @@
 from unittest import mock
 
 from breadp.checks.metadata import \
-    DataCiteDescriptionsTypeCheck, \
     DescriptionsLengthCheck, \
     DescriptionsNumberCheck, \
+    DescriptionsTypeCheck, \
     TitlesLanguageCheck, \
     TitlesTypeCheck
 from breadp.evaluations import \
@@ -57,7 +57,7 @@ def test_evaluation_parts(mock_get):
     check.check(rdp)
     assert ContainsItemExactlyNTimesEvaluationPart(check, None, 1)._evaluate_part() == 1
     assert ContainsAllEvaluationPart(check, [None])._evaluate_part() == 1
-    check = DataCiteDescriptionsTypeCheck()
+    check = DescriptionsTypeCheck()
     check.check(rdp)
     assert ContainsAllEvaluationPart(check, ["Abstract"])._evaluate_part() == 1
     check = DescriptionsNumberCheck()
