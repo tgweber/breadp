@@ -348,6 +348,45 @@ def test_rdp_type(mock_get):
     assert rdp.metadata.type == "Text"
 
 @mock.patch('requests.get', side_effect=mocked_requests_get)
+def test_rdp_related_resources(mock_get):
+    rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
+    assert len(rdp.metadata.relatedResources) == 2
+    assert rdp.metadata.relatedResources[0].pid == "10.5281/zenodo.3490329"
+    assert rdp.metadata.relatedResources[0].pidType == "DOI"
+    assert rdp.metadata.relatedResources[0].relationType == "Compiles"
+    assert rdp.metadata.relatedResources[1].pid == "10.5281/zenodo.3490395"
+    assert rdp.metadata.relatedResources[1].pidType == "DOI"
+    assert rdp.metadata.relatedResources[1].relationType == "IsVersionOf"
+
+    rdp = RdpFactory.create("10.5281/zenodo.badex1", "zenodo", token="123")
+    assert len(rdp.metadata.relatedResources) == 0
+
+    rdp = RdpFactory.create("10.5281/zenodo.badex2", "zenodo", token="123")
+    assert len(rdp.metadata.relatedResources) == 3
+    assert rdp.metadata.relatedResources[0].pid == "10.5281/zenodo.3490329"
+    assert rdp.metadata.relatedResources[0].pidType == "DOI"
+    assert rdp.metadata.relatedResources[0].relationType == "Cites"
+    assert rdp.metadata.relatedResources[1].pid == "10.5281/zenodo.3490395"
+    assert rdp.metadata.relatedResources[1].pidType == "DOI"
+    assert rdp.metadata.relatedResources[1].relationType == "HasMetadata"
+    assert rdp.metadata.relatedResources[1].schemeURI is None
+    assert rdp.metadata.relatedResources[1].schemeType is None
+    assert rdp.metadata.relatedResources[2].pid == "10.5281/zenodo.3490396"
+    assert rdp.metadata.relatedResources[2].pidType == "DOI"
+    assert rdp.metadata.relatedResources[2].relationType == "HasMetadata"
+    assert rdp.metadata.relatedResources[2].schemeURI == "http://datacite.org/schema/kernel-4 http://schema.datacite.org/meta/kernel-4.1/metadata.xsd"
+    assert rdp.metadata.relatedResources[2].schemeType == "XSD"
+
+@mock.patch('requests.get', side_effect=mocked_requests_get)
+def test_rdp_zenodo_data(mock_get):
+    rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
+    assert len(rdp.data) == 2
+
+
+    rdp = RdpFactory.create("10.5281/zenodo.badex3", "zenodo", token="123")
+    assert rdp.metadata.type == "Text"
+
+@mock.patch('requests.get', side_effect=mocked_requests_get)
 def test_rdp_zenodo_data(mock_get):
     rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
     assert len(rdp.data) == 2

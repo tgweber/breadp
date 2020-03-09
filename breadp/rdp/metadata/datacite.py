@@ -16,6 +16,7 @@ from breadp.rdp.metadata import \
     OaiPmhMetadata, \
     Person, \
     PersonOrInstitution, \
+    RelatedResource, \
     Rights, \
     Subject, \
     Title
@@ -36,6 +37,7 @@ class DataCiteMetadata(OaiPmhMetadata):
         self._publicationYear = None
         self._contributors = []
         self._dates = []
+        self._relatedResources = []
 
     @property
     def pid(self) -> str:
@@ -223,6 +225,30 @@ class DataCiteMetadata(OaiPmhMetadata):
     def type(self):
         if isinstance(self.md["resourceType"], OrderedDict):
             return self.md["resourceType"].get("@resourceTypeGeneral")
+
+    @property
+    def relatedResources(self):
+        if(len(self._relatedResources) == 0) \
+            and isinstance(self.md.get("relatedIdentifiers"), OrderedDict) \
+            and "relatedIdentifier" in self.md["relatedIdentifiers"].keys():
+                ris = self.md["relatedIdentifiers"].get("relatedIdentifier")
+                if ris is None:
+                    return None
+                elif isinstance(ris, OrderedDict):
+                    ris = [ris]
+                for ri in ris:
+                    if ri.get("relatedIdentifier") is None:
+                        ri["relatedIdentifier"] = ri.get("#text")
+                    self._relatedResources.append(
+                        RelatedResource(
+                            ri.get("relatedIdentifier"),
+                            ri.get("@relatedIdentifierType"),
+                            ri.get("@relationType"),
+                            ri.get("@schemeURI"),
+                            ri.get("@relatedMetadataScheme")
+                        )
+                    )
+        return self._relatedResources
 
 def createRightsObjectFromOrderedDict(r):
     ro = Rights(r.get("rights", ""), r.get("@rightsURI", None))

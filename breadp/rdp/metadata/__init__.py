@@ -48,6 +48,8 @@ class Metadata(object):
         Dates of interest for the RDP
     type: str
         Type of the RDP
+    relatedResources: list<RelatedResource>
+        Resources related to this RDP
     """
     @property
     def descriptions(self):
@@ -90,6 +92,9 @@ class Metadata(object):
         raise NotImplementedError("Must be implemented by subclasses of Metadata.")
     @property
     def type(self):
+        raise NotImplementedError("Must be implemented by subclasses of Metadata.")
+    @property
+    def relatedResources(self):
         raise NotImplementedError("Must be implemented by subclasses of Metadata.")
 
 class Description(object):
@@ -296,8 +301,31 @@ def parseDateString(dateString):
             continue
     raise ValueError("'{}' is not in a supported format".format(dateString))
 
+class RelatedResource(object):
+    """ Base class and interface for related resources of an RDP
+
+    Attributes
+    ----------
+    pid: str
+        Persistant identifier of the related resource
+    pidType: str
+        Type of the identifier of the related resource
+    relationType: str
+        Type of the relation of the RDP to the resource
+    schemeURI: str
+        URI of the scheme describing the related resource
+    schemeType: str
+        Type of the scheme describing the related resource
+    """
+    def __init__(self, pid, pidType=None, relationType=None, schemeURI=None, schemeType=None):
+        self.pid = pid
+        self.pidType = pidType
+        self.relationType = relationType
+        self.schemeURI = schemeURI
+        self.schemeType = schemeType
+
 class OaiPmhMetadata(Metadata):
-    """ Base class and interface for all OAI-PMH-based Metadata objects
+    """ Base class and interface et or all OAI-PMH-based Metadata objects
     """
 
     def _initialize(self, oaipmh):

@@ -50,8 +50,9 @@
             <alternateIdentifier alternateIdentifierType="url">https://zenodo.org/record/3490396</alternateIdentifier>
           </alternateIdentifiers>
           <relatedIdentifiers>
-            <relatedIdentifier relatedIdentifierType="DOI" relationType="Compiles" resourceTypeGeneral="Dataset">10.5281/zenodo.3490329</relatedIdentifier>
-            <relatedIdentifier relatedIdentifierType="DOI" relationType="IsVersionOf">10.5281/zenodo.3490395</relatedIdentifier>
+            <relatedIdentifier relatedIdentifierType="DOI" relationType="Cites" resourceTypeGeneral="Dataset">10.5281/zenodo.3490329</relatedIdentifier>
+            <relatedIdentifier relatedIdentifierType="DOI" relationType="HasMetadata">10.5281/zenodo.3490395</relatedIdentifier>
+            <relatedIdentifier relatedIdentifierType="DOI" relationType="HasMetadata" schemeURI="http://datacite.org/schema/kernel-4 http://schema.datacite.org/meta/kernel-4.1/metadata.xsd" relatedMetadataScheme="XSD">10.5281/zenodo.3490396</relatedIdentifier>
           </relatedIdentifiers>
           <sizes>
               <size>120 records</size>
