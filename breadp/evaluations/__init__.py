@@ -34,6 +34,8 @@ class Evaluation(object):
     -------
     evaluate(self, rdp) -> None
         Runs the evaluation and updates log and state
+    report(self, pid) -> dict
+        Returns a dictionary of evlauations run for the specified pid (incl.  checks)
     """
 
     def __init__(self):
@@ -61,6 +63,34 @@ class Evaluation(object):
             success,
             self._do_evaluate(rdp))
         )
+
+    def report(self, pid):
+        report = {
+            "name": type(self).__name__,
+            "version": self.version,
+            "id": self.id,
+            "log": [],
+            "checks": []
+        }
+        if isinstance(self, CompositeEvaluation):
+            report["evaluation_parts"] = []
+            for ep in self.evaluation_parts:
+                report["evaluation_parts"].append(ep.report())
+
+        for check in self.checks.values():
+            report["checks"].append(check.report(pid))
+
+        for entry in self.log.get_by_pid(pid):
+            report["log"].append(
+                {
+                    "start": entry.start,
+                    "success": entry.success,
+                    "msg": entry.msg,
+                    "evaluation": entry.evaluation,
+                    "end": entry.end
+                }
+            )
+        return report
 
     def _run_checks(self, rdp):
         raise NotImplementedError("_run_checks must be implemented by subclasses of Evaluation")
@@ -105,8 +135,18 @@ class EvaluationPart(object):
         self.weight = weight
         self.score = 0
 
+    def report(self):
+        return {
+            "name": type(self).__name__,
+            "weight": self.weight,
+            "checks": self.report_checks(),
+        }
+
+
     def evaluate_part(self):
-        raise NotImplementedError("evaluate_part must be implemented by a subclass")
+        raise NotImplementedError("evaluate_part() must be implemented by a subclass")
+    def report_checks(self):
+        raise NotImplementedError("report_checks() must be implemented by a subclass")
 
 class SingleCheckEvaluationPart(EvaluationPart):
    """ This is an evaluation part which only consists of one check.
@@ -124,6 +164,9 @@ class SingleCheckEvaluationPart(EvaluationPart):
            return 0
        else:
            return self._evaluate_part()
+
+   def report_checks(self):
+       return [ type(self.check).__name__ ]
 
    def _evaluate_part(self):
        raise NotImplementedError("_evaluate_part must be implemented by a subclass")
@@ -144,6 +187,9 @@ class MultipleCheckEvaluationPart(EvaluationPart):
            if not c.success:
                return 0
        return self._evaluate_part()
+
+   def report_checks(self):
+       return [ type(c).__name__ for c in self.checks ]
 
    def _evaluate_part(self):
        raise NotImplementedError("_evaluate_part must be implemented by a subclass")

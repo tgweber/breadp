@@ -89,14 +89,17 @@ class Check(object):
         report = {
             "name": type(self).__name__,
             "version": self.version,
+            "id": self.id,
             "log": []
         }
-        for logEntry in self.log.get_by_pid(pid):
+        for entry in self.log.get_by_pid(pid):
             report["log"].append(
                 {
-                    "success": logEntry.success,
-                    "result": logEntry.result.outcome,
-                    "msg": logEntry.result.msg
+                    "start": entry.start,
+                    "success": entry.success,
+                    "result": entry.result.outcome,
+                    "msg": entry.msg,
+                    "end": entry.end
                 }
             )
         return report

@@ -65,7 +65,6 @@ class DescriptionEvaluation(CompositeEvaluation):
     """ Evaluation for descriptions of the metadata of an RDP
     """
     def __init__(self):
-
         CompositeEvaluation.__init__(self)
         self.version = "0.0.1"
         self.id = 1

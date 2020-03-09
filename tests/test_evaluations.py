@@ -79,6 +79,14 @@ def test_pid_evaluation(mock_get):
 def test_description_evaluation(mock_get, mock_head):
     e = DescriptionEvaluation()
     rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
+
+    report = e.report("10.5281/zenodo.3490396")
+    assert report["name"] == "DescriptionEvaluation"
+    assert report["version"] == e.version
+    assert len(report["evaluation_parts"]) == 5
+    assert len(report["checks"]) == 4
+    assert len(report["log"]) == 0
+
     e.evaluate(rdp)
     assert len(e.log) == 1
     assert e.log.log[-1].evaluation == 1
@@ -88,6 +96,14 @@ def test_description_evaluation(mock_get, mock_head):
     assert len(e.log) == 2
     assert e.log.log[-1].evaluation == 0
 
+
+    report = e.report("10.5281/zenodo.3490396")
+    assert report["name"] == "DescriptionEvaluation"
+    assert report["version"] == e.version
+    assert len(report["evaluation_parts"]) == 5
+    assert len(report["checks"]) == 4
+    assert len(report["log"]) == 1
+    assert report["log"][0]["evaluation"] == 1
 
     rdp = RdpFactory.create("10.5281/zenodo.badex2", "zenodo", token="123")
     e.evaluate(rdp)

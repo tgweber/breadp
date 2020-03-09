@@ -130,6 +130,7 @@ def test_descriptions_length_check(mock_get):
     report = check.report("10.5281/zenodo.3490396")
     assert report["name"] == "DescriptionsLengthCheck"
     assert report["version"] == check.version
+    assert report["id"] == check.id
     assert len(report["log"]) == 0
 
     # Successful check
