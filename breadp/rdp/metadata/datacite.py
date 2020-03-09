@@ -219,6 +219,10 @@ class DataCiteMetadata(OaiPmhMetadata):
                     )
         return self._dates
 
+    @property
+    def type(self):
+        if isinstance(self.md["resourceType"], OrderedDict):
+            return self.md["resourceType"].get("@resourceTypeGeneral")
 
 def createRightsObjectFromOrderedDict(r):
     ro = Rights(r.get("rights", ""), r.get("@rightsURI", None))

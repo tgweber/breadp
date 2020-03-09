@@ -22,7 +22,7 @@
           </subjects>
           <dates>
           </dates>
-          <resourceType resourceTypeGeneral="Dataset"/>
+          <resourceType/>
           <alternateIdentifiers>
             <alternateIdentifier alternateIdentifierType="url">https://zenodo.org/record/3490396</alternateIdentifier>
           </alternateIdentifiers>

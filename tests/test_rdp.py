@@ -334,6 +334,20 @@ def test_rdp_zenodo_dates(mock_get):
     assert rdp.metadata.dates[1].information is None
 
 @mock.patch('requests.get', side_effect=mocked_requests_get)
+def test_rdp_type(mock_get):
+    rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
+    assert rdp.metadata.type == "Dataset"
+
+    rdp = RdpFactory.create("10.5281/zenodo.badex1", "zenodo", token="123")
+    assert rdp.metadata.type is None
+
+    rdp = RdpFactory.create("10.5281/zenodo.badex2", "zenodo", token="123")
+    assert rdp.metadata.type == "Text"
+
+    rdp = RdpFactory.create("10.5281/zenodo.badex3", "zenodo", token="123")
+    assert rdp.metadata.type == "Text"
+
+@mock.patch('requests.get', side_effect=mocked_requests_get)
 def test_rdp_zenodo_data(mock_get):
     rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
     assert len(rdp.data) == 2

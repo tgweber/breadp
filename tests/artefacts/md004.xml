@@ -46,7 +46,8 @@
             <date dateType="Updated" dateInformation="First revision">2019-10-15</date>
             <date dateType="Updated" dateInformation="Second revision">2019-10-25</date>
           </dates>
-          <resourceType resourceTypeGeneral="Dataset"/>
+          <language>en</language>
+          <resourceType resourceTypeGeneral="Text"/>
           <alternateIdentifiers>
             <alternateIdentifier alternateIdentifierType="url">https://zenodo.org/record/3490396</alternateIdentifier>
           </alternateIdentifiers>

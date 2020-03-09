@@ -46,6 +46,8 @@ class Metadata(object):
         Year of publication of the RDP
     dates: list<Date>
         Dates of interest for the RDP
+    type: str
+        Type of the RDP
     """
     @property
     def descriptions(self):
@@ -85,6 +87,9 @@ class Metadata(object):
         raise NotImplementedError("Must be implemented by subclasses of Metadata.")
     @property
     def dates(self):
+        raise NotImplementedError("Must be implemented by subclasses of Metadata.")
+    @property
+    def type(self):
         raise NotImplementedError("Must be implemented by subclasses of Metadata.")
 
 class Description(object):
