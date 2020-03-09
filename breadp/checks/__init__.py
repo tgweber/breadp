@@ -36,6 +36,8 @@ class Check(object):
     -------
     check(self, rdp) -> None
         Runs the check and updates log and state
+    report(self, pid) -> dict
+        Returns a dicationary of checks run for the specified pid
     """
 
     def __init__(self):
@@ -82,6 +84,22 @@ class Check(object):
         self.success = success
         self.result = result
         self.log.add(CheckLogEntry(start, end, self.version, pid, msg, success, result))
+
+    def report(self, pid):
+        report = {
+            "name": type(self).__name__,
+            "version": self.version,
+            "log": []
+        }
+        for logEntry in self.log.get_by_pid(pid):
+            report["log"].append(
+                {
+                    "success": logEntry.success,
+                    "result": logEntry.result.outcome,
+                    "msg": logEntry.result.msg
+                }
+            )
+        return report
 
     def _do_check(self, rdp):
         raise NotImplementedError("_do_check must be implemented by subclasses of Check")

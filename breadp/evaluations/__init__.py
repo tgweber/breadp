@@ -381,12 +381,10 @@ class CompositeEvaluation(BatchEvaluation):
         self.total_weights = 0
 
     def add_evaluation_part(self, ep):
-
         if isinstance(ep, SingleCheckEvaluationPart):
             checks = [ep.check]
         else:
             checks = ep.checks
-
         # There are problems when we add different checks of the same type!
         # initialize in Evaluation before calling add_evaluation_part
         for c in checks:
@@ -400,5 +398,5 @@ class CompositeEvaluation(BatchEvaluation):
         for ep in self.evaluation_parts:
             epep = ep.evaluate_part()
             score += epep * (ep.weight/self.total_weights)
-            print("{}: {}".format(ep, epep))
+            # print("{}: {}".format(ep, epep))
         return round(score, 10)
