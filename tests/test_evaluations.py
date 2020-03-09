@@ -19,7 +19,7 @@ from breadp.evaluations import \
     AllFalseEvaluationPart, \
     BatchEvaluation, \
     CompositeEvaluation, \
-    ContainsEvaluationPart, \
+    ContainsAllEvaluationPart, \
     ContainsItemExactlyNTimesEvaluationPart, \
     DoesNotContainEvaluationPart, \
     Evaluation, \
@@ -30,6 +30,7 @@ from breadp.evaluations.metadata import \
     CreatorEvaluation, \
     ContributorEvaluation, \
     ContributorRightsEvaluation, \
+    DatesEvaluation, \
     DescriptionEvaluation, \
     FormatEvaluation, \
     LanguageEvaluation, \
@@ -50,14 +51,14 @@ def test_evaluation_parts(mock_get):
     check = TitlesLanguageCheck()
     check.check(rdp)
     assert ContainsItemExactlyNTimesEvaluationPart(check, "en", 1)._evaluate_part() == 1
-    assert ContainsEvaluationPart(check, ["en"])._evaluate_part() == 1
+    assert ContainsAllEvaluationPart(check, ["en"])._evaluate_part() == 1
     check = TitlesTypeCheck()
     check.check(rdp)
     assert ContainsItemExactlyNTimesEvaluationPart(check, None, 1)._evaluate_part() == 1
-    assert ContainsEvaluationPart(check, [None])._evaluate_part() == 1
+    assert ContainsAllEvaluationPart(check, [None])._evaluate_part() == 1
     check = DataCiteDescriptionsTypeCheck()
     check.check(rdp)
-    assert ContainsEvaluationPart(check, ["Abstract"])._evaluate_part() == 1
+    assert ContainsAllEvaluationPart(check, ["Abstract"])._evaluate_part() == 1
     check = DescriptionsNumberCheck()
     check.check(rdp)
     assert IsBetweenEvaluationPart(check, 1.0, 100.0)._evaluate_part() == 1
@@ -304,3 +305,37 @@ def test_contributor_rights_evaluation(mock_get, mock_head):
     e.evaluate(rdp)
     assert len(e.log) == 4
     assert e.log.log[-1].evaluation == 1
+
+@mock.patch('requests.get', side_effect=mocked_requests_get)
+@mock.patch('requests.head', side_effect=mocked_requests_head)
+def test_dates_evaluation(mock_get, mock_head):
+    e = DatesEvaluation()
+    rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
+    e.evaluate(rdp)
+    assert len(e.log) == 1
+    assert e.log.log[-1].evaluation == 1
+
+    rdp = RdpFactory.create("10.5281/zenodo.badex1", "zenodo", token="123")
+    e.evaluate(rdp)
+    assert len(e.log) == 2
+    assert e.log.log[-1].evaluation == 0
+
+    rdp = RdpFactory.create("10.5281/zenodo.badex2", "zenodo", token="123")
+    e.evaluate(rdp)
+    assert len(e.log) == 3
+    assert e.log.log[-1].evaluation == round(1/3, 10)
+
+    rdp = RdpFactory.create("10.5281/zenodo.badex3", "zenodo", token="123")
+    e.evaluate(rdp)
+    assert len(e.log) == 4
+    assert e.log.log[-1].evaluation == round(1/3, 10)
+
+    rdp = RdpFactory.create("10.5281/zenodo.badex4", "zenodo", token="123")
+    e.evaluate(rdp)
+    assert len(e.log) == 5
+    assert e.log.log[-1].evaluation == 0
+
+    rdp = RdpFactory.create("10.5281/zenodo.badex5", "zenodo", token="123")
+    e.evaluate(rdp)
+    assert len(e.log) == 6
+    assert e.log.log[-1].evaluation == round(2/3, 10)

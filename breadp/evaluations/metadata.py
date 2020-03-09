@@ -12,7 +12,8 @@ from breadp.evaluations import \
     AllFalseEvaluationPart, \
     BatchEvaluation, \
     CompositeEvaluation, \
-    ContainsEvaluationPart, \
+    ContainsAllEvaluationPart, \
+    ContainsAtLeastOneEvaluationPart, \
     ContainsItemExactlyNTimesEvaluationPart, \
     DoesNotContainEvaluationPart, \
     Evaluation, \
@@ -34,11 +35,15 @@ from breadp.checks.metadata import \
     ContributorsContainInstitutionsCheck, \
     ContributorsTypeCheck, \
     DataCiteDescriptionsTypeCheck, \
+    DatesInformationCheck, \
+    DatesIssuedYearCheck, \
+    DatesTypeCheck, \
     DescriptionsLanguageCheck, \
     DescriptionsLengthCheck, \
     DescriptionsNumberCheck, \
-    LanguageSpecifiedCheck, \
     FormatsAreValidMediaTypeCheck, \
+    LanguageSpecifiedCheck, \
+    PublicationYearCheck, \
     RightsAreOpenCheck, \
     RightsHaveValidSPDXIdentifierCheck, \
     RightsHasAtLeastOneLicenseCheck, \
@@ -76,13 +81,13 @@ class DescriptionEvaluation(CompositeEvaluation):
                 4)
         )
         self.add_evaluation_part(
-            ContainsEvaluationPart(
+            ContainsAllEvaluationPart(
                 DescriptionsLanguageCheck(),
                 ["en"],
                 4)
         )
         ddtc = DataCiteDescriptionsTypeCheck()
-        self.add_evaluation_part(ContainsEvaluationPart(ddtc, ["Abstract"]))
+        self.add_evaluation_part(ContainsAllEvaluationPart(ddtc, ["Abstract"]))
         self.add_evaluation_part(
             DoesNotContainEvaluationPart(
                 ddtc,
@@ -100,7 +105,7 @@ class TitleEvaluation(CompositeEvaluation):
         self.add_evaluation_part(
             ContainsItemExactlyNTimesEvaluationPart(TitlesTypeCheck(), None, 1)
         )
-        self.add_evaluation_part(ContainsEvaluationPart(TitlesLanguageCheck(), ["en"]))
+        self.add_evaluation_part(ContainsAllEvaluationPart(TitlesLanguageCheck(), ["en"]))
 
 class FormatEvaluation(CompositeEvaluation):
     """ Evaluation for the format specification of the metadata of an RDP
@@ -243,9 +248,71 @@ class ContributorRightsEvaluation(CompositeEvaluation):
 
         self.add_evaluation_part(
             FunctionEvaluationPart(
-                [ RightsAreOpenCheck(),
-                  ContributorsTypeCheck()
+                [
+                    RightsAreOpenCheck(),
+                    ContributorsTypeCheck()
                 ],
                 rightsHolderIfRightsClosed
             )
         )
+
+class DatesEvaluation(CompositeEvaluation):
+    """ Evaluation for the dates and publicationYear specification
+        of the metadata of an RDP.
+    """
+    def __init__(self):
+        CompositeEvaluation.__init__(self)
+        self.version = "0.0.1"
+        self.id = 12
+
+        dtc = DatesTypeCheck()
+
+        self.add_evaluation_part(
+            ContainsAtLeastOneEvaluationPart(
+                dtc,
+                ["Created", "Collected"],
+            )
+        )
+
+        def publishedEqualsIssued(checks):
+            if checks[0].result.outcome == checks[1].result.outcome:
+                return 1
+            return 0
+
+        self.add_evaluation_part(
+            FunctionEvaluationPart(
+                [
+                    PublicationYearCheck(),
+                    DatesIssuedYearCheck()
+                ],
+                publishedEqualsIssued,
+            )
+        )
+
+        def duplicatesHaveInformation(checks):
+            if 0 in (len(checks[0].result.outcome), len(checks[1].result.outcome)):
+                return 0
+            dups = 0
+            dupsWithInfo = 0
+            dateTypesHasInformation = {}
+            for idx, t in enumerate(checks[0].result.outcome):
+                if dateTypesHasInformation.get(t) is not None:
+                    dups += 1
+                    if dateTypesHasInformation[t] and checks[1].result.outcome[idx] is not None:
+                        dupsWithInfo += 1
+                dateTypesHasInformation[t] = checks[1].result.outcome[idx] is not None
+            if dups == 0:
+                return 1
+            else:
+                return dupsWithInfo/dups
+
+        self.add_evaluation_part(
+            FunctionEvaluationPart(
+                [
+                    dtc,
+                    DatesInformationCheck()
+                ],
+                duplicatesHaveInformation
+            )
+        )
+

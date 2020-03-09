@@ -292,8 +292,6 @@ def test_rdp_zenodo_dates(mock_get):
     rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
     assert len(rdp.metadata.dates) == 2
     assert rdp.metadata.dates[0].type == "Issued"
-    import pprint
-    pprint.pprint(rdp.metadata.dates[1].date)
     assert rdp.metadata.dates[0].date.year == 2019
     assert rdp.metadata.dates[0].date.month == 10
     assert rdp.metadata.dates[0].date.day == 15

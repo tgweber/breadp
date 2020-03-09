@@ -119,7 +119,6 @@ class SingleCheckEvaluationPart(EvaluationPart):
    def __init__(self, check, weight=1):
        EvaluationPart.__init__(self, weight)
        self.check = check
-
    def evaluate_part(self):
        if not self.check.success:
            return 0
@@ -202,8 +201,27 @@ class IsIdenticalToEvaluationPart(SingleCheckEvaluationPart):
             return 1
         return 0
 
-class ContainsEvaluationPart(SingleCheckEvaluationPart):
+class ContainsAllEvaluationPart(SingleCheckEvaluationPart):
     """ The score is 1 if all items are contained in the ListResult.
+        Is 0 when the result is not of type ListResult
+
+    items: div
+        object to look for in ListResult
+    """
+    def __init__(self, check, items, weight=1):
+        SingleCheckEvaluationPart.__init__(self, check, weight)
+        self.items = items
+
+    def _evaluate_part(self):
+        if not isinstance(self.check.result, ListResult):
+            return 0
+        for i in self.items:
+            if i not in self.check.result.outcome:
+                return 0
+        return 1
+
+class ContainsAtLeastOneEvaluationPart(SingleCheckEvaluationPart):
+    """ The score is 1 if at least one of the items is contained in the ListResult.
         Is 0 when the result is not of type ListResult
 
     items: div
@@ -349,13 +367,14 @@ class CompositeEvaluation(BatchEvaluation):
         self.total_weights = 0
 
     def add_evaluation_part(self, ep):
-        # Checks are only added once, even if different evaluation parts
-        # use the same check!
+
         if isinstance(ep, SingleCheckEvaluationPart):
             checks = [ep.check]
         else:
             checks = ep.checks
 
+        # There are problems when we add different checks of the same type!
+        # initialize in Evaluation before calling add_evaluation_part
         for c in checks:
             self.checks[type(c).__name__] = c
 
@@ -367,5 +386,4 @@ class CompositeEvaluation(BatchEvaluation):
         for ep in self.evaluation_parts:
             epep = ep.evaluate_part()
             score += epep * (ep.weight/self.total_weights)
-            # print("{} {} {} {}".format(type(ep).__name__, ep.check.success, score, epep))
         return round(score, 10)
