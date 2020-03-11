@@ -8,7 +8,7 @@
 ################################################################################
 
 from breadp.evaluations import BatchEvaluation, SimpleAndEvaluation, Evaluation
-from breadp.checks import IsValidDoiCheck, DoiResolvesCheck
+from breadp.checks.pid import IsValidDoiCheck, DoiResolvesCheck
 
 class DoiEvaluation(BatchEvaluation, SimpleAndEvaluation):
     def __init__(self):

@@ -13,7 +13,8 @@ import re
 from unittest import mock
 
 from util import mocked_requests_get, mocked_requests_head, base_init_check_test
-from breadp.checks import Check, IsValidDoiCheck, DoiResolvesCheck
+from breadp.checks import Check
+from breadp.checks.pid import IsValidDoiCheck, DoiResolvesCheck
 from breadp.checks.metadata import \
         CreatorsContainInstitutionsCheck, \
         CreatorsOrcidCheck, \

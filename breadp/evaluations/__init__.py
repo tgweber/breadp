@@ -19,9 +19,9 @@ class Evaluation(object):
     Attributes
     ----------
     id: int
-        Identifier for the evaluateion
+        Identifier for the evaluation
     version: str
-        Version of the evaluations
+        Version of the evaluation
     desc: str
         A short text describing the criterion evaluated (in English)
     checks: list
@@ -35,7 +35,7 @@ class Evaluation(object):
     evaluate(self, rdp) -> None
         Runs the evaluation and updates log and state
     report(self, pid) -> dict
-        Returns a dictionary of evlauations run for the specified pid (incl.  checks)
+        Returns a dictionary of evlauations run for the specified pid (incl. checks)
     """
 
     def __init__(self):
