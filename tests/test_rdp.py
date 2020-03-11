@@ -281,7 +281,7 @@ def test_rdp_zenodo_language(mock_get):
     assert rdp.metadata.language is None
 
     rdp = RdpFactory.create("10.5281/zenodo.badex2", "zenodo", token="123")
-    assert rdp.metadata.language == "bribrabru"
+    assert rdp.metadata.language == "English"
 
 @mock.patch('requests.get', side_effect=mocked_requests_get)
 def test_rdp_zenodo_contributors(mock_get):

@@ -44,7 +44,7 @@
           <dates>
             <date>2019-10-15</date>
           </dates>
-          <language>bribrabru</language>
+          <language xml:lang="en">English</language>
           <resourceType resourceTypeGeneral="Text"/>
           <alternateIdentifiers>
             <alternateIdentifier alternateIdentifierType="url">https://zenodo.org/record/3490396</alternateIdentifier>
@@ -61,7 +61,7 @@
           <formats>
               <format>application/json</format>
           </formats>
-          <version>34</version>
+          <version xml:lang="en">34</version>
           <rightsList>
             <rights rightsURI="info:eu-repo/semantics/openAccess" rightsIdentifierScheme="spdx">Open Access</rights>
               <rights rightsURI="http://thisurl does not exists" schemeURI="https://spdxx.org/licenses">Creative Commons Attribution 4.0 International</rights>

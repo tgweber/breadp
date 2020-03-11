@@ -693,7 +693,7 @@ def test_language_specified_check(mock_get):
     check.check(rdp)
     assert check.success
     assert not check.result.outcome
-    assert check.result.msg == "'bribrabru' is not a valid ISO-639-1 code"
+    assert check.result.msg == "'English' is not a valid ISO-639-1 code"
 
 @mock.patch('requests.get', side_effect=mocked_requests_get)
 def test_contributors_orcid_check(mock_get):

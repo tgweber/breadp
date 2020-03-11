@@ -38,7 +38,8 @@ class DataCiteMetadata(OaiPmhMetadata):
         self._publicationYear = None
         self._contributors = []
         self._dates = []
-        self._relatedResources = []
+        self._relatedIdentifiers = []
+        self._resourceType = None
 
     @property
     def pid(self) -> str:
@@ -136,8 +137,6 @@ class DataCiteMetadata(OaiPmhMetadata):
             if isinstance(creators, (str, OrderedDict)):
                 creators = [ creators ]
             for p in creators:
-                if isinstance(p, str):
-                    p = { "#text": p }
                 self._creators.append(
                         create_personOrInstitution_object_from_OrderedDict(p)
                 )
@@ -150,8 +149,6 @@ class DataCiteMetadata(OaiPmhMetadata):
             if isinstance(contributors, (str, OrderedDict)):
                 contributors = [ contributors ]
             for p in contributors:
-                if isinstance(p, str):
-                    p = { "#text": p }
                 self._contributors.append(
                         create_personOrInstitution_object_from_OrderedDict(p)
                 )
@@ -183,8 +180,8 @@ class DataCiteMetadata(OaiPmhMetadata):
             version = self.md.get("version")
             if isinstance(version, str):
                 self._version = self.md.get("version")
-            elif isinstance(language, OrderedDict):
-                self._version = version.get("version", language.get("#version"))
+            elif isinstance(version, OrderedDict):
+                self._version = version.get("version", version.get("#version"))
         return self._version
 
     @property
@@ -197,14 +194,11 @@ class DataCiteMetadata(OaiPmhMetadata):
 
     @property
     def dates(self):
-        if len(self._dates) == 0 and isinstance(self.md["dates"], OrderedDict) \
-          and "date" in self.md["dates"].keys():
-            dateField = self.md["dates"]["date"]
-            if dateField is None:
-                return None
-            if not isinstance(dateField, list):
-                dateField = [ dateField ]
-            for d in dateField:
+        if self.should_be_parsed("dates"):
+            dates = self.md["dates"]["date"]
+            if not isinstance(dates, list):
+                dates = [ dates ]
+            for d in dates:
                 if isinstance(d, str):
                     self._dates.append((Date(d)))
                 if isinstance(d, OrderedDict):
@@ -221,32 +215,29 @@ class DataCiteMetadata(OaiPmhMetadata):
 
     @property
     def type(self):
-        if isinstance(self.md["resourceType"], OrderedDict):
-            return self.md["resourceType"].get("@resourceTypeGeneral")
+        if self.should_be_parsed("resourceType"):
+            resourceTypeGeneral = self.md["resourceType"].get("@resourceTypeGeneral")
+            if resourceTypeGeneral is not None:
+                self._resourceType = resourceTypeGeneral
+        return self._resourceType
 
     @property
     def relatedResources(self):
-        if(len(self._relatedResources) == 0) \
-            and isinstance(self.md.get("relatedIdentifiers"), OrderedDict) \
-            and "relatedIdentifier" in self.md["relatedIdentifiers"].keys():
+        if self.should_be_parsed("relatedIdentifiers"):
                 ris = self.md["relatedIdentifiers"].get("relatedIdentifier")
-                if ris is None:
-                    return None
-                elif isinstance(ris, OrderedDict):
+                if isinstance(ris, OrderedDict):
                     ris = [ris]
                 for ri in ris:
-                    if ri.get("relatedIdentifier") is None:
-                        ri["relatedIdentifier"] = ri.get("#text")
-                    self._relatedResources.append(
+                    self._relatedIdentifiers.append(
                         RelatedResource(
-                            ri.get("relatedIdentifier"),
+                            ri.get("relatedIdentifier", ri.get("#text")),
                             ri.get("@relatedIdentifierType"),
                             ri.get("@relationType"),
                             ri.get("@schemeURI"),
                             ri.get("@relatedMetadataScheme")
                         )
                     )
-        return self._relatedResources
+        return self._relatedIdentifiers
 
     def should_be_parsed(self, field):
         # check if the field has already been parsed
