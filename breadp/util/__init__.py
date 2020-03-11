@@ -5,11 +5,11 @@ class Bundle(object):
     def __len__(self):
         return len(self.payload.keys())
 
-    def put(self, item_type, item):
-        self.payload[item_type] = item
+    def put(self, itemType, item):
+        self.payload[itemType] = item
 
-    def get(self, item_type):
-        return self.payload.get(item_type, None)
+    def get(self, itemType):
+        return self.payload.get(itemType, None)
 
-    def has(self, item_type):
-        return item_type in self.payload.keys()
+    def has(self, itemType):
+        return itemType in self.payload.keys()

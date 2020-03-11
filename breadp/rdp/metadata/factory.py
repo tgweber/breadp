@@ -17,7 +17,7 @@ class MetadataFactory(object):
     create(md_type, payload) -> Metadata
         Factory method returning a Metadata object appropriate for the given type and payload
     """
-    def create(md_type, payload) -> Metadata:
+    def create(mdType, payload) -> Metadata:
         """ Creates a Metadata object appropriate for the given type and payload
 
         Parameters
@@ -31,7 +31,7 @@ class MetadataFactory(object):
         -------
         Metadata: The created Metadata object
         """
-        if md_type in ("oaipmh_datacite"):
+        if mdType in ("oaipmh_datacite"):
             md = DataCiteMetadata()
             md._initialize(payload)
             md._normalize()

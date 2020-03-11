@@ -106,12 +106,12 @@ class DataCiteMetadata(OaiPmhMetadata):
             self.md["rightsList"] is not None:
             if isinstance(self.md["rightsList"].get("rights", None), OrderedDict):
                 self._rights.append(
-                    createRightsObjectFromOrderedDict(self.md["rightsList"]["rights"])
+                    create_rights_object_from_OrderedDict(self.md["rightsList"]["rights"])
                 )
             elif isinstance(self.md["rightsList"].get("rights", None), list):
                 for r in self.md["rightsList"]["rights"]:
                     r["rights"] = r.get("#text", "")
-                    self._rights.append(createRightsObjectFromOrderedDict(r))
+                    self._rights.append(create_rights_object_from_OrderedDict(r))
         return self._rights
 
     @property
@@ -121,7 +121,7 @@ class DataCiteMetadata(OaiPmhMetadata):
            and isinstance(self.md["subjects"], dict):
             if isinstance(self.md["subjects"].get("subject", None), OrderedDict):
                 self._subjects.append(
-                    createSubjectObjectFromOrderedDict(self.md["subjects"]["subject"])
+                    create_subject_object_from_OrderedDict(self.md["subjects"]["subject"])
                 )
             elif isinstance(self.md["subjects"].get("subject", None), list):
                 for s in self.md["subjects"]["subject"]:
@@ -129,7 +129,7 @@ class DataCiteMetadata(OaiPmhMetadata):
                         s = { "#text": s}
                     s["subject"] = s.get("#text", "")
                     self._subjects.append(
-                        createSubjectObjectFromOrderedDict(s)
+                        create_subject_object_from_OrderedDict(s)
                     )
         return self._subjects
 
@@ -139,13 +139,13 @@ class DataCiteMetadata(OaiPmhMetadata):
            and isinstance(self.md["creators"], OrderedDict):
             if isinstance(self.md["creators"].get("creator", None), OrderedDict):
                 self._creators.append(
-                    createPersonOrInstitutionObjectFromOrderedDict(self.md["creators"]["creator"])
+                    create_personOrInstitution_object_from_OrderedDict(self.md["creators"]["creator"])
                 )
             elif isinstance(self.md["creators"].get("creator", None), list):
                 for p in self.md["creators"]["creator"]:
                     if isinstance(p, OrderedDict):
                         self._creators.append(
-                            createPersonOrInstitutionObjectFromOrderedDict(p)
+                            create_personOrInstitution_object_from_OrderedDict(p)
                         )
         return self._creators
 
@@ -155,7 +155,7 @@ class DataCiteMetadata(OaiPmhMetadata):
            and isinstance(self.md["contributors"], OrderedDict):
             if isinstance(self.md["contributors"].get("contributor", None), OrderedDict):
                 self._contributors.append(
-                    createPersonOrInstitutionObjectFromOrderedDict(
+                    create_personOrInstitution_object_from_OrderedDict(
                         self.md["contributors"]["contributor"]
                     )
                 )
@@ -163,7 +163,7 @@ class DataCiteMetadata(OaiPmhMetadata):
                 for p in self.md["contributors"]["contributor"]:
                     if isinstance(p, OrderedDict):
                         self._contributors.append(
-                            createPersonOrInstitutionObjectFromOrderedDict(p)
+                            create_personOrInstitution_object_from_OrderedDict(p)
                         )
         return self._contributors
 
@@ -250,35 +250,21 @@ class DataCiteMetadata(OaiPmhMetadata):
                     )
         return self._relatedResources
 
-def createRightsObjectFromOrderedDict(r):
+def create_rights_object_from_OrderedDict(r):
     ro = Rights(r.get("rights", ""), r.get("@rightsURI", None))
     if r.get("@schemeURI", "").startswith("https://spdx.org/licenses") \
         or r.get("@rightsIdentifierScheme", "").lower() == "spdx":
         ro.spdx = r.get("@rightsIdentifier", None)
     return ro
 
-def createSubjectObjectFromOrderedDict(s):
+def create_subject_object_from_OrderedDict(s):
     return Subject(
         s.get("subject", ""),
         s.get("@subjectScheme", ""),
         s.get("@schemeURI", "")
     )
 
-def createRightsObjectFromOrderedDict(r):
-    ro = Rights(r.get("rights", ""), r.get("@rightsURI", None))
-    if r.get("@schemeURI", "").startswith("https://spdx.org/licenses") \
-        or r.get("@rightsIdentifierScheme", "").lower() == "spdx":
-        ro.spdx = r.get("@rightsIdentifier", None)
-    return ro
-
-def createSubjectObjectFromOrderedDict(s):
-    return Subject(
-        s.get("subject", ""),
-        s.get("@subjectScheme", ""),
-        s.get("@schemeURI", "")
-    )
-
-def createPersonOrInstitutionObjectFromOrderedDict(p):
+def create_personOrInstitution_object_from_OrderedDict(p):
     nameField = p.get("creatorName", p.get("contributorName", None))
     if isinstance(nameField, OrderedDict):
         if nameField.get("@nameType", None) == "Organizational":

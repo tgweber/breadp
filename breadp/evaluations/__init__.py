@@ -172,7 +172,8 @@ class SingleCheckEvaluationPart(EvaluationPart):
        raise NotImplementedError("_evaluate_part must be implemented by a subclass")
 
 class MultipleCheckEvaluationPart(EvaluationPart):
-   """ This is an evaluation part which consists of sevaral checks
+   """ This is an evaluation part which consists of several checks
+
    Attribute
    ---------
    checks: list<Check>
@@ -424,7 +425,7 @@ class CompositeEvaluation(BatchEvaluation):
     def __init__(self):
         Evaluation.__init__(self)
         self.evaluation_parts = []
-        self.total_weights = 0
+        self.totalWeights = 0
 
     def add_evaluation_part(self, ep):
         if isinstance(ep, SingleCheckEvaluationPart):
@@ -437,12 +438,12 @@ class CompositeEvaluation(BatchEvaluation):
             self.checks[type(c).__name__] = c
 
         self.evaluation_parts.append(ep)
-        self.total_weights += ep.weight
+        self.totalWeights += ep.weight
 
     def _do_evaluate(self, rdp):
         score = 0
         for ep in self.evaluation_parts:
             epep = ep.evaluate_part()
-            score += epep * (ep.weight/self.total_weights)
+            score += epep * (ep.weight/self.totalWeights)
             # print("{}: {}".format(ep, epep))
         return round(score, 10)

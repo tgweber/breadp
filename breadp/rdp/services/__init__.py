@@ -88,7 +88,7 @@ class OaipmhService(Service):
     ----------
     endpoint: str
         URL indicating the endpoint of the service
-    identifier_prefix: str, optional
+    identifierPrefix: str, optional
         Prefix which will always be prepended to the identifier in OAI-PMH requests.
         Default value is the empty string.
 
@@ -98,9 +98,9 @@ class OaipmhService(Service):
         OAI-PMH GetRecord request to retrieve metadata for the RDP in format
         specified by metadataPrefix
     """
-    def __init__(self, endpoint, identifier_prefix=""):
+    def __init__(self, endpoint, identifierPrefix=""):
         super(OaipmhService, self).__init__(endpoint)
-        self.identifier_prefix = identifier_prefix
+        self.identifierPrefix = identifierPrefix
 
     @property
     def protocol(self):
@@ -120,7 +120,7 @@ class OaipmhService(Service):
         params = {
             'verb': 'GetRecord',
             'metadataPrefix': metadataPrefix,
-            'identifier': "{}{}".format(self.identifier_prefix, identifier)
+            'identifier': "{}{}".format(self.identifierPrefix, identifier)
         }
         r = requests.get(self.endpoint, params)
         md_type = "oaipmh_{}".format(metadataPrefix)
@@ -138,7 +138,7 @@ class ZenodoRestService(Service):
 
     Methods
     -------
-    get_files(zenodo_id) -> Generator[Data, None, None]
+    get_files(zenodo_Id) -> Generator[Data, None, None]
         Yields all Data objects of the RDP retrievable by the zenodo API
     """
     def __init__(self, endpoint, token):
@@ -149,12 +149,12 @@ class ZenodoRestService(Service):
     def protocol(self):
         return "zenodo-rest"
 
-    def get_files(self, zenodo_id) -> Generator[Data, None, None]:
+    def get_files(self, zenodoId) -> Generator[Data, None, None]:
         """ Yields all Data objects of the RDP retrievable by the zenodo API
 
         Parameters
         ----------
-        zenodo_id: str
+        zenodoId: str
             Id used by zenodo to identify depositions
 
         Yields
@@ -165,6 +165,6 @@ class ZenodoRestService(Service):
         params = {
             'access_token': self.token
         }
-        r = requests.get("{}/{}/files".format(self.endpoint, zenodo_id), params)
+        r = requests.get("{}/{}/files".format(self.endpoint, zenodoId), params)
         for data_item in r.json():
             yield DataFactory.create(data_item["links"]["download"])

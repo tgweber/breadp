@@ -269,12 +269,12 @@ class RightsHaveValidSPDXIdentifierCheck(Check):
         self.id = 13
         self.version = "0.0.1"
         self.desc = "checks whether rights have valid SPDX identifiers"
-        spdx_file_path = os.path.join(
+        spdxFilePath = os.path.join(
             os.path.dirname(os.path.abspath(__file__)),
             'resources',
             'licenses.json'
         )
-        with open(spdx_file_path, "r") as f:
+        with open(spdxFilePath, "r") as f:
             licenses_dict = json.load(f)
         self.licenses = pd.DataFrame(licenses_dict["licenses"])
 
@@ -344,7 +344,7 @@ class RightsAreOpenCheck(Check):
         if len(rdp.metadata.rights) == 0:
             msg = "No rights specified"
         for ro in rdp.metadata.rights:
-            if rightsAreOpen(ro):
+            if rights_are_open(ro):
                 return (True, BooleanResult(True, "{} is open".format(ro.text)))
         return (True, BooleanResult(False, "Rights are not open (or not specified)"))
 
@@ -467,7 +467,7 @@ class CreatorsOrcidCheck(Check):
                 valid.append(False)
                 continue
             # Test format
-            valid.append(isValidOrcid(po.orcid))
+            valid.append(is_valid_orcid(po.orcid))
         return (True, ListResult(valid, ""))
 
 class CreatorsFamilyAndGivenNameCheck(Check):
@@ -488,7 +488,7 @@ class CreatorsFamilyAndGivenNameCheck(Check):
     def _do_check(self, rdp):
         valid = []
         for po in rdp.metadata.creators:
-            valid.append(hasfamilyAndGivenName(po))
+            valid.append(has_family_and_given_name(po))
         return (True, ListResult(valid, ""))
 
 class CreatorsContainInstitutionsCheck(Check):
@@ -643,8 +643,7 @@ class ContributorsOrcidCheck(Check):
             if po.orcid is None:
                 valid.append(False)
                 continue
-            # Test format
-            valid.append(isValidOrcid(po.orcid))
+            valid.append(is_valid_orcid(po.orcid))
         return (True, ListResult(valid, ""))
 
 class ContributorsFamilyAndGivenNameCheck(Check):
@@ -665,7 +664,7 @@ class ContributorsFamilyAndGivenNameCheck(Check):
     def _do_check(self, rdp):
         valid = []
         for po in rdp.metadata.contributors:
-            valid.append(hasfamilyAndGivenName(po))
+            valid.append(has_family_and_given_name(po))
         return (True, ListResult(valid, ""))
 
 class ContributorsContainInstitutionsCheck(Check):
@@ -851,8 +850,8 @@ class RelatedResourceMetadataCheck(Check):
             linkedProperly.append(True)
         return (True, ListResult(linkedProperly, msg))
 
-def isValidOrcid(orcid):
-    """ checks whether the given orcid is valid and the checksum is valid
+def is_valid_orcid(orcid):
+    """ returns True when the given str is a valid orcid and the checksum test succeeds
     """
     # Test format
     if not re.match("^\d\d\d\d-\d\d\d\d-\d\d\d\d-\d\d\d(\d|X)", orcid):
@@ -876,14 +875,16 @@ def isValidOrcid(orcid):
         return False
     return True
 
-def hasfamilyAndGivenName(po):
+def has_family_and_given_name(po):
+    """ returns True when a Person object has both family and given name
+    """
     if isinstance(po.familyName, str) and len(po.familyName) > 0:
         if isinstance(po.givenName, str) and len(po.givenName) > 0:
             return True
     return False
 
-def rightsAreOpen(ro):
-    """ checks a rights object and returns True if it is open, i.e. its usage
+def rights_are_open(ro):
+    """ returns True if the given right object is open, i.e. its usage
         not restricted in a way that necessitates interation with the rights
         holder. False otherwise (also if rights object is unknown).
     """

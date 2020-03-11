@@ -43,3 +43,9 @@ class EvaluationLogEntry(LogEntry):
         LogEntry.__init__(self, start, end, version, pid, msg)
         self.success = success
         self.evaluation = evaluation
+
+class BenchmarkLogEntry(LogEntry):
+    def __init__(self, start, end, version, pid, msg, success, score):
+        LogEntry.__init__(self, start, end, version, pid, msg)
+        self.success = success
+        self.score = score

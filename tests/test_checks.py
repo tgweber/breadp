@@ -31,7 +31,7 @@ from breadp.checks.metadata import \
         DescriptionsLengthCheck, \
         DescriptionsTypeCheck, \
         FormatsAreValidMediaTypeCheck, \
-        isValidOrcid, \
+        is_valid_orcid, \
         LanguageSpecifiedCheck, \
         PublicationYearCheck, \
         RelatedResourceTypeCheck, \
@@ -492,10 +492,10 @@ def test_subjects_have_wikidata_keywords_check(mock_get):
     assert not check.result.outcome
 
 def test_is_valid_orcid():
-    assert isValidOrcid("0000-0003-1815-7041")
-    assert not isValidOrcid("0000-0003-1815-7042")
-    assert not isValidOrcid("abcd-0003-1815-7042")
-    assert not isValidOrcid("0000-0003-1815-704X")
+    assert is_valid_orcid("0000-0003-1815-7041")
+    assert not is_valid_orcid("0000-0003-1815-7042")
+    assert not is_valid_orcid("abcd-0003-1815-7042")
+    assert not is_valid_orcid("0000-0003-1815-704X")
 
 @mock.patch('requests.get', side_effect=mocked_requests_get)
 def test_creators_orcid_check(mock_get):

@@ -68,22 +68,22 @@ class RdpFactory(object):
 
     Methods
     -------
-    create(pid, rdp_type=None) -> Rdp
-        Factory method returning an RDP appropriate for the given rdp_type or a default RDP.
+    create(pid, rdpType=None) -> Rdp
+        Factory method returning an RDP appropriate for the given rdpType or a default RDP.
     """
-    def create(pid, rdp_type=None, **kwargs) -> Rdp:
+    def create(pid, rdpType=None, **kwargs) -> Rdp:
         """Returns a fitting RDP given a type, a default otherwise
 
         Parameters
         ----------
         pid: str
             Persistent Identifier of the RDP
-        rdp_type: str, optional
+        rdpType: str, optional
             A key indicating which RDP should be instantiated (supported: zenodo)
         kwargs: dict
             Further optional arguments
         """
-        if rdp_type == "zenodo":
+        if rdpType == "zenodo":
             return ZenodoRdp(pid, kwargs["token"])
         else:
             return Rdp(pid)
