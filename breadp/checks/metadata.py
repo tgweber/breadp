@@ -7,12 +7,14 @@
 #
 ################################################################################
 import json
-from langdetect import detect
+from langdetect import detect, DetectorFactory
 import os
 import pandas as pd
 import re
 import requests
 import sys
+
+DetectorFactory.seed = 0
 
 from breadp.checks import Check
 from breadp.checks.result import BooleanResult, \
