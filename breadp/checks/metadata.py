@@ -32,7 +32,6 @@ class DescriptionsNumberCheck(Check):
         Check.__init__(self)
         self.id = 2
         self.version = "0.0.1"
-        self.desc = "checks how many descriptions are part of the metadata of the RDP"
 
     def _do_check(self, rdp):
         return(True, MetricResult(len(rdp.metadata.descriptions), ""))
@@ -49,7 +48,6 @@ class DescriptionsLengthCheck(Check):
         Check.__init__(self)
         self.id = 3
         self.version = "0.0.1"
-        self.desc = "checks how many words are in each description"
 
     def _do_check(self, rdp):
         lengths = []
@@ -71,7 +69,6 @@ class DescriptionsLanguageCheck(Check):
         Check.__init__(self)
         self.id = 4
         self.version = "0.0.1"
-        self.desc = "checks the language of the descriptions"
 
     def _do_check(self, rdp):
         languages = []
@@ -94,7 +91,6 @@ class DescriptionsTypeCheck(Check):
         Check.__init__(self)
         self.id = 5
         self.version = "0.0.1"
-        self.desc = "checks the types of the descriptions"
 
     def _do_check(self, rdp):
         types = []
@@ -117,7 +113,6 @@ class TitlesNumberCheck(Check):
         Check.__init__(self)
         self.id = 6
         self.version = "0.0.1"
-        self.desc = "checks how many titles are part of the metadata of the RDP"
 
     def _do_check(self, rdp):
         if not rdp.metadata.titles:
@@ -137,7 +132,6 @@ class TitlesLengthCheck(Check):
         Check.__init__(self)
         self.id = 7
         self.version = "0.0.1"
-        self.desc = "checks how many words the main title has"
 
     def _do_check(self, rdp):
         lengths = []
@@ -159,7 +153,6 @@ class TitlesLanguageCheck(Check):
         Check.__init__(self)
         self.id = 8
         self.version = "0.0.1"
-        self.desc = "checks the language of the main title"
 
     def _do_check(self, rdp):
         languages = []
@@ -182,7 +175,6 @@ class TitlesJustAFileNameCheck(Check):
         Check.__init__(self)
         self.id = 9
         self.version = "0.0.1"
-        self.desc = "checks whether the main title is probably just a file name"
 
     def _do_check(self, rdp):
         bools = []
@@ -210,7 +202,6 @@ class TitlesTypeCheck(Check):
         Check.__init__(self)
         self.id = 10
         self.version = "0.0.1"
-        self.desc = "checks what types the titles have"
 
     def _do_check(self, rdp):
         types = []
@@ -234,7 +225,6 @@ class FormatsAreValidMediaTypeCheck(Check):
         Check.__init__(self)
         self.id = 12
         self.version = "0.0.1"
-        self.desc = "checks if all formats are valid IANA media types"
 
     def _do_check(self, rdp):
         valid = []
@@ -268,7 +258,6 @@ class RightsHaveValidSPDXIdentifierCheck(Check):
         Check.__init__(self)
         self.id = 13
         self.version = "0.0.1"
-        self.desc = "checks whether rights have valid SPDX identifiers"
         spdxFilePath = os.path.join(
             os.path.dirname(os.path.abspath(__file__)),
             'resources',
@@ -303,7 +292,6 @@ class RightsHasAtLeastOneLicenseCheck(Check):
         Check.__init__(self)
         self.id = 14
         self.version = "0.0.1"
-        self.desc = "checks whether at least one license statement is present"
 
     def _do_check(self, rdp):
         msg = ""
@@ -337,7 +325,6 @@ class RightsAreOpenCheck(Check):
         Check.__init__(self)
         self.id = 30
         self.version = "0.0.1"
-        self.desc = "checks whether the rights are open"
 
     def _do_check(self, rdp):
         msg = ""
@@ -361,7 +348,6 @@ class SubjectsAreQualifiedCheck(Check):
         Check.__init__(self)
         self.id = 15
         self.version = "0.0.1"
-        self.desc = "checks whether the subjects are qualified"
 
     def _do_check(self, rdp):
         qualified = []
@@ -387,7 +373,6 @@ class SubjectsNumberCheck(Check):
         Check.__init__(self)
         self.id = 16
         self.version = "0.0.1"
-        self.desc = "checks the number of subjects"
 
     def _do_check(self, rdp):
         return (True, MetricResult(len(rdp.metadata.subjects), ""))
@@ -406,7 +391,6 @@ class SubjectsHaveDdcCheck(Check):
         Check.__init__(self)
         self.id = 17
         self.version = "0.0.1"
-        self.desc = "checks whether the subjects contain a DDC field of study specification"
 
     def _do_check(self, rdp):
         for so in rdp.metadata.subjects:
@@ -432,7 +416,6 @@ class SubjectsHaveWikidataKeywordsCheck(Check):
         Check.__init__(self)
         self.id = 18
         self.version = "0.0.1"
-        self.desc = "checks whether the subjects contain a keyword with wikidata qid"
 
     def _do_check(self, rdp):
         for so in rdp.metadata.subjects:
@@ -458,7 +441,6 @@ class CreatorsOrcidCheck(Check):
         Check.__init__(self)
         self.id = 19
         self.version = "0.0.1"
-        self.desc = "checks whether the creators have valid orcids"
 
     def _do_check(self, rdp):
         valid = []
@@ -483,7 +465,6 @@ class CreatorsFamilyAndGivenNameCheck(Check):
         Check.__init__(self)
         self.id = 20
         self.version = "0.0.1"
-        self.desc = "checks whether the creators distinguishable family and given names"
 
     def _do_check(self, rdp):
         valid = []
@@ -504,7 +485,6 @@ class CreatorsContainInstitutionsCheck(Check):
         Check.__init__(self)
         self.id = 21
         self.version = "0.0.1"
-        self.desc = "checks whether the creators contain institutions"
 
     def _do_check(self, rdp):
         if len(rdp.metadata.creators) < 1:
@@ -527,7 +507,6 @@ class SizesNumberCheck(Check):
         Check.__init__(self)
         self.id = 22
         self.version = "0.0.1"
-        self.desc = "checks the number of size specifications"
 
     def _do_check(self, rdp):
             return (True, MetricResult(len(rdp.metadata.sizes), ""))
@@ -547,7 +526,6 @@ class SizesByteSizeCheck(Check):
         Check.__init__(self)
         self.id = 23
         self.version = "0.0.1"
-        self.desc = "checks which size specifications are valid *byte specifications"
 
     def _do_check(self, rdp):
         valid = []
@@ -573,7 +551,6 @@ class VersionSpecifiedCheck(Check):
         Check.__init__(self)
         self.id = 24
         self.version = "0.0.1"
-        self.desc = "checks whether the version of the RDP is specified in semantic versioning format"
 
     def _do_check(self, rdp):
         if rdp.metadata.version is None:
@@ -601,7 +578,7 @@ class LanguageSpecifiedCheck(Check):
         Check.__init__(self)
         self.id = 25
         self.version = "0.0.1"
-        self.desc = "checks whether the language of the RDP is specified as a ISO 639-1 code"
+
         iso_file_path = os.path.join(
             os.path.dirname(os.path.abspath(__file__)),
             'resources',
@@ -635,7 +612,6 @@ class ContributorsOrcidCheck(Check):
         Check.__init__(self)
         self.id = 26
         self.version = "0.0.1"
-        self.desc = "checks whether the contributors have valid orcids"
 
     def _do_check(self, rdp):
         valid = []
@@ -659,7 +635,6 @@ class ContributorsFamilyAndGivenNameCheck(Check):
         Check.__init__(self)
         self.id = 27
         self.version = "0.0.1"
-        self.desc = "checks whether the contributors distinguishable family and given names"
 
     def _do_check(self, rdp):
         valid = []
@@ -680,7 +655,6 @@ class ContributorsContainInstitutionsCheck(Check):
         Check.__init__(self)
         self.id = 28
         self.version = "0.0.1"
-        self.desc = "checks whether the contributors contain institutions"
 
     def _do_check(self, rdp):
         if len(rdp.metadata.contributors) < 1:
@@ -703,7 +677,6 @@ class ContributorsTypeCheck(Check):
         Check.__init__(self)
         self.id = 29
         self.version = "0.0.1"
-        self.desc = "checks whether the contributors contain institutions"
 
     def _do_check(self, rdp):
         types = []
@@ -724,7 +697,6 @@ class PublicationYearCheck(Check):
         Check.__init__(self)
         self.id = 31
         self.version = "0.0.1"
-        self.desc = "checks the year of publication"
 
     def _do_check(self, rdp):
         if rdp.metadata.publicationYear is None:
@@ -744,7 +716,6 @@ class DatesTypeCheck(Check):
         Check.__init__(self)
         self.id = 32
         self.version = "0.0.1"
-        self.desc = "checks the types of the dates"
 
     def _do_check(self, rdp):
         types = []
@@ -767,7 +738,6 @@ class DatesIssuedYearCheck(Check):
         Check.__init__(self)
         self.id = 33
         self.version = "0.0.1"
-        self.desc = "checks the year of issuance (in the date fields)"
 
     def _do_check(self, rdp):
         for d in rdp.metadata.dates:
@@ -788,7 +758,6 @@ class DatesInformationCheck(Check):
         Check.__init__(self)
         self.id = 34
         self.version = "0.0.1"
-        self.desc = "checks the information field of the dates"
 
     def _do_check(self, rdp):
         information = []
@@ -812,7 +781,6 @@ class RelatedResourceTypeCheck(Check):
         Check.__init__(self)
         self.id = 35
         self.version = "0.0.1"
-        self.desc = "checks the types of relation of the RDP to other resources"
 
     def _do_check(self, rdp):
         relationTypes = []
@@ -836,7 +804,6 @@ class RelatedResourceMetadataCheck(Check):
         Check.__init__(self)
         self.id = 36
         self.version = "0.0.1"
-        self.desc = "checks whether metadata are linked properly"
 
     def _do_check(self, rdp):
         linkedProperly = []

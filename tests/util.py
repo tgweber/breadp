@@ -6,6 +6,8 @@
 # This file contains util methods for breadp tests
 #
 ################################################################################
+
+import inspect
 import json
 import re
 
@@ -67,6 +69,10 @@ def mocked_requests_head(*args, **kwargs):
 
 # Basic tests for all checks who did not already run
 def base_init_check_test(check, check_id):
+    shouldBeDesc = inspect.getdoc(check).split("\n\n")[0]
+    if not check.desc == shouldBeDesc:
+        print("Wrong description: {} instead of {}".format(check.desc, shouldBeDesc))
+        return False
     if not check.id == check_id:
         print("Given check id ({}) is not identical of check's id ({})".format(check_id, check.id))
         return False

@@ -14,7 +14,7 @@ from breadp.checks import Check
 from breadp.checks.result import BooleanResult
 
 class IsValidDoiCheck(Check):
-    """ Checks whether an RDP is a valid DOI
+    """ Checks whether an RDP has a valid DOI as PID
 
     Methods
     -------
@@ -25,7 +25,6 @@ class IsValidDoiCheck(Check):
         Check.__init__(self)
         self.id = 0
         self.version = "0.0.1"
-        self.desc = "checks whether an RDP has a valid DOI as PID"
 
     def _do_check(self, rdp):
         if not rdp.pid:
@@ -48,7 +47,6 @@ class DoiResolvesCheck(Check):
         Check.__init__(self)
         self.id = 1
         self.version = "0.0.1"
-        self.desc = "checks whether the DOI of an RDP resolves"
 
     def _do_check(self, rdp):
         if not rdp.pid:

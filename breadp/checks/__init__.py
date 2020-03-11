@@ -7,6 +7,7 @@
 #
 ################################################################################
 
+import inspect
 from datetime import datetime
 
 from breadp.util.log import Log, CheckLogEntry
@@ -41,6 +42,10 @@ class Check(object):
         self.success = False
         self.result = None
         self.log = Log()
+
+    @property
+    def desc(self):
+        return inspect.getdoc(self).split("\n\n")[0]
 
     def check(self, rdp):
         """ Wrapper code around each check

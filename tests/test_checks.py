@@ -64,6 +64,7 @@ def test_blank_check():
 def test_is_valid_doi_check(mock_get):
     check = IsValidDoiCheck()
     assert base_init_check_test(check, 0)
+    assert check.desc == "Checks whether an RDP has a valid DOI as PID"
 
     # Successful
     rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
@@ -97,6 +98,7 @@ def test_is_valid_doi_check(mock_get):
 def test_doi_resolve_check(mock_head, mock_get):
     check = DoiResolvesCheck()
     assert base_init_check_test(check, 1)
+
 
     # Successful resolution
     rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
