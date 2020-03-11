@@ -11,6 +11,9 @@ from breadp.evaluations import BatchEvaluation, SimpleAndEvaluation, Evaluation
 from breadp.checks.pid import IsValidDoiCheck, DoiResolvesCheck
 
 class DoiEvaluation(BatchEvaluation, SimpleAndEvaluation):
+    """ Evaluation of an DOI as a PID of a RDP
+
+    """
     def __init__(self):
         Evaluation.__init__(self)
         self.checks["IsValidDoi"] = IsValidDoiCheck()

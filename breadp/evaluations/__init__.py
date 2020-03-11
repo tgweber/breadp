@@ -9,6 +9,7 @@
 
 from collections import Counter, OrderedDict
 from datetime import datetime
+import inspect
 
 from breadp.util.log import Log, EvaluationLogEntry
 from breadp.checks.result import BooleanResult, ListResult, MetricResult
@@ -41,6 +42,11 @@ class Evaluation(object):
     def __init__(self):
         self.log = Log()
         self.checks = OrderedDict()
+        self.success = False
+
+    @property
+    def desc(self):
+        return inspect.getdoc(self).split("\n\n")[0]
 
     def evaluate(self, rdp):
         """ Wrapper code around each evaluation
@@ -52,7 +58,7 @@ class Evaluation(object):
             Research Data Product to be evaluated
         """
         start = datetime.utcnow().isoformat()
-        (msg, success) = self._run_checks(rdp)
+        (msg, self.success) = self._run_checks(rdp)
         end = datetime.utcnow().isoformat()
         self.log.add(EvaluationLogEntry(
             start,
@@ -60,7 +66,7 @@ class Evaluation(object):
             self.version,
             rdp.pid,
             msg,
-            success,
+            self.success,
             self._do_evaluate(rdp))
         )
 
@@ -69,13 +75,14 @@ class Evaluation(object):
             "name": type(self).__name__,
             "version": self.version,
             "id": self.id,
+            "desc": self.desc,
             "log": [],
             "checks": []
         }
         if isinstance(self, CompositeEvaluation):
-            report["evaluation_parts"] = []
-            for ep in self.evaluation_parts:
-                report["evaluation_parts"].append(ep.report())
+            report["evaluationParts"] = []
+            for ep in self.evaluationParts:
+                report["evaluationParts"].append(ep.report())
 
         for check in self.checks.values():
             report["checks"].append(check.report(pid))
@@ -99,6 +106,9 @@ class Evaluation(object):
         raise NotImplementedError("_do_evaluate must be implemented by subclasses of Evaluation")
 
 class BatchEvaluation(Evaluation):
+    """ Base class for all evaluation which have several tests (allows to run them in one batch)"
+
+    """
     def _run_checks(self, rdp):
         success = True
         for checkName, check in self.checks.items():
@@ -140,7 +150,12 @@ class EvaluationPart(object):
             "name": type(self).__name__,
             "weight": self.weight,
             "checks": self.report_checks(),
+            "desc": self.desc,
         }
+
+    @property
+    def desc(self):
+        return inspect.getdoc(self).split("\n\n")[0]
 
 
     def evaluate_part(self):
@@ -424,7 +439,7 @@ class CompositeEvaluation(BatchEvaluation):
     """
     def __init__(self):
         Evaluation.__init__(self)
-        self.evaluation_parts = []
+        self.evaluationParts = []
         self.totalWeights = 0
 
     def add_evaluation_part(self, ep):
@@ -437,12 +452,12 @@ class CompositeEvaluation(BatchEvaluation):
         for c in checks:
             self.checks[type(c).__name__] = c
 
-        self.evaluation_parts.append(ep)
+        self.evaluationParts.append(ep)
         self.totalWeights += ep.weight
 
     def _do_evaluate(self, rdp):
         score = 0
-        for ep in self.evaluation_parts:
+        for ep in self.evaluationParts:
             epep = ep.evaluate_part()
             score += epep * (ep.weight/self.totalWeights)
             # print("{}: {}".format(ep, epep))

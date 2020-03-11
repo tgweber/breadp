@@ -7,6 +7,7 @@
 #
 ################################################################################
 
+import inspect
 from unittest import mock
 
 from breadp.checks.metadata import \
@@ -41,10 +42,10 @@ from breadp.evaluations.metadata import \
     TitleEvaluation, \
     VersionEvaluation
 from breadp.rdp import RdpFactory, Rdp
-from util import mocked_requests_get, mocked_requests_head
+from util import base_evaluation_test, mocked_requests_get, mocked_requests_head
 
 @mock.patch('requests.get', side_effect=mocked_requests_get)
-def test_evaluation_parts(mock_get):
+def test_evaluationParts(mock_get):
     rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
     check = DescriptionsLengthCheck()
     check.check(rdp)
@@ -68,6 +69,8 @@ def test_evaluation_parts(mock_get):
 @mock.patch('requests.get', side_effect=mocked_requests_get)
 def test_pid_evaluation(mock_get):
     e = DoiEvaluation()
+    assert base_evaluation_test(e, 0)
+    assert e.desc == "Evaluation of an DOI as a PID of a RDP"
     rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
     e.evaluate(rdp)
     assert len(e.log) == 1
@@ -78,12 +81,15 @@ def test_pid_evaluation(mock_get):
 @mock.patch('requests.head', side_effect=mocked_requests_head)
 def test_description_evaluation(mock_get, mock_head):
     e = DescriptionEvaluation()
-    rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
+    assert base_evaluation_test(e, 1)
 
+    rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
     report = e.report("10.5281/zenodo.3490396")
     assert report["name"] == "DescriptionEvaluation"
     assert report["version"] == e.version
-    assert len(report["evaluation_parts"]) == 5
+    assert report["desc"] == e.desc
+    assert len(report["evaluationParts"]) == 5
+    assert report["evaluationParts"][0]["desc"] == e.evaluationParts[0].desc
     assert len(report["checks"]) == 4
     assert len(report["log"]) == 0
 
@@ -100,7 +106,7 @@ def test_description_evaluation(mock_get, mock_head):
     report = e.report("10.5281/zenodo.3490396")
     assert report["name"] == "DescriptionEvaluation"
     assert report["version"] == e.version
-    assert len(report["evaluation_parts"]) == 5
+    assert len(report["evaluationParts"]) == 5
     assert len(report["checks"]) == 4
     assert len(report["log"]) == 1
     assert report["log"][0]["evaluation"] == 1
@@ -117,6 +123,8 @@ def test_description_evaluation(mock_get, mock_head):
 @mock.patch('requests.head', side_effect=mocked_requests_head)
 def test_title_evaluation(mock_get, mock_head):
     e = TitleEvaluation()
+    assert base_evaluation_test(e, 2)
+
     rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
     e.evaluate(rdp)
     assert len(e.log) == 1
@@ -136,6 +144,8 @@ def test_title_evaluation(mock_get, mock_head):
 @mock.patch('requests.head', side_effect=mocked_requests_head)
 def test_format_evaluation(mock_get, mock_head):
     e = FormatEvaluation()
+    assert base_evaluation_test(e, 3)
+
     rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
     e.evaluate(rdp)
     assert len(e.log) == 1
@@ -160,6 +170,8 @@ def test_format_evaluation(mock_get, mock_head):
 @mock.patch('requests.head', side_effect=mocked_requests_head)
 def test_format_evaluation(mock_get, mock_head):
     e = RightsEvaluation()
+    assert base_evaluation_test(e, 4)
+
     rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
     e.evaluate(rdp)
     assert len(e.log) == 1
@@ -179,6 +191,8 @@ def test_format_evaluation(mock_get, mock_head):
 @mock.patch('requests.head', side_effect=mocked_requests_head)
 def test_subject_evaluation(mock_get, mock_head):
     e = SubjectEvaluation()
+    assert base_evaluation_test(e, 5)
+
     rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
     e.evaluate(rdp)
     assert len(e.log) == 1
@@ -203,6 +217,8 @@ def test_subject_evaluation(mock_get, mock_head):
 @mock.patch('requests.head', side_effect=mocked_requests_head)
 def test_creator_evaluation(mock_get, mock_head):
     e = CreatorEvaluation()
+    assert base_evaluation_test(e, 6)
+
     rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
     e.evaluate(rdp)
     assert len(e.log) == 1
@@ -227,6 +243,8 @@ def test_creator_evaluation(mock_get, mock_head):
 @mock.patch('requests.head', side_effect=mocked_requests_head)
 def test_size_evaluation(mock_get, mock_head):
     e = SizeEvaluation()
+    assert base_evaluation_test(e, 7)
+
     rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
     e.evaluate(rdp)
     assert len(e.log) == 1
@@ -246,6 +264,8 @@ def test_size_evaluation(mock_get, mock_head):
 @mock.patch('requests.head', side_effect=mocked_requests_head)
 def test_language_evaluation(mock_get, mock_head):
     e = LanguageEvaluation()
+    assert base_evaluation_test(e, 8)
+
     rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
     e.evaluate(rdp)
     assert len(e.log) == 1
@@ -265,6 +285,8 @@ def test_language_evaluation(mock_get, mock_head):
 @mock.patch('requests.head', side_effect=mocked_requests_head)
 def test_version_evaluation(mock_get, mock_head):
     e = VersionEvaluation()
+    assert base_evaluation_test(e, 9)
+
     rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
     e.evaluate(rdp)
     assert len(e.log) == 1
@@ -284,6 +306,8 @@ def test_version_evaluation(mock_get, mock_head):
 @mock.patch('requests.head', side_effect=mocked_requests_head)
 def test_contributor_evaluation(mock_get, mock_head):
     e = ContributorEvaluation()
+    assert base_evaluation_test(e, 10)
+
     rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
     e.evaluate(rdp)
     assert len(e.log) == 1
@@ -303,6 +327,8 @@ def test_contributor_evaluation(mock_get, mock_head):
 @mock.patch('requests.head', side_effect=mocked_requests_head)
 def test_contributor_rights_evaluation(mock_get, mock_head):
     e = ContributorRightsEvaluation()
+    assert base_evaluation_test(e, 11)
+
     rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
     e.evaluate(rdp)
     assert len(e.log) == 1
@@ -327,6 +353,8 @@ def test_contributor_rights_evaluation(mock_get, mock_head):
 @mock.patch('requests.head', side_effect=mocked_requests_head)
 def test_dates_evaluation(mock_get, mock_head):
     e = DatesEvaluation()
+    assert base_evaluation_test(e, 12)
+
     rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
     e.evaluate(rdp)
     assert len(e.log) == 1
@@ -361,6 +389,8 @@ def test_dates_evaluation(mock_get, mock_head):
 @mock.patch('requests.head', side_effect=mocked_requests_head)
 def test_related_resources_evaluation(mock_get, mock_head):
     e = RelatedResourcesEvaluation()
+    assert base_evaluation_test(e, 13)
+
     rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
     e.evaluate(rdp)
     assert len(e.log) == 1

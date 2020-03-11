@@ -146,6 +146,7 @@ def test_descriptions_length_check(mock_get):
     assert report["name"] == "DescriptionsLengthCheck"
     assert report["version"] == check.version
     assert report["id"] == check.id
+    assert report["desc"] == check.desc
     assert len(report["log"]) == 0
 
     # Successful check

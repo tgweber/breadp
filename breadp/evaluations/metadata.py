@@ -63,6 +63,7 @@ from breadp.checks.metadata import \
 
 class DescriptionEvaluation(CompositeEvaluation):
     """ Evaluation for descriptions of the metadata of an RDP
+
     """
     def __init__(self):
         CompositeEvaluation.__init__(self)
@@ -98,6 +99,7 @@ class DescriptionEvaluation(CompositeEvaluation):
 
 class TitleEvaluation(CompositeEvaluation):
     """ Evaluation for the titles of the metadata of an RDP
+
     """
     def __init__(self):
         CompositeEvaluation.__init__(self)
@@ -111,6 +113,7 @@ class TitleEvaluation(CompositeEvaluation):
 
 class FormatEvaluation(CompositeEvaluation):
     """ Evaluation for the format specification of the metadata of an RDP
+
     """
     def __init__(self):
         CompositeEvaluation.__init__(self)
@@ -122,6 +125,7 @@ class FormatEvaluation(CompositeEvaluation):
 
 class RightsEvaluation(CompositeEvaluation):
     """ Evaluation for the rights specification of the metadata of an RDP
+
     """
     def __init__(self):
         CompositeEvaluation.__init__(self)
@@ -134,6 +138,7 @@ class RightsEvaluation(CompositeEvaluation):
 
 class SubjectEvaluation(CompositeEvaluation):
     """ Evaluation for the subject specification of the metadata of an RDP
+
     """
     def __init__(self):
         CompositeEvaluation.__init__(self)
@@ -153,6 +158,7 @@ class SubjectEvaluation(CompositeEvaluation):
 
 class CreatorEvaluation(CompositeEvaluation):
     """ Evaluation for the creator specification of the metadata of an RDP
+
     """
     def __init__(self):
         CompositeEvaluation.__init__(self)
@@ -166,6 +172,7 @@ class CreatorEvaluation(CompositeEvaluation):
 
 class SizeEvaluation(CompositeEvaluation):
     """ Evaluation for the size specification of the metadata of an RDP
+
     """
     def __init__(self):
         CompositeEvaluation.__init__(self)
@@ -180,6 +187,7 @@ class SizeEvaluation(CompositeEvaluation):
 
 class LanguageEvaluation(CompositeEvaluation):
     """ Evaluation for the language specification of the metadata of an RDP
+
     """
     def __init__(self):
         CompositeEvaluation.__init__(self)
@@ -189,6 +197,7 @@ class LanguageEvaluation(CompositeEvaluation):
 
 class VersionEvaluation(CompositeEvaluation):
     """ Evaluation for the version specification of the metadata of an RDP
+
     """
     def __init__(self):
         CompositeEvaluation.__init__(self)
@@ -198,6 +207,7 @@ class VersionEvaluation(CompositeEvaluation):
 
 class ContributorEvaluation(CompositeEvaluation):
     """ Evaluation for the contributor specification of the metadata of an RDP
+
     """
     def __init__(self):
         CompositeEvaluation.__init__(self)
@@ -232,6 +242,7 @@ class ContributorEvaluation(CompositeEvaluation):
 class ContributorRightsEvaluation(CompositeEvaluation):
     """ Evaluation for the combination of contributor and rights specification
         of the metadata of an RDP.
+
     """
     def __init__(self):
         CompositeEvaluation.__init__(self)
@@ -261,6 +272,7 @@ class ContributorRightsEvaluation(CompositeEvaluation):
 class DatesEvaluation(CompositeEvaluation):
     """ Evaluation for the dates and publicationYear specification
         of the metadata of an RDP.
+
     """
     def __init__(self):
         CompositeEvaluation.__init__(self)
@@ -321,6 +333,7 @@ class DatesEvaluation(CompositeEvaluation):
 
 class RelatedResourcesEvaluation(CompositeEvaluation):
     """ Evaluation for the specification of related resources to an RDP
+
     """
     def __init__(self):
         CompositeEvaluation.__init__(self)

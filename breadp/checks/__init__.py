@@ -91,6 +91,7 @@ class Check(object):
         report = {
             "name": type(self).__name__,
             "version": self.version,
+            "desc": self.desc,
             "id": self.id,
             "log": []
         }
