@@ -8,11 +8,12 @@
 ################################################################################
 
 import math
+import pytest
 import re
 from unittest import mock
 
 from util import mocked_requests_get, mocked_requests_head, base_init_check_test
-from breadp.checks import IsValidDoiCheck, DoiResolvesCheck
+from breadp.checks import Check, IsValidDoiCheck, DoiResolvesCheck
 from breadp.checks.metadata import \
         CreatorsContainInstitutionsCheck, \
         CreatorsOrcidCheck, \
@@ -49,8 +50,13 @@ from breadp.checks.metadata import \
         TitlesNumberCheck, \
         TitlesTypeCheck, \
         VersionSpecifiedCheck
+from breadp.rdp import RdpFactory, Rdp
 
-from breadp.rdp.rdp import RdpFactory, Rdp
+def test_blank_check():
+    check = Check()
+    with pytest.raises(NotImplementedError) as nie:
+        check._do_check(Rdp("123"))
+        assert str(nie) == "_do_check must be implemented by subclasses of Check"
 
 # Tests the PID check
 @mock.patch('requests.get', side_effect=mocked_requests_get)
@@ -108,6 +114,12 @@ def test_doi_resolve_check(mock_head, mock_get):
     check.check(rdp)
     assert check.success
     assert not check.result.outcome
+
+    # Exception
+    rdp = RdpFactory.create("10.123/zenodo.3490396-exception", "zenodo", token="123")
+    check.check(rdp)
+    assert not check.success
+    assert check.result.msg == "Exception: Something went terribly wrong"
 
 @mock.patch('requests.get', side_effect=mocked_requests_get)
 def test_descriptions_number_check(mock_get):

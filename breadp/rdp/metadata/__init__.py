@@ -13,7 +13,7 @@ import json
 import re
 import xmltodict
 
-from breadp.util.util import Bundle
+from breadp.util import Bundle
 
 class Metadata(object):
     """ Base class and interface for Metadata as components of RDPs
@@ -96,51 +96,6 @@ class Metadata(object):
     @property
     def relatedResources(self):
         raise NotImplementedError("Must be implemented by subclasses of Metadata.")
-
-class Description(object):
-    """ Base class and interface for descriptions as a metadata field of RDPs
-
-    Attributes
-    ----------
-    text: str
-        The text of the description
-    type: str
-        The type of the description, might be None
-    """
-    def __init__(self, text, dtype=None):
-        self.text = text
-        self.type = dtype
-
-
-class Description(object):
-    """ Base class and interface for descriptions as a metadata field of RDPs
-
-    Attributes
-    ----------
-    text: str
-        The text of the description
-    type: str
-        The type of the description, might be None
-    """
-    def __init__(self, text, dtype=None):
-        self.text = text
-        self.type = dtype
-
-
-class Description(object):
-    """ Base class and interface for descriptions as a metadata field of RDPs
-
-    Attributes
-    ----------
-    text: str
-        The text of the description
-    type: str
-        The type of the description, might be None
-    """
-    def __init__(self, text, dtype=None):
-        self.text = text
-        self.type = dtype
-
 
 class Description(object):
     """ Base class and interface for descriptions as a metadata field of RDPs

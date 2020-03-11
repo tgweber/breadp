@@ -11,7 +11,7 @@ from typing import Generator
 
 from breadp.rdp.metadata.factory import MetadataFactory, Metadata
 from breadp.rdp.data import DataFactory, Data
-from breadp.util.util import Bundle
+from breadp.util import Bundle
 
 class Service(object):
     """ Base class + interface for Services as a component of RDPS

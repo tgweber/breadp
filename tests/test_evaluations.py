@@ -25,7 +25,7 @@ from breadp.evaluations import \
     Evaluation, \
     IsBetweenEvaluationPart, \
     SimpleAndEvaluation
-from breadp.evaluations.doi import DoiEvaluation
+from breadp.evaluations.pid import DoiEvaluation
 from breadp.evaluations.metadata import \
     CreatorEvaluation, \
     ContributorEvaluation, \
@@ -40,7 +40,7 @@ from breadp.evaluations.metadata import \
     SubjectEvaluation, \
     TitleEvaluation, \
     VersionEvaluation
-from breadp.rdp.rdp import RdpFactory, Rdp
+from breadp.rdp import RdpFactory, Rdp
 from util import mocked_requests_get, mocked_requests_head
 
 @mock.patch('requests.get', side_effect=mocked_requests_get)

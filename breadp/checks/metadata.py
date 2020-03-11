@@ -239,7 +239,9 @@ class FormatsAreValidMediaTypeCheck(Check):
     def _do_check(self, rdp):
         valid = []
         iana_file_path = os.path.join(
-            os.path.dirname(os.path.abspath(__file__)), 'mediatypes.csv'
+            os.path.dirname(os.path.abspath(__file__)),
+            'resources',
+            'mediatypes.csv'
         )
         iana = pd.read_csv(iana_file_path)
         msg = "No formats found!"
@@ -268,7 +270,9 @@ class RightsHaveValidSPDXIdentifierCheck(Check):
         self.version = "0.0.1"
         self.desc = "checks whether rights have valid SPDX identifiers"
         spdx_file_path = os.path.join(
-            os.path.dirname(os.path.abspath(__file__)), 'licenses.json'
+            os.path.dirname(os.path.abspath(__file__)),
+            'resources',
+            'licenses.json'
         )
         with open(spdx_file_path, "r") as f:
             licenses_dict = json.load(f)
@@ -599,7 +603,9 @@ class LanguageSpecifiedCheck(Check):
         self.version = "0.0.1"
         self.desc = "checks whether the language of the RDP is specified as a ISO 639-1 code"
         iso_file_path = os.path.join(
-            os.path.dirname(os.path.abspath(__file__)), 'iso-639.json'
+            os.path.dirname(os.path.abspath(__file__)),
+            'resources',
+            'iso-639.json'
         )
         self.iso_codes = pd.read_json(iso_file_path)
 

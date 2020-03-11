@@ -12,13 +12,13 @@ import os
 from unittest import mock
 import pytest
 
-from breadp.rdp.metadata import parseDateString
+from breadp.rdp.metadata import Metadata, parseDateString
 from breadp.rdp.metadata.datacite import DataCiteMetadata
 from breadp.rdp.metadata.factory import MetadataFactory
 from breadp.rdp.data import CSVData
 from breadp.rdp.services import OaipmhService, ZenodoRestService, Service
-from breadp.rdp.rdp import RdpFactory, Rdp
-from breadp.util.util import Bundle
+from breadp.rdp import RdpFactory, Rdp
+from breadp.util import Bundle
 
 from util import mocked_requests_get
 # Checks that all exceptions in metadata are thrown appropiately
@@ -67,6 +67,29 @@ def test_parseDateString():
     assert dt.second == 1
     dt = parseDateString("2019-12-24T20:01:01+01:00")
     assert dt.second == 1
+
+def test_blank_metadata():
+    m = Metadata()
+    for a in [
+            "descriptions",
+            "pid",
+            "titles",
+            "formats",
+            "rights",
+            "subjects",
+            "creators",
+            "sizes",
+            "language",
+            "version",
+            "contributors",
+            "publicationYear",
+            "dates",
+            "type",
+            "relatedResources"
+        ]:
+        with pytest.raises(NotImplementedError) as nie:
+            getattr(m, a)
+            assert str(nie) == "Must be implemented by subclasses of Metadata."
 
 # Checks implemented functionality of the oai-pmh service
 @mock.patch('requests.get', side_effect=mocked_requests_get)
