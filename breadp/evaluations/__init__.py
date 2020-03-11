@@ -149,7 +149,7 @@ class EvaluationPart(object):
         return {
             "name": type(self).__name__,
             "weight": self.weight,
-            "checks": self.report_checks(),
+            "checks": self.get_checks(),
             "desc": self.desc,
         }
 
@@ -160,8 +160,8 @@ class EvaluationPart(object):
 
     def evaluate_part(self):
         raise NotImplementedError("evaluate_part() must be implemented by a subclass")
-    def report_checks(self):
-        raise NotImplementedError("report_checks() must be implemented by a subclass")
+    def get_checks(self):
+        raise NotImplementedError("get_checks() must be implemented by a subclass")
 
 class SingleCheckEvaluationPart(EvaluationPart):
    """ This is an evaluation part which only consists of one check.
@@ -180,7 +180,7 @@ class SingleCheckEvaluationPart(EvaluationPart):
        else:
            return self._evaluate_part()
 
-   def report_checks(self):
+   def get_checks(self):
        return [ type(self.check).__name__ ]
 
    def _evaluate_part(self):
@@ -204,7 +204,7 @@ class MultipleCheckEvaluationPart(EvaluationPart):
                return 0
        return self._evaluate_part()
 
-   def report_checks(self):
+   def get_checks(self):
        return [ type(c).__name__ for c in self.checks ]
 
    def _evaluate_part(self):
@@ -244,7 +244,8 @@ class IsBetweenEvaluationPart(SingleCheckEvaluationPart):
 
 class IsIdenticalToEvaluationPart(SingleCheckEvaluationPart):
     """ evaluates to 1 if the given comparatum is identical to the result of the
-        check, 0 otherwise
+        check, 0 otherwise. Note: if the comparatum and the result are lists,
+        their order is not evaluated!
 
     comparatum: div
         object to compare to
@@ -256,7 +257,7 @@ class IsIdenticalToEvaluationPart(SingleCheckEvaluationPart):
     def _evaluate_part(self):
         if isinstance(self.check.result, ListResult) \
            and isinstance(self.comparatum, list):
-            if Counter(self.check.result.outcome) == Counter(comparatum):
+            if Counter(self.check.result.outcome) == Counter(self.comparatum):
                 return 1
             return 0
         if self.comparatum == self.check.result.outcome:
@@ -410,6 +411,8 @@ class InListEvaluationPart(SingleCheckEvaluationPart):
     """
     def __init__(self, check, comparata, weight=1):
         SingleCheckEvaluationPart.__init__(self, check, weight)
+        if not hasattr(comparata, "__iter__"):
+            raise ValueError("{} is not iterable".format(type(comparata).__name__))
         self.comparata = comparata
 
     def _evaluate_part(self):

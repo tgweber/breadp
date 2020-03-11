@@ -24,13 +24,9 @@
             <title titleType="TranslatedTitle">Und einer mit einem Parameter</title>
           </titles>
           <publisher>Zenodo</publisher>
-          <publicationYear>2019</publicationYear>
+          <publicationYear>2018</publicationYear>
           <subjects>
             <subject>datacite</subject>
-            <subject>machine learning</subject>
-            <subject>classification of metadata</subject>
-            <subject subjectScheme="url">https://dewey.info/</subject>
-            <subject subjectScheme="url">https://dewey.info/</subject>
           </subjects>
           <dates>
             <date dateType="Issued">2019-10-15</date>

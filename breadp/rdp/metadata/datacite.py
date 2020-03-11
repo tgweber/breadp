@@ -25,10 +25,11 @@ class DataCiteMetadata(OaiPmhMetadata):
     """ DataCite Metadata Object
     """
     def __init__(self):
+        self._identifier = None
         self._creators = []
         self._descriptions = []
         self._formats = []
-        self._rights = []
+        self._rightsList = []
         self._sizes = []
         self._subjects = []
         self._titles = []
@@ -41,27 +42,25 @@ class DataCiteMetadata(OaiPmhMetadata):
 
     @property
     def pid(self) -> str:
-        return self.md["identifier"]["identifier"]
+        if self.should_be_parsed("identifier"):
+            identifier = self.md.get("identifier")
+            if isinstance(identifier, str):
+                self._identifier = identifier
+            elif isinstance(identifier, OrderedDict):
+                self._identifier = identifier.get("identifier", identifier.get("#text"))
+        return self._identifier
 
     @property
     def descriptions(self):
-        if len(self._descriptions) == 0 and "descriptions" in self.md.keys():
-            if not isinstance(self.md["descriptions"], dict):
-                return self._descriptions
-            if isinstance(self.md["descriptions"]["description"],str):
-                self._descriptions.append(Description(self.md["descriptions"]["description"]))
-                return self._descriptions
-            if isinstance(self.md["descriptions"]["description"],OrderedDict):
-                self._descriptions.append(Title(
-                    self.md["descriptions"]["description"]["description"],
-                    self.md["descriptions"]["description"].get("@descriptionType"))
-                )
-                return self._descriptions
-            for d in self.md["descriptions"].get("description", []):
+        if self.should_be_parsed("descriptions"):
+            descriptions = self.md["descriptions"].get("description")
+            if isinstance(descriptions, (str, OrderedDict)):
+                descriptions = [ descriptions ]
+            for d in descriptions:
                 if isinstance(d, OrderedDict):
                     self._descriptions.append(Description(
-                        d["#text"],
-                        d.get("@descriptionType", None))
+                        d.get("description", d.get("#text")),
+                        d.get("@descriptionType"))
                     )
                 else:
                     self._descriptions.append(Description(d))
@@ -69,32 +68,24 @@ class DataCiteMetadata(OaiPmhMetadata):
 
     @property
     def titles(self):
-        if len(self._titles) == 0 and "titles" in self.md.keys():
-            if not isinstance(self.md["titles"], dict):
-                return self._titles
-            if isinstance(self.md["titles"]["title"],str):
-                self._titles.append(Title(self.md["titles"]["title"]))
-                return self._titles
-            if isinstance(self.md["titles"]["title"],OrderedDict):
-                self._titles.append(Title(
-                    self.md["titles"]["title"]["title"],
-                    self.md["titles"]["title"].get("@titleType"))
-                )
-                return self._titles
-            for t in self.md["titles"].get("title", []):
+        if self.should_be_parsed("titles"):
+            titles = self.md["titles"].get("title")
+            if isinstance(titles, (str, OrderedDict)):
+                titles = [ titles ]
+            for t in titles:
                 if isinstance(t, OrderedDict):
                     self._titles.append(Title(
-                        t["#text"],
-                        t.get("@titleType", None))
+                        t.get("title", t.get("#text")),
+                        t.get("@titleType"))
                     )
-                else:
+                elif isinstance(t, str):
                     self._titles.append(Title(t))
         return self._titles
 
     @property
     def formats(self):
-        if len(self._formats) == 0 and "formats" in self.md.keys():
-            if isinstance(self.md["formats"]["format"], list):
+        if self.should_be_parsed("formats"):
+            if isinstance(self.md["formats"].get("format"), list):
                 self._formats = self.md["formats"]["format"]
             else:
                 self._formats.append(self.md["formats"]["format"])
@@ -102,99 +93,106 @@ class DataCiteMetadata(OaiPmhMetadata):
 
     @property
     def rights(self):
-        if len(self._rights) == 0 and "rightsList" in self.md.keys() and \
-            self.md["rightsList"] is not None:
-            if isinstance(self.md["rightsList"].get("rights", None), OrderedDict):
-                self._rights.append(
-                    create_rights_object_from_OrderedDict(self.md["rightsList"]["rights"])
-                )
-            elif isinstance(self.md["rightsList"].get("rights", None), list):
-                for r in self.md["rightsList"]["rights"]:
-                    r["rights"] = r.get("#text", "")
-                    self._rights.append(create_rights_object_from_OrderedDict(r))
-        return self._rights
+        if self.should_be_parsed("rightsList"):
+            rights = self.md["rightsList"].get("rights", None)
+            if isinstance(rights, (str, OrderedDict)):
+                rights = [ rights ]
+            if isinstance(rights , list):
+                for r in rights:
+                    if isinstance(r, str):
+                        r = {"rights": r}
+                    ro = Rights(
+                        r.get("rights", r.get("#text")), 
+                        r.get("@rightsURI", None)
+                    )
+                    if r.get("@schemeURI", "").startswith("https://spdx.org/licenses") \
+                        or r.get("@rightsIdentifierScheme", "").lower() == "spdx":
+                        ro.spdx = r.get("@rightsIdentifier", None)
+                    self._rightsList.append(ro)
+        return self._rightsList
 
     @property
     def subjects(self):
-        if len(self._subjects) == 0 \
-           and "subjects" in self.md.keys() \
-           and isinstance(self.md["subjects"], dict):
-            if isinstance(self.md["subjects"].get("subject", None), OrderedDict):
-                self._subjects.append(
-                    create_subject_object_from_OrderedDict(self.md["subjects"]["subject"])
-                )
-            elif isinstance(self.md["subjects"].get("subject", None), list):
-                for s in self.md["subjects"]["subject"]:
+        if self.should_be_parsed("subjects"):
+            subjects = self.md["subjects"].get("subject")
+            if isinstance(subjects, (str, OrderedDict)):
+                subjects = [ subjects ]
+            for s in subjects:
                     if isinstance(s, str):
                         s = { "#text": s}
-                    s["subject"] = s.get("#text", "")
                     self._subjects.append(
-                        create_subject_object_from_OrderedDict(s)
+                        Subject(
+                            s.get("subject", s.get("#text")),
+                            s.get("@subjectScheme", ""),
+                            s.get("@schemeURI", "")
+                        )
                     )
         return self._subjects
 
     @property
     def creators(self):
-        if len(self._creators) == 0 and "creators" in self.md.keys() \
-           and isinstance(self.md["creators"], OrderedDict):
-            if isinstance(self.md["creators"].get("creator", None), OrderedDict):
+        if self.should_be_parsed("creators"):
+            creators = self.md["creators"].get("creator")
+            if isinstance(creators, (str, OrderedDict)):
+                creators = [ creators ]
+            for p in creators:
+                if isinstance(p, str):
+                    p = { "#text": p }
                 self._creators.append(
-                    create_personOrInstitution_object_from_OrderedDict(self.md["creators"]["creator"])
+                        create_personOrInstitution_object_from_OrderedDict(p)
                 )
-            elif isinstance(self.md["creators"].get("creator", None), list):
-                for p in self.md["creators"]["creator"]:
-                    if isinstance(p, OrderedDict):
-                        self._creators.append(
-                            create_personOrInstitution_object_from_OrderedDict(p)
-                        )
         return self._creators
 
     @property
     def contributors(self):
-        if len(self._contributors) == 0 and "contributors" in self.md.keys() \
-           and isinstance(self.md["contributors"], OrderedDict):
-            if isinstance(self.md["contributors"].get("contributor", None), OrderedDict):
+        if self.should_be_parsed("contributors"):
+            contributors = self.md["contributors"].get("contributor")
+            if isinstance(contributors, (str, OrderedDict)):
+                contributors = [ contributors ]
+            for p in contributors:
+                if isinstance(p, str):
+                    p = { "#text": p }
                 self._contributors.append(
-                    create_personOrInstitution_object_from_OrderedDict(
-                        self.md["contributors"]["contributor"]
-                    )
+                        create_personOrInstitution_object_from_OrderedDict(p)
                 )
-            elif isinstance(self.md["contributors"].get("contributor", None), list):
-                for p in self.md["contributors"]["contributor"]:
-                    if isinstance(p, OrderedDict):
-                        self._contributors.append(
-                            create_personOrInstitution_object_from_OrderedDict(p)
-                        )
         return self._contributors
 
     @property
     def sizes(self):
-        if len(self._sizes) == 0 and "sizes" in self.md.keys() \
-           and isinstance(self.md["sizes"], OrderedDict):
-            if isinstance(self.md["sizes"].get("size", None), str):
-                self._sizes = [self.md["sizes"]["size"]]
-            if isinstance(self.md["sizes"].get("size", None), list):
-                for s in self.md["sizes"]["size"]:
-                    self._sizes.append(s)
+        if self.should_be_parsed("sizes"):
+            sizes = self.md["sizes"].get("size")
+            if isinstance(sizes, str):
+                self._sizes = [sizes]
+            elif isinstance(sizes, list):
+                self._sizes = sizes
         return self._sizes
 
     @property
     def language(self):
-        if self._language is None:
-            self._language = self.md.get("language")
+        if self.should_be_parsed("language"):
+            language = self.md.get("language")
+            if isinstance(language, str):
+                self._language = language
+            elif isinstance(language, OrderedDict):
+                self._language = language.get("language", language.get("#text"))
         return self._language
 
     @property
     def version(self):
-        if self._version is None:
-            self._version = self.md.get("version")
+        if self.should_be_parsed("version"):
+            version = self.md.get("version")
+            if isinstance(version, str):
+                self._version = self.md.get("version")
+            elif isinstance(language, OrderedDict):
+                self._version = version.get("version", language.get("#version"))
         return self._version
 
     @property
     def publicationYear(self):
-        if self._publicationYear is None:
-            if self.md.get("publicationYear") is not None:
-                self._publicationYear = int(self.md["publicationYear"])
+        if self.should_be_parsed("publicationYear"):
+            publicationYear = self.md.get("publicationYear")
+            if isinstance(publicationYear, str):
+                self._publicationYear = int(publicationYear)
         return self._publicationYear
 
     @property
@@ -250,21 +248,20 @@ class DataCiteMetadata(OaiPmhMetadata):
                     )
         return self._relatedResources
 
-def create_rights_object_from_OrderedDict(r):
-    ro = Rights(r.get("rights", ""), r.get("@rightsURI", None))
-    if r.get("@schemeURI", "").startswith("https://spdx.org/licenses") \
-        or r.get("@rightsIdentifierScheme", "").lower() == "spdx":
-        ro.spdx = r.get("@rightsIdentifier", None)
-    return ro
-
-def create_subject_object_from_OrderedDict(s):
-    return Subject(
-        s.get("subject", ""),
-        s.get("@subjectScheme", ""),
-        s.get("@schemeURI", "")
-    )
+    def should_be_parsed(self, field):
+        # check if the field has already been parsed
+        if getattr(self, "_" + field):
+            return False
+        # check whether the field can be parsed
+        if field in self.md.keys() and self.md.get(field) is not None:
+            return True
+        return False
 
 def create_personOrInstitution_object_from_OrderedDict(p):
+    """ creates a Person or an Instiution from a parsed p (p can be almost
+        everything
+
+    """
     nameField = p.get("creatorName", p.get("contributorName", None))
     if isinstance(nameField, OrderedDict):
         if nameField.get("@nameType", None) == "Organizational":
@@ -280,18 +277,16 @@ def create_personOrInstitution_object_from_OrderedDict(p):
         name = nameField
 
     po = Person(name)
-    affiliations = p.get("affiliation", None)
+    affiliations = p.get("affiliation")
     if isinstance(affiliations, str):
         affiliations = [affiliations]
     po.affiliations = affiliations
-    po.type = p.get("@contributorType", None)
+    po.type = p.get("@contributorType")
 
-
-    if po.familyName is None:
-        po.familyName = p.get("familyName")
-    if po.givenName is None:
-        po.givenName = p.get("givenName")
-    if isinstance(p.get("nameIdentifier", None), OrderedDict):
+    # always override the "calculated" name parts with the "specified" ones
+    po.familyName = p.get("familyName", po.familyName)
+    po.givenName = p.get("givenName", po.givenName)
+    if isinstance(p.get("nameIdentifier"), OrderedDict):
         p["nameIdentifier"] = [p["nameIdentifier"]]
 
     for ni in p.get("nameIdentifier", []):
@@ -302,3 +297,4 @@ def create_personOrInstitution_object_from_OrderedDict(p):
                or ni.get("@schemeURI", "").startswith("https://orcid.org"):
                 po.orcid = ni["#text"]
     return po
+

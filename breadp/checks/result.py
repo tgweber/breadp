@@ -44,18 +44,6 @@ class MetricResult(CheckResult):
         super(MetricResult, self).__init__(msg)
         self.outcome = outcome
 
-class CategoricalResult(CheckResult):
-    """ A result with a categorical outcome
-
-    Attributes
-    ----------
-    outcome: str
-        The categorical value the check resulted in.
-    """
-    def __init__(self, outcome: str, msg: str):
-        super(CategoricalResult, self).__init__(msg)
-        self.outcome = outcome
-
 class ListResult(CheckResult):
     """ A result with a list as an outcome
 

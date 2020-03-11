@@ -36,6 +36,7 @@ from breadp.checks.metadata import \
         PublicationYearCheck, \
         RelatedResourceTypeCheck, \
         RelatedResourceMetadataCheck, \
+        rights_are_open, \
         RightsAreOpenCheck, \
         RightsHaveValidSPDXIdentifierCheck, \
         RightsHasAtLeastOneLicenseCheck, \
@@ -52,12 +53,27 @@ from breadp.checks.metadata import \
         TitlesTypeCheck, \
         VersionSpecifiedCheck
 from breadp.rdp import RdpFactory, Rdp
+from breadp.rdp.metadata import Rights
 
 def test_blank_check():
     check = Check()
     with pytest.raises(NotImplementedError) as nie:
         check._do_check(Rdp("123"))
         assert str(nie) == "_do_check must be implemented by subclasses of Check"
+
+def test_rights_are_open():
+    assert rights_are_open(
+        Rights(
+            "test",
+            "https://creativecommons.org/publicdomain/zero/1.0/deed.de"
+        )
+    )
+    assert rights_are_open(
+        Rights(
+            "test",
+            "https://creativecommons.org/licenses/by-sa/3.0/de/"
+        )
+    )
 
 # Tests the PID check
 @mock.patch('requests.get', side_effect=mocked_requests_get)
@@ -68,6 +84,7 @@ def test_is_valid_doi_check(mock_get):
 
     # Successful
     rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
+    assert rdp.pid == rdp.metadata.pid
     check.check(rdp)
     assert check.success
     assert len(check.log) == 1
@@ -93,12 +110,17 @@ def test_is_valid_doi_check(mock_get):
     assert not check.log.log[-2].success
     assert not check.result.outcome
 
+    rdp = RdpFactory.create("10.123/zenodo.badex1", "zenodo", token="123")
+    assert not rdp.pid == rdp.metadata.pid
+    check.check(rdp)
+    assert check.success
+    assert not check.result.outcome
+
 @mock.patch('requests.head', side_effect=mocked_requests_head)
 @mock.patch('requests.get', side_effect=mocked_requests_get)
 def test_doi_resolve_check(mock_head, mock_get):
     check = DoiResolvesCheck()
     assert base_init_check_test(check, 1)
-
 
     # Successful resolution
     rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
@@ -361,7 +383,8 @@ def test_rights_have_valid_spdx_identifier(mock_get):
     assert check.result.msg == "Idonotexistasarightsidentifier is not a valid SPDX identifier"
 
 @mock.patch('requests.get', side_effect=mocked_requests_get)
-def test_rights_has_at_least_one_license(mock_get):
+@mock.patch('requests.head', side_effect=mocked_requests_head)
+def test_rights_has_at_least_one_license(mock_get, mock_head):
     check = RightsHasAtLeastOneLicenseCheck()
     assert base_init_check_test(check, 14)
 
@@ -375,14 +398,21 @@ def test_rights_has_at_least_one_license(mock_get):
     check.check(rdp)
     assert check.success
     assert not check.result.outcome
-    assert check.result.msg == "No rights with URI retrievable: No rights specified"
+    assert check.result.msg == "No rights specified"
 
 
     rdp = RdpFactory.create("10.5281/zenodo.badex2", "zenodo", token="123")
     check.check(rdp)
     assert check.success
     assert not check.result.outcome
-    assert check.result.msg.startswith("No rights with URI retrievable:")
+    assert check.result.msg.startswith("No license retrievable:")
+
+    rdp = RdpFactory.create("10.5281/zenodo.badex4", "zenodo", token="123")
+    check.check(rdp)
+    assert check.success
+    assert not check.result.outcome
+    assert check.result.msg.startswith("No license retrievable:")
+
 
 @mock.patch('requests.get', side_effect=mocked_requests_get)
 def test_rights_are_open_check(mock_get):
@@ -682,6 +712,11 @@ def test_contributors_orcid_check(mock_get):
     assert check.success
     assert len(check.result.outcome) == 0
 
+    rdp = RdpFactory.create("10.5281/zenodo.badex3", "zenodo", token="123")
+    check.check(rdp)
+    assert check.success
+    assert not check.result.outcome[0]
+
 @mock.patch('requests.get', side_effect=mocked_requests_get)
 def test_contributors_family_and_given_name_check(mock_get):
     check = ContributorsFamilyAndGivenNameCheck()
@@ -713,6 +748,11 @@ def test_contributors_contain_institutions_check(mock_get):
     rdp = RdpFactory.create("10.5281/zenodo.badex1", "zenodo", token="123")
     check.check(rdp)
     assert not check.success
+
+    rdp = RdpFactory.create("10.5281/zenodo.badex3", "zenodo", token="123")
+    check.check(rdp)
+    assert check.success
+    assert check.result.outcome
 
 @mock.patch('requests.get', side_effect=mocked_requests_get)
 def test_contributors_type_check(mock_get):

@@ -94,7 +94,7 @@ class DescriptionEvaluation(CompositeEvaluation):
         self.add_evaluation_part(
             DoesNotContainEvaluationPart(
                 ddtc,
-                ["SeriesInformation", "TableOfContents", "Other"])
+                ["SeriesInformation", "TableOfContents", "Other", None])
         )
 
 class TitleEvaluation(CompositeEvaluation):
@@ -219,6 +219,8 @@ class ContributorEvaluation(CompositeEvaluation):
         self.add_evaluation_part(
             TheMoreTrueTheBetterEvaluationPart(ContributorsFamilyAndGivenNameCheck())
         )
+        # TODO: HostingInstitution is okay! Convert to FunctionEvaluationPart
+        # and check type against bool!
         self.add_evaluation_part(
             IsFalseEvaluationPart(ContributorsContainInstitutionsCheck())
         )

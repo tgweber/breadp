@@ -57,11 +57,13 @@ def mocked_requests_get(*args, **kwargs):
     return _MockResponse(None, 404)
 
 def mocked_requests_head(*args, **kwargs):
+    print(args[0])
     if args[0] == "https://doi.org/10.5281/zenodo.3490396":
         return _MockResponse(
             "", 302, {"Location": "https://zenodo.org/record/3490396"}
         )
-    elif args[0] == "https://doi.org/10.123/zenodo.3490396-exception":
+    elif args[0] == "https://doi.org/10.123/zenodo.3490396-exception" or \
+        args[0] == "https://somethingwentterriblywrong.com":
         raise Exception("Something went terribly wrong")
     elif args[0] == "http://creativecommons.org/licenses/by/4.0/legalcode":
         return _MockResponse("Some License text", 200)

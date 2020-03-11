@@ -18,7 +18,6 @@ DetectorFactory.seed = 0
 
 from breadp.checks import Check
 from breadp.checks.result import BooleanResult, \
-        CategoricalResult, \
         ListResult, \
         MetricResult
 
@@ -300,19 +299,19 @@ class RightsHasAtLeastOneLicenseCheck(Check):
         if len(rdp.metadata.rights) == 0:
             msg = "No rights specified"
         for ro in rdp.metadata.rights:
-            if not ro.uri and not ro.uri.startswith("info:eu-repo"):
+            if not ro.uri and not str(ro.uri).startswith("info:eu-repo"):
                 continue
             try:
                 response = requests.head(ro.uri)
                 if response.status_code > 199 and response.status_code < 400:
                     return (True, BooleanResult(True, ""))
                 else:
-                    msg = "No license retrieveable: {}".format(status_code)
-                    return (True, BooleanResult(False, msg))
+                    msg = "No license retrievable: {}".format(response.status_code)
+                    continue
             except Exception as e:
                 msg += "{}: {}".format(type(e), e)
                 continue
-        return (True, BooleanResult(False, "No rights with URI retrievable: {}".format(msg)))
+        return (True, BooleanResult(False, msg))
 
 class RightsAreOpenCheck(Check):
     """ Checks whether rights are open, i.e. their usage is not restricted in a
