@@ -47,39 +47,9 @@ class Benchmark(object):
             return False
         self.log = Log()
         self.evaluations = []
+        self.checks = []
         self.skip = skip_function
         self.version = "Blank Benchmarks have no version"
-
-    def run(self, rdp):
-        """ Runs the benchmark
-
-        Parameters
-        ----------
-        rdp: Rdp
-            Research Data Product to be benchmarked
-        """
-        start = datetime.utcnow().isoformat()
-        msg = "Run of benchmark {} in version {} for rdp {}".format(
-            type(self).__name__,
-            self.version,
-            rdp.pid
-        )
-        success = True
-        for e in self.evaluations:
-            if self.skip(e, rdp):
-                continue
-            evaluation_success = e.evaluate(rdp)
-            if not evaluation_success:
-                success == False
-        end = datetime.utcnow().isoformat()
-        self.log.add(BenchmarkLogEntry(
-            start,
-            end,
-            self.version,
-            rdp.pid,
-            msg,
-            success)
-        )
 
     def add_evaluation(self, evaluation):
         """ interface to add an evaluation
@@ -90,6 +60,11 @@ class Benchmark(object):
             Evaluation to add
         """
         self.evaluations.append(evaluation)
+        self.checks.extend(evaluation.checks)
+
+    def check_all(self, rdp):
+        for c in self.checks:
+            c.check(rdp)
 
     def score(self, rdp):
         """ Returns the score for a given RDP (each evaluation has the same weight)
