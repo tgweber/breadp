@@ -58,6 +58,8 @@ class DataCiteMetadata(OaiPmhMetadata):
             if isinstance(descriptions, (str, OrderedDict)):
                 descriptions = [ descriptions ]
             for d in descriptions:
+                if d is None:
+                    continue
                 if isinstance(d, OrderedDict):
                     self._descriptions.append(Description(
                         d.get("description", d.get("#text")),
@@ -74,6 +76,8 @@ class DataCiteMetadata(OaiPmhMetadata):
             if isinstance(titles, (str, OrderedDict)):
                 titles = [ titles ]
             for t in titles:
+                if t is None:
+                    continue
                 if isinstance(t, OrderedDict):
                     self._titles.append(Title(
                         t.get("title", t.get("#text")),
@@ -100,10 +104,12 @@ class DataCiteMetadata(OaiPmhMetadata):
                 rights = [ rights ]
             if isinstance(rights , list):
                 for r in rights:
+                    if r is None:
+                        continue
                     if isinstance(r, str):
                         r = {"rights": r}
                     ro = Rights(
-                        r.get("rights", r.get("#text")), 
+                        r.get("rights", r.get("#text")),
                         r.get("@rightsURI", None)
                     )
                     if r.get("@schemeURI", "").startswith("https://spdx.org/licenses") \
@@ -119,15 +125,17 @@ class DataCiteMetadata(OaiPmhMetadata):
             if isinstance(subjects, (str, OrderedDict)):
                 subjects = [ subjects ]
             for s in subjects:
-                    if isinstance(s, str):
-                        s = { "#text": s}
-                    self._subjects.append(
-                        Subject(
-                            s.get("subject", s.get("#text")),
-                            s.get("@subjectScheme", ""),
-                            s.get("@schemeURI", "")
-                        )
+                if s is None:
+                    continue
+                if isinstance(s, str):
+                    s = { "#text": s}
+                self._subjects.append(
+                    Subject(
+                        s.get("subject", s.get("#text")),
+                        s.get("@subjectScheme"),
+                        s.get("@schemeURI")
                     )
+                )
         return self._subjects
 
     @property

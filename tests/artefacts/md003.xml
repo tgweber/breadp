@@ -32,6 +32,7 @@
             <subject>classification of metadata</subject>
             <subject subjectScheme="url">https://dewey.info/</subject>
             <subject subjectScheme="url">https://dewey.info/</subject>
+            <subject></subject>
           </subjects>
           <contributors>
             <contributor contributorType="Editor">
@@ -66,6 +67,7 @@
             <rights rightsURI="info:eu-repo/semantics/openAccess" rightsIdentifierScheme="spdx">Open Access</rights>
               <rights rightsURI="http://thisurl does not exists" schemeURI="https://spdxx.org/licenses">Creative Commons Attribution 4.0 International</rights>
             <rights rightsURI="info:eu-repo/semantics/openAccess" rightsIdentifierScheme="spdx" rightsIdentifier="Idonotexistasarightsidentifier">Open Access</rights>
+            <rights/>
           </rightsList>
           <descriptions>
               <description descriptionType="Abstract">Dies ist ein deutscher Abstrakt,

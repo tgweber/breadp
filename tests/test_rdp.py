@@ -137,6 +137,9 @@ def test_rdp_zenodo_description(mock_get):
     rdp = RdpFactory.create("10.5281/zenodo.badex1", "zenodo", token="123")
     assert len(rdp.metadata.descriptions) == 0
 
+    rdp = RdpFactory.create("10.5281/zenodo.badex4", "zenodo", token="123")
+    assert len(rdp.metadata.descriptions) == 1
+
 @mock.patch('requests.get', side_effect=mocked_requests_get)
 def test_rdp_zenodo_title(mock_get):
     rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
@@ -224,6 +227,11 @@ def test_rdp_zenodo_subjects(mock_get):
     assert rdp.metadata.subjects[1].uri == "https://dewey.info/"
     assert rdp.metadata.subjects[1].text == "000 computer science"
     assert len(rdp.metadata.subjects) == 2
+    rdp = RdpFactory.create("10.5281/zenodo.badex5", "zenodo", token="123")
+    assert len(rdp.metadata.subjects) == 1
+    assert rdp.metadata.subjects[0].uri is None
+    assert rdp.metadata.subjects[0].scheme is None
+    assert rdp.metadata.subjects[0].text == "datacite"
 
 @mock.patch('requests.get', side_effect=mocked_requests_get)
 def test_rdp_zenodo_creators(mock_get):
@@ -399,6 +407,9 @@ def test_rdp_related_resources(mock_get):
     assert rdp.metadata.relatedResources[2].relationType == "HasMetadata"
     assert rdp.metadata.relatedResources[2].schemeURI == "http://datacite.org/schema/kernel-4 http://schema.datacite.org/meta/kernel-4.1/metadata.xsd"
     assert rdp.metadata.relatedResources[2].schemeType == "XSD"
+
+    rdp = RdpFactory.create("10.5281/zenodo.badex5", "zenodo", token="123")
+    assert len(rdp.metadata.relatedResources) == 1
 
 @mock.patch('requests.get', side_effect=mocked_requests_get)
 def test_rdp_zenodo_data(mock_get):

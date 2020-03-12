@@ -395,8 +395,8 @@ class SubjectsHaveDdcCheck(Check):
 
     def _do_check(self, rdp):
         for so in rdp.metadata.subjects:
-            if re.match("^(ddc|dewey)|ddc$", so.scheme, re.IGNORECASE) \
-              or "dewey.info" in so.uri:
+            if re.match("^(ddc|dewey)|ddc$", str(so.scheme), re.IGNORECASE) \
+              or "dewey.info" in str(so.uri):
                 if re.match("^\d\d\d", so.text):
                     return (True, BooleanResult(
                         True,
@@ -420,8 +420,8 @@ class SubjectsHaveWikidataKeywordsCheck(Check):
 
     def _do_check(self, rdp):
         for so in rdp.metadata.subjects:
-            if so.uri.startswith("https://www.wikidata.org/wiki"):
-                if re.match("q\d+", so.text, re.IGNORECASE):
+            if str(so.uri).startswith("https://www.wikidata.org/wiki"):
+                if re.match("q\d+", str(so.text), re.IGNORECASE):
                     return (True, BooleanResult(
                         True, "{} is a wikidata keyword ".format(so.text))
                     )

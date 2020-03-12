@@ -624,13 +624,13 @@ def test_sizes_number_check(mock_get):
     assert check.log.get_by_pid(rdp.pid)[-1].success
     assert check.get_last_result(rdp.pid).outcome == 0
 
-    rdp = RdpFactory.create("10.5281/zenodo.badex3", "zenodo", token="123")
+    rdp = RdpFactory.create("10.5281/zenodo.badex2", "zenodo", token="123")
     check.check(rdp)
     assert check.log.get_by_pid(rdp.pid)[-1].success
     assert check.get_last_result(rdp.pid).outcome == 2
 
 @mock.patch('requests.get', side_effect=mocked_requests_get)
-def test_sizes_number_check(mock_get):
+def test_size_byte_check(mock_get):
     check = SizesByteSizeCheck()
     assert base_init_check_test(check, 23)
 
