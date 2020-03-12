@@ -62,6 +62,22 @@ class Benchmark(object):
         self.evaluations.append(evaluation)
         self.checks.extend(evaluation.checks)
 
+    def report(self, rdp):
+        report = {
+            "name": type(self).__name__,
+            "version": self.version,
+            "checks": [],
+            "evaluations": []
+        }
+        for e in self.evaluations:
+            add_to_report = e.report()
+            add_to_report["evaluation"] = e.evaluate(rdp)
+            report["evaluations"].append(add_to_report)
+        for c in self.checks:
+            report["checks"].append(c.report(rdp.pid))
+        return report
+
+
     def check_all(self, rdp):
         for c in self.checks:
             c.check(rdp)

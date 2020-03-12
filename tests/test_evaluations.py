@@ -129,16 +129,16 @@ def test_contains_at_least_one_evaluation(mock_get, mock_head):
 def test_does_not_contain_evaluation(mock_get, mock_head):
     rdps = get_rdps()
     checks = get_checks(rdps)
-    e = DoesNotContainEvaluation([checks["lob"]], [False])
+    e = DoesNotContainEvaluation([checks["string"]], ["Other"])
     # one check
-    assert e.evaluate(rdps[0]) == 0
-    assert e.evaluate(rdps[1]) == 1
+    assert e.evaluate(rdps[0]) == 1
+    assert e.evaluate(rdps[1]) == 0
     assert e.evaluate(rdps[3]) == 0
     # multiple checks
     e = DoesNotContainEvaluation(checks.values(), [3,69])
     assert e.evaluate(rdps[0]) == round(2/5, 10)
-    assert e.evaluate(rdps[1]) == round(3/5, 10)
-    assert e.evaluate(rdps[3]) == round(2/5, 10)
+    assert e.evaluate(rdps[1]) == 0
+    assert e.evaluate(rdps[3]) == round(1/5, 10)
 
 @mock.patch('requests.get', side_effect=mocked_requests_get)
 @mock.patch('requests.head', side_effect=mocked_requests_head)
@@ -152,9 +152,9 @@ def test_true_evaluation(mock_get, mock_head):
     assert e.evaluate(rdps[3]) == 0
     # multiple checks
     e = TrueEvaluation(checks.values())
-    assert e.evaluate(rdps[0]) == 1
+    assert e.evaluate(rdps[0]) == 4/5
     assert e.evaluate(rdps[1]) == 0
-    assert e.evaluate(rdps[3]) == round(3/5, 10)
+    assert e.evaluate(rdps[3]) == round(2/5, 10)
 
 @mock.patch('requests.get', side_effect=mocked_requests_get)
 @mock.patch('requests.head', side_effect=mocked_requests_head)
@@ -168,9 +168,9 @@ def test_false_evaluation(mock_get, mock_head):
     assert e.evaluate(rdps[3]) == 1
     # multiple checks
     e = FalseEvaluation(checks.values())
-    assert e.evaluate(rdps[0]) == round(2/5, 10)
+    assert e.evaluate(rdps[0]) == round(3/5, 10)
     assert e.evaluate(rdps[1]) == round(1/5, 10)
-    assert e.evaluate(rdps[3]) == round(2/5, 10)
+    assert e.evaluate(rdps[3]) == round(3/5, 10)
 
 @mock.patch('requests.get', side_effect=mocked_requests_get)
 @mock.patch('requests.head', side_effect=mocked_requests_head)

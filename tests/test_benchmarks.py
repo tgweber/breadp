@@ -36,6 +36,8 @@ def test_benchmark(mock_get, mock_head):
 @mock.patch('requests.get', side_effect=mocked_requests_get)
 def test_full_benchmark(mock_get, mock_head):
     rdps = get_rdps()
-    BPGBenchmark.check_all(rdps[0])
+    for rdp in rdps:
+        BPGBenchmark.check_all(rdp)
     assert BPGBenchmark.score(rdps[0]) == 1
+    assert BPGBenchmark.score(rdps[1]) == 0
 

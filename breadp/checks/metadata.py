@@ -489,7 +489,7 @@ class CreatorsContainInstitutionsCheck(Check):
 
     def _do_check(self, rdp):
         if len(rdp.metadata.creators) < 1:
-            return (False, BooleanResult(None, "no creators"))
+            return (False, BooleanResult(False, "no creators"))
         for po in rdp.metadata.creators:
             if not po.person:
                 return(True, BooleanResult(True, "{} is an institution".format(po.name)))

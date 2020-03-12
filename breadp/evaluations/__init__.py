@@ -62,6 +62,8 @@ class Evaluation(object):
                         rdp.pid
                     )
                 )
+            if not c.log.get_by_pid(rdp.pid)[-1].success:
+                return 0
         return round(self._evaluate(rdp.pid)/len(self.checks), 10)
 
     def report(self):
@@ -196,7 +198,7 @@ class DoesNotContainEvaluation(Evaluation):
         evaluation = 0
         for c in self.checks:
             result = c.get_last_result(pid)
-            if isinstance(result, ListResult):
+            if isinstance(result, ListResult) and len(result.outcome) > 0:
                 add = True
                 for i in self.items:
                     if i in result.outcome:
@@ -223,7 +225,7 @@ class TrueEvaluation(Evaluation):
                 for r in result.outcome:
                     if not r:
                         break
-                    evaluation += 1
+                evaluation += 1
         return evaluation
 
 class FalseEvaluation(Evaluation):
@@ -236,8 +238,6 @@ class FalseEvaluation(Evaluation):
         evaluation = 0
         for c in self.checks:
             result = c.get_last_result(pid)
-            import pprint
-            pprint.pprint(result.outcome)
             if isinstance(result, BooleanResult):
                 if not result.outcome:
                     evaluation += 1
@@ -246,7 +246,7 @@ class FalseEvaluation(Evaluation):
                 for r in result.outcome:
                     if r:
                         break
-                    evaluation += 1
+                evaluation += 1
         return evaluation
 
 class TheMoreTrueTheBetterEvaluation(Evaluation):

@@ -65,7 +65,7 @@ def mocked_requests_get(*args, **kwargs):
     return _MockResponse(None, 404)
 
 def mocked_requests_head(*args, **kwargs):
-    print(args[0])
+    #print(args[0])
     if args[0] == "https://doi.org/10.5281/zenodo.3490396":
         return _MockResponse(
             "", 302, {"Location": "https://zenodo.org/record/3490396"}
