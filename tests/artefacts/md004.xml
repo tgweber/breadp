@@ -59,6 +59,8 @@
           </relatedIdentifiers>
           <descriptions>
             <description>Automated classification of metadata of research data by their discipline(s) of research can be used in scientometric research, by repository service providers, and in the context of research data aggregation services. Openly available metadata of the DataCite index for research data were used to compile a large training and evaluation set comprised of 609,524 records. This is the cleaned and vectorized version with a feature selection of small size.</description>
+            <description>Automated classification of metadata of research data by their discipline(s) of research can be used in scientometric research, by repository service providers, and in the context of research data aggregation services. Openly available metadata of the DataCite index for research data were used to compile a large training and evaluation set comprised of 609,524 records. This is the cleaned and vectorized version with a feature selection of small size.</description>
+            <description>Automated classification of metadata of research data by their discipline(s) of research can be used in scientometric research, by repository service providers, and in the context of research data aggregation services. Openly available metadata of the DataCite index for research data were used to compile a large training and evaluation set comprised of 609,524 records. This is the cleaned and vectorized version with a feature selection of small size.</description>
           </descriptions>
         </resource>
       </metadata>

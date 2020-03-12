@@ -11,6 +11,14 @@ import inspect
 import json
 import re
 
+from breadp.checks.pid import IsValidDoiCheck
+from breadp.checks.metadata import \
+    DescriptionsNumberCheck, \
+    DescriptionsLengthCheck, \
+    DescriptionsTypeCheck, \
+    TitlesJustAFileNameCheck
+from breadp.rdp import RdpFactory, Rdp
+
 class _MockResponse:
     def __init__(self, content, status_code, headers = {}):
         self.content = content
@@ -92,3 +100,26 @@ def base_evaluation_test(e):
         print("Wrong description: {} instead of {}".format(w.desc, shouldBeDesc))
         return False
     return True
+
+def get_rdps():
+    return [
+        RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123"),
+        RdpFactory.create("10.123/zenodo.badex1", "zenodo", token="123"),
+        RdpFactory.create("10.123/zenodo.badex2", "zenodo", token="123"),
+        RdpFactory.create("10.123/zenodo.badex3", "zenodo", token="123"),
+        RdpFactory.create("10.123/zenodo.badex4", "zenodo", token="123"),
+        RdpFactory.create("10.123/zenodo.badex5", "zenodo", token="123")
+    ]
+
+def get_checks(rdps):
+    checks = {
+        "metric": DescriptionsNumberCheck(),
+        "string": DescriptionsTypeCheck(),
+        "boolean": IsValidDoiCheck(),
+        "lom": DescriptionsLengthCheck(),
+        "lob": TitlesJustAFileNameCheck(),
+    }
+    for c in checks.values():
+        for r in rdps:
+            c.check(r)
+    return checks

@@ -11,8 +11,8 @@ from collections import Counter
 from datetime import datetime
 import inspect
 
-from breadp.checks.result import BooleanResult, ListResult, MetricResult
 from breadp import ChecksNotRunException
+from breadp.checks.result import BooleanResult, ListResult, MetricResult
 
 class Evaluation(object):
     """ Base class and interface for evaluation of checks of RDPs
@@ -62,7 +62,7 @@ class Evaluation(object):
                         rdp.pid
                     )
                 )
-        return self._evaluate(rdp.pid)/len(self.checks)
+        return round(self._evaluate(rdp.pid)/len(self.checks), 10)
 
     def report(self):
         report = {
@@ -105,8 +105,11 @@ class IsBetweenEvaluation(Evaluation):
                 if len(result.outcome) == 0:
                     continue
                 for i in result.outcome:
-                    if self.low <= i <= self.high:
-                        result += 1/len(result.outcome)
+                    try:
+                        if self.low <= i <= self.high:
+                            evaluation += 1/len(result.outcome)
+                    except TypeError:
+                        pass
         return evaluation
 
 class IsIdenticalToEvaluation(Evaluation):
@@ -149,10 +152,7 @@ class ContainsAllEvaluation(Evaluation):
         evaluation = 0
         for c in self.checks:
             result = c.get_last_result(pid)
-            if isinstance(result, ListResult):
-                for i in self.items:
-                    if i not in result.outcome:
-                        return 0
+            if isinstance(result, ListResult) and set(self.items) <= set(result.outcome):
                 evaluation += 1
         return evaluation
 
@@ -183,7 +183,7 @@ class ContainsAtLeastOneEvaluation(Evaluation):
 class DoesNotContainEvaluation(Evaluation):
     """ Each check's result NOT containing one of the items adds 1/#checks to the score.
 
-        Note: Adds 0 when the check's result is not of type ListResult or empty.
+        Note: Adds 0 when the check's result is not of type ListResult.
 
     items: div
         object to look for in ListResult
@@ -196,11 +196,13 @@ class DoesNotContainEvaluation(Evaluation):
         evaluation = 0
         for c in self.checks:
             result = c.get_last_result(pid)
-            if isinstance(result, ListResult) and len(result.outcome) > 0:
+            if isinstance(result, ListResult):
+                add = True
                 for i in self.items:
                     if i in result.outcome:
-                        break
-                evaluation += 1
+                        add = False
+                if add:
+                    evaluation += 1
         return evaluation
 
 class TrueEvaluation(Evaluation):
@@ -213,7 +215,7 @@ class TrueEvaluation(Evaluation):
         evaluation = 0
         for c in self.checks:
             result = c.get_last_result(pid)
-            if isinstance(c.result, BooleanResult):
+            if isinstance(result, BooleanResult):
                 if result.outcome:
                     evaluation += 1
                     continue
@@ -234,6 +236,8 @@ class FalseEvaluation(Evaluation):
         evaluation = 0
         for c in self.checks:
             result = c.get_last_result(pid)
+            import pprint
+            pprint.pprint(result.outcome)
             if isinstance(result, BooleanResult):
                 if not result.outcome:
                     evaluation += 1
@@ -287,8 +291,8 @@ class InListEvaluation(Evaluation):
     """
     def __init__(self, checks, comparata):
         Evaluation.__init__(self, checks)
-        if not hasattr(comparata, "__iter__"):
-            raise ValueError("{} is not iterable".format(type(comparata).__name__))
+        if not isinstance(comparata, list):
+            raise ValueError("comparata is not a list but a {}".format(type(comparata).__name__))
         self.comparata = comparata
 
     def _evaluate(self, pid):
@@ -314,4 +318,4 @@ class FunctionEvaluation(Evaluation):
         self.callback = callback
 
     def _evaluate(self, pid):
-        return self.callback(self.checks) * len(self.checks)
+        return self.callback(self.checks, pid) * len(self.checks)
