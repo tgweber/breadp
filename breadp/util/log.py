@@ -37,14 +37,3 @@ class CheckLogEntry(LogEntry):
         LogEntry.__init__(self, start, end, version, pid, msg)
         self.success = success
         self.result = result
-
-class EvaluationLogEntry(LogEntry):
-    def __init__(self, start, end, version, pid, msg, success, evaluation):
-        LogEntry.__init__(self, start, end, version, pid, msg)
-        self.success = success
-        self.evaluation = evaluation
-
-class BenchmarkLogEntry(LogEntry):
-    def __init__(self, start, end, version, pid, msg, success):
-        LogEntry.__init__(self, start, end, version, pid, msg)
-        self.success = success

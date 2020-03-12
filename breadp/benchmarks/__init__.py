@@ -9,8 +9,6 @@
 
 from datetime import datetime
 
-from breadp.util.log import Log, BenchmarkLogEntry
-
 class Benchmark(object):
     """ Base class and interface to benchmark RDPs
 
@@ -24,8 +22,6 @@ class Benchmark(object):
         A short text describing the benchmark (in English)
     evaluations:
         A list of evaluations
-    log: list <BenchmarkLogEntry>
-        List of log entries of benchmark runs
 
     Methods
     -------
@@ -45,7 +41,6 @@ class Benchmark(object):
         """
         def skip_function(evaluation, rdp):
             return False
-        self.log = Log()
         self.evaluations = []
         self.checks = []
         self.skip = skip_function
