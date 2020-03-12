@@ -39,8 +39,6 @@ class Check(object):
     """
 
     def __init__(self):
-        self.success = False
-        self.result = None
         self.log = Log()
 
     @property
@@ -57,35 +55,29 @@ class Check(object):
             Research Data Product to be checked
         """
         start = datetime.utcnow().isoformat()
-        (self.success, self.result) = (self._do_check(rdp))
-        msg = self.result.msg
+        (success, result) = (self._do_check(rdp))
         end = datetime.utcnow().isoformat()
-        self.set_check(start, end, self.success, self.result, rdp.pid, msg)
+        msg = result.msg
+        self.log.add(
+            CheckLogEntry(
+                start,
+                end,
+                self.version,
+                rdp.pid,
+                result.msg,
+                success,
+                result
+            )
+        )
 
-    def set_check(self, start, end, success, result, pid, msg):
-        """ Allows to set the results of a check (even from outside).
-        Use this from outside the check object,
-        if another check already failed on which this check is depending.
-        If so, indicate the necessary parameters in msg.
-
-        Parameters
-        ----------
-        start: str
-            Start of check in ISO 8601 format and UTC time
-        end: str
-            End of check in ISO 8601 format and UTC time
-        success: bool
-            Indicates whether the check was successful or failed
-        result: CheckResult
-            A object indicating the resul of the check
-        pid: str
-            Identifier of the RDP to-be-checked
-        msg: str
-            Log message of the check
+    def get_last_result(self, pid):
+        """ Returns the last result of the check for the given pid.
+            Returns None if no check did run yet.
         """
-        self.success = success
-        self.result = result
-        self.log.add(CheckLogEntry(start, end, self.version, pid, msg, success, result))
+        try:
+            return self.log.get_by_pid(pid)[-1].result
+        except IndexError:
+            return None
 
     def report(self, pid):
         report = {

@@ -81,26 +81,14 @@ def base_init_check_test(check, check_id):
     if not re.match('^\d+\.\d+.\d+$', check.version):
         print("Unvalid version string: {}".format(check.version))
         return False
-    if check.success:
-        return False
     if not len(check.log) == 0:
         return False
     return True
 
 # Basic tests for all evaluations which did not already run
-def base_evaluation_test(e, e_id):
+def base_evaluation_test(e):
     shouldBeDesc = inspect.getdoc(e).split("\n\n")[0]
     if not e.desc == shouldBeDesc:
         print("Wrong description: {} instead of {}".format(w.desc, shouldBeDesc))
-        return False
-    if not e.id == e_id:
-        print("Given check id ({}) is not identical of check's id ({})".format(e_id, e.id))
-        return False
-    if not re.match('^\d+\.\d+.\d+$', e.version):
-        print("Unvalid version string: {}".format(e.version))
-        return False
-    if e.success:
-        return False
-    if not len(e.log) == 0:
         return False
     return True

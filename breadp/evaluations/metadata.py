@@ -9,23 +9,18 @@
 import sys
 
 from breadp.evaluations import \
-    AllFalseEvaluationPart, \
-    AllTrueEvaluationPart, \
-    BatchEvaluation, \
-    CompositeEvaluation, \
     ContainsAllEvaluationPart, \
     ContainsAtLeastOneEvaluationPart, \
     ContainsItemExactlyNTimesEvaluationPart, \
     DoesNotContainEvaluationPart, \
     Evaluation, \
+    FalseEvaluationPart, \
     FunctionEvaluationPart, \
     InListEvaluationPart, \
     IsBetweenEvaluationPart, \
-    IsFalseEvaluationPart, \
     IsIdenticalToEvaluationPart, \
-    IsTrueEvaluationPart, \
-    SimpleAndEvaluation, \
-    TheMoreTrueTheBetterEvaluationPart
+    TheMoreTrueTheBetterEvaluationPart, \
+    TrueEvaluationPart
 from breadp.rdp.metadata.datacite import DataCiteMetadata
 from breadp.checks.metadata import \
     CreatorsOrcidCheck, \

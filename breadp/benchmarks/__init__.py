@@ -7,7 +7,6 @@
 #
 ################################################################################
 
-from collections import Counter, OrderedDict
 from datetime import datetime
 
 from breadp.util.log import Log, BenchmarkLogEntry
@@ -36,7 +35,7 @@ class Benchmark(object):
         Returns a dictionary of benchmark runs for the specified pid (incl.
         evaluations and checks)
     """
-    def __init__(self, skip):
+    def __init__(self):
         """
         Arguments
         ---------
@@ -44,10 +43,12 @@ class Benchmark(object):
             Determines whether an evaluation will be skipped for an RDP
             signature: skip(Evaluation: e, Rdp: rdp) -> bool
         """
+        def skip_function(evaluation, rdp):
+            return False
         self.log = Log()
-        self.evaluations = OrderedDict()
-        self.score = 0
-        self.skip = skip
+        self.evaluations = []
+        self.skip = skip_function
+        self.version = "Blank Benchmarks have no version"
 
     def run(self, rdp):
         """ Runs the benchmark
@@ -58,50 +59,47 @@ class Benchmark(object):
             Research Data Product to be benchmarked
         """
         start = datetime.utcnow().isoformat()
-        weights = self._calculate_weights(rdp)
-        for e_key, e in self.evaluations.items():
+        msg = "Run of benchmark {} in version {} for rdp {}".format(
+            type(self).__name__,
+            self.version,
+            rdp.pid
+        )
+        success = True
+        for e in self.evaluations:
             if self.skip(e, rdp):
                 continue
-            self.score += e["evaluation"].evaluate(rdp) * weights[e_key]
+            evaluation_success = e.evaluate(rdp)
+            if not evaluation_success:
+                success == False
         end = datetime.utcnow().isoformat()
-        self.log.add(EvaluationLogEntry(
+        self.log.add(BenchmarkLogEntry(
             start,
             end,
             self.version,
             rdp.pid,
             msg,
-            success,
-            self.score)
+            success)
         )
 
-    def add_evaluation(self, evaluation, weight):
+    def add_evaluation(self, evaluation):
         """ interface to add an evaluation
 
         Arguments
         ---------
         evaluation: Evaluation
             Evaluation to add
-        weight: int
-            Weight of the evaluation (the result of the evaluation will be
-            multiplied with weight/sum(weights)
         """
-        self.evaluations[type(evaluation).__name__] = {
-            "evaluation": evaluation,
-            "weight": weight
-        }
+        self.evaluations.append(evaluation)
 
-    def _calculate_weights(self, rdp):
-        """ Calculate the weight for the given RDP
+    def score(self, rdp):
+        """ Returns the score for a given RDP (each evaluation has the same weight)
 
-        Arguments
-        ---------
-        rdp: Rdp
-            Research data product (necessary to determine whether an evaluation
-            has to be skipped)
         """
-        total = 0
-        for e in self.evaluations.values():
+        score = 0
+        numberOfEvalutations = 0
+        for e in self.evaluations:
             if self.skip(e, rdp):
                 continue
-            total += e["weight"]
-        return dict([(e_key, e["weight"]/total) for e_key, e in self.evaluations.items()])
+            numberOfEvalutations+= 1
+            score += e.evaluate(rdp)
+        return score/numberOfEvalutations

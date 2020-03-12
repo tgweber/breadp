@@ -7,10 +7,10 @@
 #
 ################################################################################
 
-from breadp.evaluations import BatchEvaluation, SimpleAndEvaluation, Evaluation
+from breadp.evaluations import Evaluation
 from breadp.checks.pid import IsValidDoiCheck, DoiResolvesCheck
 
-class DoiEvaluation(BatchEvaluation, SimpleAndEvaluation):
+class DoiEvaluation(Evaluation):
     """ Evaluation of an DOI as a PID of a RDP
 
     """

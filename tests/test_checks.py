@@ -86,35 +86,35 @@ def test_is_valid_doi_check(mock_get):
     rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
     assert rdp.pid == rdp.metadata.pid
     check.check(rdp)
-    assert check.success
+    assert check.log.get_by_pid(rdp.pid)[-1].success
     assert len(check.log) == 1
-    assert check.log.log[-1].success == check.success
-    assert check.result.outcome
+    assert check.log.log[-1].success
+    assert check.get_last_result(rdp.pid).outcome
 
     # Failure 1
     pid = rdp.pid
     rdp.pid = ""
     check.check(rdp)
-    assert not check.success
+    assert not check.log.get_by_pid(rdp.pid)[-1].success
     assert len(check.log) == 2
     assert check.log.log[-2].success
-    assert not check.result.outcome
+    assert not check.get_last_result(rdp.pid).outcome
     rdp.pid = pid
 
     # Failure 2
     rdp = RdpFactory.create("10.123/zenodo.3490396-failure", "zenodo", token="123")
     check.check(rdp)
-    assert check.success
+    assert check.log.get_by_pid(rdp.pid)[-1].success
     assert len(check.log) == 3
     assert check.log.log[-3].success
     assert not check.log.log[-2].success
-    assert not check.result.outcome
+    assert not check.get_last_result(rdp.pid).outcome
 
     rdp = RdpFactory.create("10.123/zenodo.badex1", "zenodo", token="123")
     assert not rdp.pid == rdp.metadata.pid
     check.check(rdp)
-    assert check.success
-    assert not check.result.outcome
+    assert check.log.get_by_pid(rdp.pid)[-1].success
+    assert not check.get_last_result(rdp.pid).outcome
 
 @mock.patch('requests.head', side_effect=mocked_requests_head)
 @mock.patch('requests.get', side_effect=mocked_requests_get)
@@ -125,26 +125,26 @@ def test_doi_resolve_check(mock_head, mock_get):
     # Successful resolution
     rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
     check.check(rdp)
-    assert check.success
-    assert check.result.outcome
+    assert check.log.get_by_pid(rdp.pid)[-1].success
+    assert check.get_last_result(rdp.pid).outcome
 
     # failure
     rdp.pid = ""
     check.check(rdp)
-    assert not check.success
-    assert not check.result.outcome
+    assert not check.log.get_by_pid(rdp.pid)[-1].success
+    assert not check.get_last_result(rdp.pid).outcome
 
     # Failed resolution
     rdp = RdpFactory.create("10.123/zenodo.3490396-failure", "zenodo", token="123")
     check.check(rdp)
-    assert check.success
-    assert not check.result.outcome
+    assert check.log.get_by_pid(rdp.pid)[-1].success
+    assert not check.get_last_result(rdp.pid).outcome
 
     # Exception
     rdp = RdpFactory.create("10.123/zenodo.3490396-exception", "zenodo", token="123")
     check.check(rdp)
-    assert not check.success
-    assert check.result.msg == "Exception: Something went terribly wrong"
+    assert not check.log.get_by_pid(rdp.pid)[-1].success
+    assert check.get_last_result(rdp.pid).msg == "Exception: Something went terribly wrong"
 
 @mock.patch('requests.get', side_effect=mocked_requests_get)
 def test_descriptions_number_check(mock_get):
@@ -152,13 +152,13 @@ def test_descriptions_number_check(mock_get):
     assert base_init_check_test(check, 2)
     rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
     check.check(rdp)
-    assert check.success
-    assert check.result.outcome == 2
+    assert check.log.get_by_pid(rdp.pid)[-1].success
+    assert check.get_last_result(rdp.pid).outcome == 2
 
     rdp = RdpFactory.create("10.5281/zenodo.badex1", "zenodo", token="123")
     check.check(rdp)
-    assert check.success
-    assert check.result.outcome == 0
+    assert check.log.get_by_pid(rdp.pid)[-1].success
+    assert check.get_last_result(rdp.pid).outcome == 0
 
 @mock.patch('requests.get', side_effect=mocked_requests_get)
 def test_descriptions_length_check(mock_get):
@@ -174,14 +174,14 @@ def test_descriptions_length_check(mock_get):
     # Successful check
     rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
     check.check(rdp)
-    assert check.success
-    assert check.result.outcome[0] == 69
-    assert check.result.outcome[1] == 3
+    assert check.log.get_by_pid(rdp.pid)[-1].success
+    assert check.get_last_result(rdp.pid).outcome[0] == 69
+    assert check.get_last_result(rdp.pid).outcome[1] == 3
 
     rdp = RdpFactory.create("10.5281/zenodo.badex1", "zenodo", token="123")
     check.check(rdp)
-    assert check.success
-    assert len(check.result.outcome) == 0
+    assert check.log.get_by_pid(rdp.pid)[-1].success
+    assert len(check.get_last_result(rdp.pid).outcome) == 0
 
     report = check.report("10.5281/zenodo.3490396")
     assert report["name"] == "DescriptionsLengthCheck"
@@ -200,19 +200,19 @@ def test_descriptions_language_check(mock_get):
     # Successful check
     rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
     check.check(rdp)
-    assert check.success
-    assert len(check.result.outcome) == 2
-    assert check.result.outcome[0] == "en"
+    assert check.log.get_by_pid(rdp.pid)[-1].success
+    assert len(check.get_last_result(rdp.pid).outcome) == 2
+    assert check.get_last_result(rdp.pid).outcome[0] == "en"
 
     rdp = RdpFactory.create("10.5281/zenodo.badex1", "zenodo", token="123")
     check.check(rdp)
-    assert check.success
-    assert len(check.result.outcome) == 0
+    assert check.log.get_by_pid(rdp.pid)[-1].success
+    assert len(check.get_last_result(rdp.pid).outcome) == 0
 
     rdp = RdpFactory.create("10.5281/zenodo.badex2", "zenodo", token="123")
     check.check(rdp)
-    assert check.success
-    assert check.result.outcome[0] == "de"
+    assert check.log.get_by_pid(rdp.pid)[-1].success
+    assert check.get_last_result(rdp.pid).outcome[0] == "de"
 
 @mock.patch('requests.get', side_effect=mocked_requests_get)
 def test_datacite_descriptions_types_check(mock_get):
@@ -222,14 +222,14 @@ def test_datacite_descriptions_types_check(mock_get):
     # Successful check
     rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
     check.check(rdp)
-    assert check.success
-    assert len(check.result.outcome) == 2
-    assert "Abstract" in check.result.outcome
+    assert check.log.get_by_pid(rdp.pid)[-1].success
+    assert len(check.get_last_result(rdp.pid).outcome) == 2
+    assert "Abstract" in check.get_last_result(rdp.pid).outcome
 
     rdp = RdpFactory.create("10.5281/zenodo.badex1", "zenodo", token="123")
     check.check(rdp)
-    assert check.success
-    assert len(check.result.outcome) == 0
+    assert check.log.get_by_pid(rdp.pid)[-1].success
+    assert len(check.get_last_result(rdp.pid).outcome) == 0
 
 @mock.patch('requests.get', side_effect=mocked_requests_get)
 def test_titles_number_check(mock_get):
@@ -239,13 +239,13 @@ def test_titles_number_check(mock_get):
     # Successful check
     rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
     check.check(rdp)
-    assert check.success
-    assert check.result.outcome == 2
+    assert check.log.get_by_pid(rdp.pid)[-1].success
+    assert check.get_last_result(rdp.pid).outcome == 2
 
     rdp = RdpFactory.create("10.5281/zenodo.badex1", "zenodo", token="123")
     check.check(rdp)
-    assert check.success
-    assert check.result.outcome == 0
+    assert check.log.get_by_pid(rdp.pid)[-1].success
+    assert check.get_last_result(rdp.pid).outcome == 0
 
 @mock.patch('requests.get', side_effect=mocked_requests_get)
 def test_titles_length_check(mock_get):
@@ -255,15 +255,15 @@ def test_titles_length_check(mock_get):
     # Successful check
     rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
     check.check(rdp)
-    assert check.success
-    assert len(check.result.outcome) == 2
-    assert check.result.outcome[0] == 20
-    assert check.result.outcome[1] == 12
+    assert check.log.get_by_pid(rdp.pid)[-1].success
+    assert len(check.get_last_result(rdp.pid).outcome) == 2
+    assert check.get_last_result(rdp.pid).outcome[0] == 20
+    assert check.get_last_result(rdp.pid).outcome[1] == 12
 
     rdp = RdpFactory.create("10.5281/zenodo.badex1", "zenodo", token="123")
     check.check(rdp)
-    assert check.success
-    assert len(check.result.outcome) == 0
+    assert check.log.get_by_pid(rdp.pid)[-1].success
+    assert len(check.get_last_result(rdp.pid).outcome) == 0
 
 @mock.patch('requests.get', side_effect=mocked_requests_get)
 def test_titles_language_check(mock_get):
@@ -273,15 +273,15 @@ def test_titles_language_check(mock_get):
     # Successful check
     rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
     check.check(rdp)
-    assert check.success
-    assert len(check.result.outcome) == 2
-    assert check.result.outcome[0] == "en"
-    assert check.result.outcome[1] == "de"
+    assert check.log.get_by_pid(rdp.pid)[-1].success
+    assert len(check.get_last_result(rdp.pid).outcome) == 2
+    assert check.get_last_result(rdp.pid).outcome[0] == "en"
+    assert check.get_last_result(rdp.pid).outcome[1] == "de"
 
     rdp = RdpFactory.create("10.5281/zenodo.badex1", "zenodo", token="123")
     check.check(rdp)
-    assert check.success
-    assert len(check.result.outcome) == 0
+    assert check.log.get_by_pid(rdp.pid)[-1].success
+    assert len(check.get_last_result(rdp.pid).outcome) == 0
 
 @mock.patch('requests.get', side_effect=mocked_requests_get)
 def test_titles_just_a_filename_check(mock_get):
@@ -291,15 +291,15 @@ def test_titles_just_a_filename_check(mock_get):
     # Successful check
     rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
     check.check(rdp)
-    assert check.success
-    assert len(check.result.outcome) == 2
-    for o in check.result.outcome:
+    assert check.log.get_by_pid(rdp.pid)[-1].success
+    assert len(check.get_last_result(rdp.pid).outcome) == 2
+    for o in check.get_last_result(rdp.pid).outcome:
         assert not o
 
     rdp = RdpFactory.create("10.5281/zenodo.badex2", "zenodo", token="123")
     check.check(rdp)
-    assert check.success
-    assert check.result.outcome[0]
+    assert check.log.get_by_pid(rdp.pid)[-1].success
+    assert check.get_last_result(rdp.pid).outcome[0]
 
 @mock.patch('requests.get', side_effect=mocked_requests_get)
 def test_titles_type_check(mock_get):
@@ -309,15 +309,15 @@ def test_titles_type_check(mock_get):
     # Successful check
     rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
     check.check(rdp)
-    assert check.success
-    assert len(check.result.outcome) == 2
-    check.result.outcome[0] is None
-    check.result.outcome[1] == "TranslatedTitle"
+    assert check.log.get_by_pid(rdp.pid)[-1].success
+    assert len(check.get_last_result(rdp.pid).outcome) == 2
+    check.get_last_result(rdp.pid).outcome[0] is None
+    check.get_last_result(rdp.pid).outcome[1] == "TranslatedTitle"
 
     rdp = RdpFactory.create("10.5281/zenodo.badex1", "zenodo", token="123")
     check.check(rdp)
-    assert check.success
-    assert len(check.result.outcome) == 0
+    assert check.log.get_by_pid(rdp.pid)[-1].success
+    assert len(check.get_last_result(rdp.pid).outcome) == 0
 
 @mock.patch('requests.get', side_effect=mocked_requests_get)
 def test_formats_are_valid_media_types(mock_get):
@@ -327,15 +327,15 @@ def test_formats_are_valid_media_types(mock_get):
     # Successful check
     rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
     check.check(rdp)
-    assert check.success
-    assert check.result.outcome[0]
-    assert check.result.outcome[1]
+    assert check.log.get_by_pid(rdp.pid)[-1].success
+    assert check.get_last_result(rdp.pid).outcome[0]
+    assert check.get_last_result(rdp.pid).outcome[1]
 
     rdp = RdpFactory.create("10.5281/zenodo.badex1", "zenodo", token="123")
     check.check(rdp)
-    assert check.success
-    assert len(check.result.outcome) == 0
-    assert check.result.msg == "No formats found!"
+    assert check.log.get_by_pid(rdp.pid)[-1].success
+    assert len(check.get_last_result(rdp.pid).outcome) == 0
+    assert check.get_last_result(rdp.pid).msg == "No formats found!"
 
     report = check.report("10.5281/zenodo.badex1")
     assert report["name"] == "FormatsAreValidMediaTypeCheck"
@@ -347,15 +347,15 @@ def test_formats_are_valid_media_types(mock_get):
 
     rdp = RdpFactory.create("10.5281/zenodo.badex4", "zenodo", token="123")
     check.check(rdp)
-    assert check.success
-    assert check.result.outcome[0]
-    assert not check.result.outcome[1]
+    assert check.log.get_by_pid(rdp.pid)[-1].success
+    assert check.get_last_result(rdp.pid).outcome[0]
+    assert not check.get_last_result(rdp.pid).outcome[1]
 
     rdp = RdpFactory.create("10.5281/zenodo.badex5", "zenodo", token="123")
     check.check(rdp)
-    assert check.success
-    assert not check.result.outcome[0]
-    assert not check.result.outcome[1]
+    assert check.log.get_by_pid(rdp.pid)[-1].success
+    assert not check.get_last_result(rdp.pid).outcome[0]
+    assert not check.get_last_result(rdp.pid).outcome[1]
 
 @mock.patch('requests.get', side_effect=mocked_requests_get)
 def test_rights_have_valid_spdx_identifier(mock_get):
@@ -365,22 +365,22 @@ def test_rights_have_valid_spdx_identifier(mock_get):
     # Successful check
     rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
     check.check(rdp)
-    assert check.success
-    assert check.result.outcome[0]
+    assert check.log.get_by_pid(rdp.pid)[-1].success
+    assert check.get_last_result(rdp.pid).outcome[0]
 
     rdp = RdpFactory.create("10.5281/zenodo.badex1", "zenodo", token="123")
     check.check(rdp)
-    assert check.success
-    assert len(check.result.outcome) == 0
-    assert check.result.msg == "No rights objects found!"
+    assert check.log.get_by_pid(rdp.pid)[-1].success
+    assert len(check.get_last_result(rdp.pid).outcome) == 0
+    assert check.get_last_result(rdp.pid).msg == "No rights objects found!"
 
     rdp = RdpFactory.create("10.5281/zenodo.badex2", "zenodo", token="123")
     check.check(rdp)
-    assert check.success
-    assert not check.result.outcome[0]
-    assert not check.result.outcome[1]
-    assert not check.result.outcome[2]
-    assert check.result.msg == "Idonotexistasarightsidentifier is not a valid SPDX identifier"
+    assert check.log.get_by_pid(rdp.pid)[-1].success
+    assert not check.get_last_result(rdp.pid).outcome[0]
+    assert not check.get_last_result(rdp.pid).outcome[1]
+    assert not check.get_last_result(rdp.pid).outcome[2]
+    assert check.get_last_result(rdp.pid).msg == "Idonotexistasarightsidentifier is not a valid SPDX identifier"
 
 @mock.patch('requests.get', side_effect=mocked_requests_get)
 @mock.patch('requests.head', side_effect=mocked_requests_head)
@@ -391,27 +391,27 @@ def test_rights_has_at_least_one_license(mock_get, mock_head):
     # Successful check
     rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
     check.check(rdp)
-    assert check.success
-    assert check.result.outcome
+    assert check.log.get_by_pid(rdp.pid)[-1].success
+    assert check.get_last_result(rdp.pid).outcome
 
     rdp = RdpFactory.create("10.5281/zenodo.badex1", "zenodo", token="123")
     check.check(rdp)
-    assert check.success
-    assert not check.result.outcome
-    assert check.result.msg == "No rights specified"
+    assert check.log.get_by_pid(rdp.pid)[-1].success
+    assert not check.get_last_result(rdp.pid).outcome
+    assert check.get_last_result(rdp.pid).msg == "No rights specified"
 
 
     rdp = RdpFactory.create("10.5281/zenodo.badex2", "zenodo", token="123")
     check.check(rdp)
-    assert check.success
-    assert not check.result.outcome
-    assert check.result.msg.startswith("No license retrievable:")
+    assert check.log.get_by_pid(rdp.pid)[-1].success
+    assert not check.get_last_result(rdp.pid).outcome
+    assert check.get_last_result(rdp.pid).msg.startswith("No license retrievable:")
 
     rdp = RdpFactory.create("10.5281/zenodo.badex4", "zenodo", token="123")
     check.check(rdp)
-    assert check.success
-    assert not check.result.outcome
-    assert check.result.msg.startswith("No license retrievable:")
+    assert check.log.get_by_pid(rdp.pid)[-1].success
+    assert not check.get_last_result(rdp.pid).outcome
+    assert check.get_last_result(rdp.pid).msg.startswith("No license retrievable:")
 
 
 @mock.patch('requests.get', side_effect=mocked_requests_get)
@@ -422,20 +422,20 @@ def test_rights_are_open_check(mock_get):
     # Successful check
     rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
     check.check(rdp)
-    assert check.success
-    assert check.result.outcome
+    assert check.log.get_by_pid(rdp.pid)[-1].success
+    assert check.get_last_result(rdp.pid).outcome
 
     rdp = RdpFactory.create("10.5281/zenodo.badex3", "zenodo", token="123")
     check.check(rdp)
-    assert check.success
-    assert not check.result.outcome
-    assert check.result.msg == "Rights are not open (or not specified)"
+    assert check.log.get_by_pid(rdp.pid)[-1].success
+    assert not check.get_last_result(rdp.pid).outcome
+    assert check.get_last_result(rdp.pid).msg == "Rights are not open (or not specified)"
 
 
     rdp = RdpFactory.create("10.5281/zenodo.badex2", "zenodo", token="123")
     check.check(rdp)
-    assert check.success
-    assert not check.result.outcome
+    assert check.log.get_by_pid(rdp.pid)[-1].success
+    assert not check.get_last_result(rdp.pid).outcome
 
 @mock.patch('requests.get', side_effect=mocked_requests_get)
 def test_subjects_are_qualified_check(mock_get):
@@ -445,21 +445,21 @@ def test_subjects_are_qualified_check(mock_get):
     # Successful check
     rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
     check.check(rdp)
-    assert check.success
-    assert check.result.outcome[0]
-    assert check.result.outcome[1]
+    assert check.log.get_by_pid(rdp.pid)[-1].success
+    assert check.get_last_result(rdp.pid).outcome[0]
+    assert check.get_last_result(rdp.pid).outcome[1]
 
     rdp = RdpFactory.create("10.5281/zenodo.badex1", "zenodo", token="123")
     check.check(rdp)
-    assert check.success
-    assert len(check.result.outcome) == 0
-    assert check.result.msg == "No subjects retrievable"
+    assert check.log.get_by_pid(rdp.pid)[-1].success
+    assert len(check.get_last_result(rdp.pid).outcome) == 0
+    assert check.get_last_result(rdp.pid).msg == "No subjects retrievable"
 
     rdp = RdpFactory.create("10.5281/zenodo.badex2", "zenodo", token="123")
     check.check(rdp)
-    assert check.success
-    assert not check.result.outcome[0]
-    assert check.result.outcome[4]
+    assert check.log.get_by_pid(rdp.pid)[-1].success
+    assert not check.get_last_result(rdp.pid).outcome[0]
+    assert check.get_last_result(rdp.pid).outcome[4]
 
 @mock.patch('requests.get', side_effect=mocked_requests_get)
 def test_subjects_number_check(mock_get):
@@ -469,18 +469,18 @@ def test_subjects_number_check(mock_get):
     # Successful check
     rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
     check.check(rdp)
-    assert check.success
-    assert check.result.outcome == 2
+    assert check.log.get_by_pid(rdp.pid)[-1].success
+    assert check.get_last_result(rdp.pid).outcome == 2
 
     rdp = RdpFactory.create("10.5281/zenodo.badex1", "zenodo", token="123")
     check.check(rdp)
-    assert check.success
-    assert check.result.outcome == 0
+    assert check.log.get_by_pid(rdp.pid)[-1].success
+    assert check.get_last_result(rdp.pid).outcome == 0
 
     rdp = RdpFactory.create("10.5281/zenodo.badex2", "zenodo", token="123")
     check.check(rdp)
-    assert check.success
-    assert check.result.outcome == 5
+    assert check.log.get_by_pid(rdp.pid)[-1].success
+    assert check.get_last_result(rdp.pid).outcome == 5
 
 @mock.patch('requests.get', side_effect=mocked_requests_get)
 def test_subjects_have_ddc_check(mock_get):
@@ -490,18 +490,18 @@ def test_subjects_have_ddc_check(mock_get):
     # Successful check
     rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
     check.check(rdp)
-    assert check.success
-    assert check.result.outcome
+    assert check.log.get_by_pid(rdp.pid)[-1].success
+    assert check.get_last_result(rdp.pid).outcome
 
     rdp = RdpFactory.create("10.5281/zenodo.badex1", "zenodo", token="123")
     check.check(rdp)
-    assert check.success
-    assert not check.result.outcome
+    assert check.log.get_by_pid(rdp.pid)[-1].success
+    assert not check.get_last_result(rdp.pid).outcome
 
     rdp = RdpFactory.create("10.5281/zenodo.badex2", "zenodo", token="123")
     check.check(rdp)
-    assert check.success
-    assert not check.result.outcome
+    assert check.log.get_by_pid(rdp.pid)[-1].success
+    assert not check.get_last_result(rdp.pid).outcome
 
 @mock.patch('requests.get', side_effect=mocked_requests_get)
 def test_subjects_have_wikidata_keywords_check(mock_get):
@@ -511,18 +511,18 @@ def test_subjects_have_wikidata_keywords_check(mock_get):
     # Successful check
     rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
     check.check(rdp)
-    assert check.success
-    assert check.result.outcome
+    assert check.log.get_by_pid(rdp.pid)[-1].success
+    assert check.get_last_result(rdp.pid).outcome
 
     rdp = RdpFactory.create("10.5281/zenodo.badex1", "zenodo", token="123")
     check.check(rdp)
-    assert check.success
-    assert not check.result.outcome
+    assert check.log.get_by_pid(rdp.pid)[-1].success
+    assert not check.get_last_result(rdp.pid).outcome
 
     rdp = RdpFactory.create("10.5281/zenodo.badex2", "zenodo", token="123")
     check.check(rdp)
-    assert check.success
-    assert not check.result.outcome
+    assert check.log.get_by_pid(rdp.pid)[-1].success
+    assert not check.get_last_result(rdp.pid).outcome
 
 def test_is_valid_orcid():
     assert is_valid_orcid("0000-0003-1815-7041")
@@ -538,30 +538,30 @@ def test_creators_orcid_check(mock_get):
     # Successful check
     rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
     check.check(rdp)
-    assert check.success
-    assert check.result.outcome[0]
-    assert check.result.outcome[1]
+    assert check.log.get_by_pid(rdp.pid)[-1].success
+    assert check.get_last_result(rdp.pid).outcome[0]
+    assert check.get_last_result(rdp.pid).outcome[1]
 
     rdp = RdpFactory.create("10.5281/zenodo.badex1", "zenodo", token="123")
     check.check(rdp)
-    assert check.success
-    assert len(check.result.outcome) == 0
+    assert check.log.get_by_pid(rdp.pid)[-1].success
+    assert len(check.get_last_result(rdp.pid).outcome) == 0
 
     rdp = RdpFactory.create("10.5281/zenodo.badex2", "zenodo", token="123")
     check.check(rdp)
-    assert check.success
-    assert not check.result.outcome[0]
+    assert check.log.get_by_pid(rdp.pid)[-1].success
+    assert not check.get_last_result(rdp.pid).outcome[0]
 
     rdp = RdpFactory.create("10.5281/zenodo.badex3", "zenodo", token="123")
     check.check(rdp)
-    assert check.success
-    assert not check.result.outcome[0]
-    assert not check.result.outcome[1]
+    assert check.log.get_by_pid(rdp.pid)[-1].success
+    assert not check.get_last_result(rdp.pid).outcome[0]
+    assert not check.get_last_result(rdp.pid).outcome[1]
 
     rdp = RdpFactory.create("10.5281/zenodo.badex4", "zenodo", token="123")
     check.check(rdp)
-    assert check.success
-    assert check.result.outcome[0]
+    assert check.log.get_by_pid(rdp.pid)[-1].success
+    assert check.get_last_result(rdp.pid).outcome[0]
 
 
 @mock.patch('requests.get', side_effect=mocked_requests_get)
@@ -572,20 +572,20 @@ def test_creators_family_and_given_name_check(mock_get):
     # Successful check
     rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
     check.check(rdp)
-    assert check.success
-    assert check.result.outcome[0]
-    assert check.result.outcome[1]
+    assert check.log.get_by_pid(rdp.pid)[-1].success
+    assert check.get_last_result(rdp.pid).outcome[0]
+    assert check.get_last_result(rdp.pid).outcome[1]
 
     rdp = RdpFactory.create("10.5281/zenodo.badex1", "zenodo", token="123")
     check.check(rdp)
-    assert check.success
-    assert len(check.result.outcome) == 0
+    assert check.log.get_by_pid(rdp.pid)[-1].success
+    assert len(check.get_last_result(rdp.pid).outcome) == 0
 
     rdp = RdpFactory.create("10.5281/zenodo.badex2", "zenodo", token="123")
     check.check(rdp)
-    assert check.success
-    assert not check.result.outcome[0]
-    assert check.result.outcome[1]
+    assert check.log.get_by_pid(rdp.pid)[-1].success
+    assert not check.get_last_result(rdp.pid).outcome[0]
+    assert check.get_last_result(rdp.pid).outcome[1]
 
 @mock.patch('requests.get', side_effect=mocked_requests_get)
 def test_creators_contain_institutions_check(mock_get):
@@ -595,18 +595,18 @@ def test_creators_contain_institutions_check(mock_get):
     # Successful check
     rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
     check.check(rdp)
-    assert check.success
-    assert not check.result.outcome
+    assert check.log.get_by_pid(rdp.pid)[-1].success
+    assert not check.get_last_result(rdp.pid).outcome
 
     rdp = RdpFactory.create("10.5281/zenodo.badex1", "zenodo", token="123")
     check.check(rdp)
-    assert not check.success
+    assert not check.log.get_by_pid(rdp.pid)[-1].success
 
     rdp = RdpFactory.create("10.5281/zenodo.badex3", "zenodo", token="123")
     check.check(rdp)
-    assert check.success
-    assert check.result.outcome
-    assert check.result.msg == "Leibniz Rechenzentrum is an institution"
+    assert check.log.get_by_pid(rdp.pid)[-1].success
+    assert check.get_last_result(rdp.pid).outcome
+    assert check.get_last_result(rdp.pid).msg == "Leibniz Rechenzentrum is an institution"
 
 @mock.patch('requests.get', side_effect=mocked_requests_get)
 def test_sizes_number_check(mock_get):
@@ -616,18 +616,18 @@ def test_sizes_number_check(mock_get):
     # Successful check
     rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
     check.check(rdp)
-    assert check.success
-    assert check.result.outcome == 1
+    assert check.log.get_by_pid(rdp.pid)[-1].success
+    assert check.get_last_result(rdp.pid).outcome == 1
 
     rdp = RdpFactory.create("10.5281/zenodo.badex1", "zenodo", token="123")
     check.check(rdp)
-    assert check.success
-    assert check.result.outcome == 0
+    assert check.log.get_by_pid(rdp.pid)[-1].success
+    assert check.get_last_result(rdp.pid).outcome == 0
 
     rdp = RdpFactory.create("10.5281/zenodo.badex3", "zenodo", token="123")
     check.check(rdp)
-    assert check.success
-    assert check.result.outcome == 2
+    assert check.log.get_by_pid(rdp.pid)[-1].success
+    assert check.get_last_result(rdp.pid).outcome == 2
 
 @mock.patch('requests.get', side_effect=mocked_requests_get)
 def test_sizes_number_check(mock_get):
@@ -637,19 +637,19 @@ def test_sizes_number_check(mock_get):
     # Successful check
     rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
     check.check(rdp)
-    assert check.success
-    assert check.result.outcome[0]
+    assert check.log.get_by_pid(rdp.pid)[-1].success
+    assert check.get_last_result(rdp.pid).outcome[0]
 
     rdp = RdpFactory.create("10.5281/zenodo.badex1", "zenodo", token="123")
     check.check(rdp)
-    assert check.success
-    assert len(check.result.outcome) == 0
+    assert check.log.get_by_pid(rdp.pid)[-1].success
+    assert len(check.get_last_result(rdp.pid).outcome) == 0
 
     rdp = RdpFactory.create("10.5281/zenodo.badex2", "zenodo", token="123")
     check.check(rdp)
-    assert check.success
-    assert not check.result.outcome[0]
-    assert check.result.outcome[1]
+    assert check.log.get_by_pid(rdp.pid)[-1].success
+    assert not check.get_last_result(rdp.pid).outcome[0]
+    assert check.get_last_result(rdp.pid).outcome[1]
 
 @mock.patch('requests.get', side_effect=mocked_requests_get)
 def test_version_specified_check(mock_get):
@@ -659,19 +659,19 @@ def test_version_specified_check(mock_get):
     # Successful check
     rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
     check.check(rdp)
-    assert check.success
-    assert check.result.outcome
+    assert check.log.get_by_pid(rdp.pid)[-1].success
+    assert check.get_last_result(rdp.pid).outcome
 
     rdp = RdpFactory.create("10.5281/zenodo.badex1", "zenodo", token="123")
     check.check(rdp)
-    assert not check.success
-    assert not check.result.outcome
+    assert not check.log.get_by_pid(rdp.pid)[-1].success
+    assert not check.get_last_result(rdp.pid).outcome
 
     rdp = RdpFactory.create("10.5281/zenodo.badex2", "zenodo", token="123")
     check.check(rdp)
-    assert check.success
-    assert not check.result.outcome
-    assert check.result.msg == "'34' is not in semantic versioning format"
+    assert check.log.get_by_pid(rdp.pid)[-1].success
+    assert not check.get_last_result(rdp.pid).outcome
+    assert check.get_last_result(rdp.pid).msg == "'34' is not in semantic versioning format"
 
 @mock.patch('requests.get', side_effect=mocked_requests_get)
 def test_language_specified_check(mock_get):
@@ -681,19 +681,19 @@ def test_language_specified_check(mock_get):
     # Successful check
     rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
     check.check(rdp)
-    assert check.success
-    assert check.result.outcome
+    assert check.log.get_by_pid(rdp.pid)[-1].success
+    assert check.get_last_result(rdp.pid).outcome
 
     rdp = RdpFactory.create("10.5281/zenodo.badex1", "zenodo", token="123")
     check.check(rdp)
-    assert check.success
-    assert not check.result.outcome
+    assert check.log.get_by_pid(rdp.pid)[-1].success
+    assert not check.get_last_result(rdp.pid).outcome
 
     rdp = RdpFactory.create("10.5281/zenodo.badex2", "zenodo", token="123")
     check.check(rdp)
-    assert check.success
-    assert not check.result.outcome
-    assert check.result.msg == "'English' is not a valid ISO-639-1 code"
+    assert check.log.get_by_pid(rdp.pid)[-1].success
+    assert not check.get_last_result(rdp.pid).outcome
+    assert check.get_last_result(rdp.pid).msg == "'English' is not a valid ISO-639-1 code"
 
 @mock.patch('requests.get', side_effect=mocked_requests_get)
 def test_contributors_orcid_check(mock_get):
@@ -703,19 +703,19 @@ def test_contributors_orcid_check(mock_get):
     # Successful check
     rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
     check.check(rdp)
-    assert check.success
-    assert check.result.outcome[0]
-    assert check.result.outcome[1]
+    assert check.log.get_by_pid(rdp.pid)[-1].success
+    assert check.get_last_result(rdp.pid).outcome[0]
+    assert check.get_last_result(rdp.pid).outcome[1]
 
     rdp = RdpFactory.create("10.5281/zenodo.badex1", "zenodo", token="123")
     check.check(rdp)
-    assert check.success
-    assert len(check.result.outcome) == 0
+    assert check.log.get_by_pid(rdp.pid)[-1].success
+    assert len(check.get_last_result(rdp.pid).outcome) == 0
 
     rdp = RdpFactory.create("10.5281/zenodo.badex3", "zenodo", token="123")
     check.check(rdp)
-    assert check.success
-    assert not check.result.outcome[0]
+    assert check.log.get_by_pid(rdp.pid)[-1].success
+    assert not check.get_last_result(rdp.pid).outcome[0]
 
 @mock.patch('requests.get', side_effect=mocked_requests_get)
 def test_contributors_family_and_given_name_check(mock_get):
@@ -725,14 +725,14 @@ def test_contributors_family_and_given_name_check(mock_get):
     # Successful check
     rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
     check.check(rdp)
-    assert check.success
-    assert check.result.outcome[0]
-    assert check.result.outcome[1]
+    assert check.log.get_by_pid(rdp.pid)[-1].success
+    assert check.get_last_result(rdp.pid).outcome[0]
+    assert check.get_last_result(rdp.pid).outcome[1]
 
     rdp = RdpFactory.create("10.5281/zenodo.badex1", "zenodo", token="123")
     check.check(rdp)
-    assert check.success
-    assert len(check.result.outcome) == 0
+    assert check.log.get_by_pid(rdp.pid)[-1].success
+    assert len(check.get_last_result(rdp.pid).outcome) == 0
 
 @mock.patch('requests.get', side_effect=mocked_requests_get)
 def test_contributors_contain_institutions_check(mock_get):
@@ -742,17 +742,17 @@ def test_contributors_contain_institutions_check(mock_get):
     # Successful check
     rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
     check.check(rdp)
-    assert check.success
-    assert not check.result.outcome
+    assert check.log.get_by_pid(rdp.pid)[-1].success
+    assert not check.get_last_result(rdp.pid).outcome
 
     rdp = RdpFactory.create("10.5281/zenodo.badex1", "zenodo", token="123")
     check.check(rdp)
-    assert not check.success
+    assert not check.log.get_by_pid(rdp.pid)[-1].success
 
     rdp = RdpFactory.create("10.5281/zenodo.badex3", "zenodo", token="123")
     check.check(rdp)
-    assert check.success
-    assert check.result.outcome
+    assert check.log.get_by_pid(rdp.pid)[-1].success
+    assert check.get_last_result(rdp.pid).outcome
 
 @mock.patch('requests.get', side_effect=mocked_requests_get)
 def test_contributors_type_check(mock_get):
@@ -762,24 +762,24 @@ def test_contributors_type_check(mock_get):
     # Successful check
     rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
     check.check(rdp)
-    assert check.success
-    assert check.result.outcome[0] == "ContactPerson"
-    assert check.result.outcome[1] == "ProjectMember"
+    assert check.log.get_by_pid(rdp.pid)[-1].success
+    assert check.get_last_result(rdp.pid).outcome[0] == "ContactPerson"
+    assert check.get_last_result(rdp.pid).outcome[1] == "ProjectMember"
 
     rdp = RdpFactory.create("10.5281/zenodo.badex1", "zenodo", token="123")
     check.check(rdp)
-    assert check.success
-    assert len(check.result.outcome) == 0
+    assert check.log.get_by_pid(rdp.pid)[-1].success
+    assert len(check.get_last_result(rdp.pid).outcome) == 0
 
     rdp = RdpFactory.create("10.5281/zenodo.badex2", "zenodo", token="123")
     check.check(rdp)
-    assert check.success
-    assert check.result.outcome[0] == "Editor"
+    assert check.log.get_by_pid(rdp.pid)[-1].success
+    assert check.get_last_result(rdp.pid).outcome[0] == "Editor"
 
     rdp = RdpFactory.create("10.5281/zenodo.badex3", "zenodo", token="123")
     check.check(rdp)
-    assert check.success
-    assert check.result.outcome[0] == "RightsHolder"
+    assert check.log.get_by_pid(rdp.pid)[-1].success
+    assert check.get_last_result(rdp.pid).outcome[0] == "RightsHolder"
 
 @mock.patch('requests.get', side_effect=mocked_requests_get)
 def test_publicationYear_check(mock_get):
@@ -789,13 +789,13 @@ def test_publicationYear_check(mock_get):
     # Successful check
     rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
     check.check(rdp)
-    assert check.success
-    assert check.result.outcome == 2019
+    assert check.log.get_by_pid(rdp.pid)[-1].success
+    assert check.get_last_result(rdp.pid).outcome == 2019
 
     rdp = RdpFactory.create("10.5281/zenodo.badex1", "zenodo", token="123")
     check.check(rdp)
-    assert not check.success
-    assert check.result.msg == "No publicationYear retrievable"
+    assert not check.log.get_by_pid(rdp.pid)[-1].success
+    assert check.get_last_result(rdp.pid).msg == "No publicationYear retrievable"
 
 @mock.patch('requests.get', side_effect=mocked_requests_get)
 def test_dates_type_check(mock_get):
@@ -805,21 +805,21 @@ def test_dates_type_check(mock_get):
     # Successful check
     rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
     check.check(rdp)
-    assert check.success
-    assert len(check.result.outcome) == 2
-    assert check.result.outcome[0] == "Issued"
-    assert check.result.outcome[1] == "Created"
+    assert check.log.get_by_pid(rdp.pid)[-1].success
+    assert len(check.get_last_result(rdp.pid).outcome) == 2
+    assert check.get_last_result(rdp.pid).outcome[0] == "Issued"
+    assert check.get_last_result(rdp.pid).outcome[1] == "Created"
 
     rdp = RdpFactory.create("10.5281/zenodo.badex1", "zenodo", token="123")
     check.check(rdp)
-    assert check.success
-    assert check.result.msg == "No dates retrievable"
+    assert check.log.get_by_pid(rdp.pid)[-1].success
+    assert check.get_last_result(rdp.pid).msg == "No dates retrievable"
 
     rdp = RdpFactory.create("10.5281/zenodo.badex2", "zenodo", token="123")
     check.check(rdp)
-    assert check.success
-    assert len(check.result.outcome) == 1
-    assert check.result.outcome[0] is None
+    assert check.log.get_by_pid(rdp.pid)[-1].success
+    assert len(check.get_last_result(rdp.pid).outcome) == 1
+    assert check.get_last_result(rdp.pid).outcome[0] is None
 
 @mock.patch('requests.get', side_effect=mocked_requests_get)
 def test_dates_information_check(mock_get):
@@ -829,27 +829,27 @@ def test_dates_information_check(mock_get):
     # Successful check
     rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
     check.check(rdp)
-    assert check.success
-    assert len(check.result.outcome) == 2
-    assert check.result.outcome[0] is None
-    assert check.result.outcome[1] is None
+    assert check.log.get_by_pid(rdp.pid)[-1].success
+    assert len(check.get_last_result(rdp.pid).outcome) == 2
+    assert check.get_last_result(rdp.pid).outcome[0] is None
+    assert check.get_last_result(rdp.pid).outcome[1] is None
 
     rdp = RdpFactory.create("10.5281/zenodo.badex1", "zenodo", token="123")
     check.check(rdp)
-    assert check.success
-    assert check.result.msg == "No dates retrievable"
+    assert check.log.get_by_pid(rdp.pid)[-1].success
+    assert check.get_last_result(rdp.pid).msg == "No dates retrievable"
 
     rdp = RdpFactory.create("10.5281/zenodo.badex3", "zenodo", token="123")
     check.check(rdp)
-    assert check.success
-    assert check.result.outcome[0] == "First revision"
-    assert check.result.outcome[1] == "Second revision"
+    assert check.log.get_by_pid(rdp.pid)[-1].success
+    assert check.get_last_result(rdp.pid).outcome[0] == "First revision"
+    assert check.get_last_result(rdp.pid).outcome[1] == "Second revision"
 
     rdp = RdpFactory.create("10.5281/zenodo.badex4", "zenodo", token="123")
     check.check(rdp)
-    assert check.success
-    assert check.result.outcome[0] is None
-    assert check.result.outcome[1] is None
+    assert check.log.get_by_pid(rdp.pid)[-1].success
+    assert check.get_last_result(rdp.pid).outcome[0] is None
+    assert check.get_last_result(rdp.pid).outcome[1] is None
 
 @mock.patch('requests.get', side_effect=mocked_requests_get)
 def test_dates_issued_year_check(mock_get):
@@ -859,18 +859,18 @@ def test_dates_issued_year_check(mock_get):
     # Successful check
     rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
     check.check(rdp)
-    assert check.success
-    assert check.result.outcome == 2019
+    assert check.log.get_by_pid(rdp.pid)[-1].success
+    assert check.get_last_result(rdp.pid).outcome == 2019
 
     rdp = RdpFactory.create("10.5281/zenodo.badex1", "zenodo", token="123")
     check.check(rdp)
-    assert not check.success
-    assert check.result.msg == "No IssueDate retrievable"
+    assert not check.log.get_by_pid(rdp.pid)[-1].success
+    assert check.get_last_result(rdp.pid).msg == "No IssueDate retrievable"
 
     rdp = RdpFactory.create("10.5281/zenodo.badex2", "zenodo", token="123")
     check.check(rdp)
-    assert not check.success
-    assert check.result.msg == "No IssueDate retrievable"
+    assert not check.log.get_by_pid(rdp.pid)[-1].success
+    assert check.get_last_result(rdp.pid).msg == "No IssueDate retrievable"
 
 @mock.patch('requests.get', side_effect=mocked_requests_get)
 def test_related_resource_type_check(mock_get):
@@ -880,16 +880,16 @@ def test_related_resource_type_check(mock_get):
     # Successful check
     rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
     check.check(rdp)
-    assert check.success
-    assert len(check.result.outcome) == 2
-    assert check.result.outcome[0] == "IsSourceOf"
-    assert check.result.outcome[1] == "IsVersionOf"
+    assert check.log.get_by_pid(rdp.pid)[-1].success
+    assert len(check.get_last_result(rdp.pid).outcome) == 2
+    assert check.get_last_result(rdp.pid).outcome[0] == "IsSourceOf"
+    assert check.get_last_result(rdp.pid).outcome[1] == "IsVersionOf"
 
     rdp = RdpFactory.create("10.5281/zenodo.badex1", "zenodo", token="123")
     check.check(rdp)
-    assert check.success
-    assert len(check.result.outcome) == 0
-    assert check.result.msg == "No related resources retrievable"
+    assert check.log.get_by_pid(rdp.pid)[-1].success
+    assert len(check.get_last_result(rdp.pid).outcome) == 0
+    assert check.get_last_result(rdp.pid).msg == "No related resources retrievable"
 
 @mock.patch('requests.get', side_effect=mocked_requests_get)
 def test_related_resource_has_metadata_check(mock_get):
@@ -899,25 +899,25 @@ def test_related_resource_has_metadata_check(mock_get):
     # Successful check
     rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
     check.check(rdp)
-    assert check.success
-    assert len(check.result.outcome) == 2
-    assert check.result.outcome[0]
-    assert check.result.outcome[1]
+    assert check.log.get_by_pid(rdp.pid)[-1].success
+    assert len(check.get_last_result(rdp.pid).outcome) == 2
+    assert check.get_last_result(rdp.pid).outcome[0]
+    assert check.get_last_result(rdp.pid).outcome[1]
 
     rdp = RdpFactory.create("10.5281/zenodo.badex1", "zenodo", token="123")
     check.check(rdp)
-    assert check.success
-    assert len(check.result.outcome) == 0
-    assert check.result.msg == "No related resources retrievable"
+    assert check.log.get_by_pid(rdp.pid)[-1].success
+    assert len(check.get_last_result(rdp.pid).outcome) == 0
+    assert check.get_last_result(rdp.pid).msg == "No related resources retrievable"
 
     # Successful check
     rdp = RdpFactory.create("10.5281/zenodo.badex2", "zenodo", token="123")
     check.check(rdp)
-    assert check.success
-    assert len(check.result.outcome) == 3
-    assert check.result.outcome[0]
-    assert not check.result.outcome[1]
-    assert check.result.outcome[2]
+    assert check.log.get_by_pid(rdp.pid)[-1].success
+    assert len(check.get_last_result(rdp.pid).outcome) == 3
+    assert check.get_last_result(rdp.pid).outcome[0]
+    assert not check.get_last_result(rdp.pid).outcome[1]
+    assert check.get_last_result(rdp.pid).outcome[2]
 
 @mock.patch('requests.get', side_effect=mocked_requests_get)
 def test_rdp_zenodo_data(mock_get):
