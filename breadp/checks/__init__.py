@@ -43,7 +43,7 @@ class Check(object):
 
     @property
     def desc(self):
-        return inspect.getdoc(self).split("\n\n")[0]
+        return ' '.join(inspect.getdoc(self).split("\n\n")[0].split())
 
     def check(self, rdp):
         """ Wrapper code around each check

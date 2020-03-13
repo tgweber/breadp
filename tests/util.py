@@ -93,10 +93,6 @@ def mocked_requests_head(*args, **kwargs):
 
 # Basic tests for all checks which did not already run
 def base_init_check_test(check, check_id):
-    shouldBeDesc = inspect.getdoc(check).split("\n\n")[0]
-    if not check.desc == shouldBeDesc:
-        print("Wrong description: {} instead of {}".format(check.desc, shouldBeDesc))
-        return False
     if not check.id == check_id:
         print("Given check id ({}) is not identical of check's id ({})".format(check_id, check.id))
         return False
@@ -104,14 +100,6 @@ def base_init_check_test(check, check_id):
         print("Unvalid version string: {}".format(check.version))
         return False
     if not len(check.log) == 0:
-        return False
-    return True
-
-# Basic tests for all evaluations which did not already run
-def base_evaluation_test(e):
-    shouldBeDesc = inspect.getdoc(e).split("\n\n")[0]
-    if not e.desc == shouldBeDesc:
-        print("Wrong description: {} instead of {}".format(w.desc, shouldBeDesc))
         return False
     return True
 

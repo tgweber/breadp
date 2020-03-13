@@ -61,5 +61,3 @@ def test_benchmark_reporting(mock_get, mock_head):
     assert report["evaluations"][0]["evaluation"] == 0
     assert report["evaluations"][2]["evaluation"] == round(2/3, 10)
     assert report["evaluations"][5]["evaluation"] == 1
-    import pprint
-    pprint.pprint(report["evaluations"])

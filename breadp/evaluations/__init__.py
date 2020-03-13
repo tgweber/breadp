@@ -10,12 +10,14 @@
 from collections import Counter
 from datetime import datetime
 import inspect
+from pprint import pformat
 
 from breadp import ChecksNotRunException
 from breadp.checks.result import BooleanResult, ListResult, MetricResult
 
 class Evaluation(object):
-    """ Base class and interface for evaluation of checks of RDPs
+    """ Base class and interface for Evaluation of checks of
+        RDPs
 
     Attributes
     ----------
@@ -41,7 +43,7 @@ class Evaluation(object):
 
     @property
     def desc(self):
-        return inspect.getdoc(self).split("\n\n")[0]
+        return ' '.join(inspect.getdoc(self).split("\n\n")[0].split())
 
     def evaluate(self, rdp):
         """ Wrapper code around each evaluation
@@ -96,6 +98,13 @@ class IsBetweenEvaluation(Evaluation):
         self.low = low
         self.high = high
 
+    @property
+    def desc(self):
+        desc = ' '.join(inspect.getdoc(self).split("\n\n")[0].split())
+        desc += " The lower bound is {} the upper bound is {}.".format(self.low,
+                                                                      self.high)
+        return desc
+
     def _evaluate(self, pid):
         evaluation = 0
         for c in self.checks:
@@ -126,6 +135,12 @@ class IsIdenticalToEvaluation(Evaluation):
         Evaluation.__init__(self, checks)
         self.comparatum = comparatum
 
+    @property
+    def desc(self):
+        desc = ' '.join(inspect.getdoc(self).split("\n\n")[0].split())
+        desc += " The comparatum is {}.".format(pformat(self.comparatum))
+        return desc
+
     def _evaluate(self, pid):
         evaluation = 0
         for c in self.checks:
@@ -150,6 +165,12 @@ class ContainsAllEvaluation(Evaluation):
         Evaluation.__init__(self, checks)
         self.items = items
 
+    @property
+    def desc(self):
+        desc = ' '.join(inspect.getdoc(self).split("\n\n")[0].split())
+        desc += " The items are {}.".format(pformat(self.items))
+        return desc
+
     def _evaluate(self, pid):
         evaluation = 0
         for c in self.checks:
@@ -169,6 +190,12 @@ class ContainsAtLeastOneEvaluation(Evaluation):
     def __init__(self, checks, items):
         Evaluation.__init__(self, checks)
         self.items = items
+
+    @property
+    def desc(self):
+        desc = ' '.join(inspect.getdoc(self).split("\n\n")[0].split())
+        desc += " The items are {}.".format(pformat(self.items))
+        return desc
 
     def _evaluate(self, pid):
         evaluation = 0
@@ -193,6 +220,12 @@ class DoesNotContainEvaluation(Evaluation):
     def __init__(self, checks, items):
         Evaluation.__init__(self, checks)
         self.items = items
+
+    @property
+    def desc(self):
+        desc = ' '.join(inspect.getdoc(self).split("\n\n")[0].split())
+        desc += " The items are {}.".format(pformat(self.items))
+        return desc
 
     def _evaluate(self, pid):
         evaluation = 0
@@ -331,6 +364,12 @@ class FunctionEvaluation(Evaluation):
     def __init__(self, checks, callback):
         Evaluation.__init__(self, checks)
         self.callback = callback
+
+    @property
+    def desc(self):
+        desc = ' '.join(inspect.getdoc(self).split("\n\n")[0].split())
+        desc += " The function's name is '{}'.".format(self.callback.__name__)
+        return desc
 
     def _evaluate(self, pid):
         return self.callback(self.checks, pid) * len(self.checks)

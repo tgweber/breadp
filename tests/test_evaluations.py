@@ -29,7 +29,6 @@ from breadp.evaluations import \
     TrueEvaluation
 
 from util import \
-    base_evaluation_test, \
     get_checks, \
     get_rdps, \
     mocked_requests_get, \
@@ -47,6 +46,7 @@ def test_evaluation():
     assert report["name"] == "Evaluation"
     assert len(report["checks"]) == 0
     assert report["desc"].startswith("Base class and interface")
+    assert '\n' not in report["desc"]
 
     e = IsBetweenEvaluation([], 1.0, 1.0)
 
@@ -61,7 +61,7 @@ def test_is_between_evaluation(mock_get, mock_head):
     checks = get_checks(rdps)
     # empty check
     e = IsBetweenEvaluation([DescriptionsNumberCheck()], 1.0, 2.0)
-    assert base_evaluation_test(e)
+    assert e.desc.endswith("The lower bound is 1.0 the upper bound is 2.0.")
     with pytest.raises(ChecksNotRunException) as cnre:
         e.evaluate(rdps[0])
         assert " has no result for " in str(cnre)
@@ -83,6 +83,7 @@ def test_is_identical_to_evaluation(mock_get, mock_head):
     rdps = get_rdps()
     checks = get_checks(rdps)
     e = IsIdenticalToEvaluation([checks["metric"]], 2)
+    assert e.desc.endswith("The comparatum is 2.")
     # one check
     assert e.evaluate(rdps[0]) == 1
     assert e.evaluate(rdps[1]) == 0
@@ -99,6 +100,7 @@ def test_contains_all_evaluation(mock_get, mock_head):
     rdps = get_rdps()
     checks = get_checks(rdps)
     e = ContainsAllEvaluation([checks["lom"]], [69,3])
+    assert e.desc.endswith("The items are [69, 3].")
     # one check
     assert e.evaluate(rdps[0]) == 1
     assert e.evaluate(rdps[1]) == 0
@@ -115,6 +117,7 @@ def test_contains_at_least_one_evaluation(mock_get, mock_head):
     rdps = get_rdps()
     checks = get_checks(rdps)
     e = ContainsAtLeastOneEvaluation([checks["lob"]], [False])
+    assert e.desc.endswith("The items are [False].")
     # one check
     assert e.evaluate(rdps[0]) == 1
     assert e.evaluate(rdps[1]) == 0
@@ -131,6 +134,7 @@ def test_does_not_contain_evaluation(mock_get, mock_head):
     rdps = get_rdps()
     checks = get_checks(rdps)
     e = DoesNotContainEvaluation([checks["string"]], ["Other"])
+    assert e.desc.endswith("The items are ['Other'].")
     # one check
     assert e.evaluate(rdps[0]) == 1
     assert e.evaluate(rdps[1]) == 0
@@ -255,6 +259,7 @@ def test_function_evaluation(mock_get, mock_head):
                 evaluation += 1/len(r1)
         return evaluation
     e = FunctionEvaluation([checks["string"], checks["lom"]], test_function)
+    assert e.desc.endswith("The function's name is 'test_function'.")
     # one check
     assert e.evaluate(rdps[0]) == 0.5
     assert e.evaluate(rdps[1]) == 0
