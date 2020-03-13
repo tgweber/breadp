@@ -65,13 +65,13 @@ class Benchmark(object):
             "evaluations": []
         }
         for e in self.evaluations:
-            add_to_report = e.report()
-            add_to_report["evaluation"] = round(e.evaluate(rdp), 10)
-            report["evaluations"].append(add_to_report)
+            if not self.skip(e, rdp):
+                add_to_report = e.report()
+                add_to_report["evaluation"] = round(e.evaluate(rdp), 10)
+                report["evaluations"].append(add_to_report)
         for c in self.checks:
             report["checks"].append(c.report(rdp.pid))
         return report
-
 
     def check_all(self, rdp):
         for c in self.checks:

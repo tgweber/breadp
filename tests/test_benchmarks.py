@@ -47,3 +47,19 @@ def test_full_benchmark(mock_get, mock_head):
     assert BPGBenchmark.score(rdps[6]) == round((26+11/28)/34, 10)
     assert BPGBenchmark.score(rdps[7]) == round((28+22/48)/34, 10)
     assert BPGBenchmark.score(rdps[8]) == round((19+20/21)/31, 10)
+
+@mock.patch('requests.head', side_effect=mocked_requests_head)
+@mock.patch('requests.get', side_effect=mocked_requests_get)
+def test_benchmark_reporting(mock_get, mock_head):
+    rdps = get_rdps()
+    BPGBenchmark.check_all(rdps[8])
+    report = BPGBenchmark.report(rdps[8])
+    for key in ("name", "version", "checks", "evaluations"):
+        assert key in report.keys()
+    assert len(report["evaluations"]) == 31
+    assert report["checks"][0]["name"] == "IsValidDoiCheck"
+    assert report["evaluations"][0]["evaluation"] == 0
+    assert report["evaluations"][2]["evaluation"] == round(2/3, 10)
+    assert report["evaluations"][5]["evaluation"] == 1
+    import pprint
+    pprint.pprint(report["evaluations"])
