@@ -65,18 +65,31 @@ BPGBenchmark = Benchmark()
 BPGBenchmark.version = "0.0.1"
 def skip(e: Evaluation, rdp: Rdp) -> bool:
     # Evaluating language make no sense for these types
-    #if type in ("Image", "PhysicalObject") and type(e) == LanguageEvaluation:
-    #    return True
+    if rdp.metadata.type in ("Image", "PhysicalObject"):
+        for c in e.checks:
+            if type(c).__name__ == "LanguageSpecifiedCheck":
+                return True
     # Version is optional
-    #if rdp.metadata.version is None and type(e) == VersionEvaluation:
-    #    return True
+    if rdp.metadata.version is None:
+        for c in e.checks:
+            if type(c).__name__ == "VersionSpecifiedCheck":
+                return True
     # Contributors are optional
-    #if len(rdp.metadata.contributors) == 0 and type(e) == ContributorEvaluation:
-    #    return True
+    if len(rdp.metadata.contributors) == 0:
+        # if the license is non-open, we need to check Rightsholder!
+        if e.report()["checks"] == ["RightsAreOpenCheck",
+                                    "ContributorsTypeCheck"]:
+            return False
+        for c in e.checks:
+            if type(c).__name__.startswith("Contributors"):
+                return True
     # Related Resources are optional
-    #if len(rdp.metadata.relatedResources) == 0 and type(e) == RelatedResourcesEvaluation:
-    #    return True
+    if len(rdp.metadata.relatedResources) == 0:
+        for c in e.checks:
+            if type(c).__name__.startswith("RelatedResource"):
+                return True
     return False
+
 BPGBenchmark.skip = skip
 
 # PID

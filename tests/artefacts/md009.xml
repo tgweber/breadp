@@ -128,10 +128,7 @@
             <date dateType="Created">2016</date>
             <date dateType="Other">2050-09-01T00:00:00</date>
           </dates>
-          <resourceType resourceTypeGeneral="Dataset">Dataset/Regional Climate Simulation</resourceType>
-          <relatedIdentifiers>
-            <relatedIdentifier relatedIdentifierType="DOI" relationType="IsDescribedBy">10.1175/JAMC-D-18-0021.1</relatedIdentifier>
-          </relatedIdentifiers>
+          <resourceType resourceTypeGeneral="Dataset">Dataset/Regional Climate Simulation</resourceType> 
           <sizes>
             <size>6197732B</size>
           </sizes>

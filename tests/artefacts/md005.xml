@@ -37,7 +37,7 @@
             <date dateType="Updated">2019-10-15</date>
             <date dateType="Updated">2019-10-25</date>
           </dates>
-          <resourceType resourceTypeGeneral="Dataset"/>
+          <resourceType resourceTypeGeneral="Image"/>
           <alternateIdentifiers>
             <alternateIdentifier alternateIdentifierType="url">https://zenodo.org/record/3490396</alternateIdentifier>
           </alternateIdentifiers>
