@@ -154,10 +154,11 @@ class Subject(object):
     uri: str
         The uri to the scheme of the subject
     """
-    def __init__(self, text, scheme=None, uri=None):
+    def __init__(self, text, scheme=None, uri=None, valueURI=None):
         self.text = text
         self.scheme = scheme
         self.uri = uri
+        self.valueURI = valueURI
 
 class PersonOrInstitution(object):
     """ Base class and interface for objects that could be listed as either
@@ -171,6 +172,7 @@ class PersonOrInstitution(object):
     def __init__(self, name, person=True):
         self.name = name
         self.person = person
+        self.type = None
 
     def __getattr__(self, name):
         return None

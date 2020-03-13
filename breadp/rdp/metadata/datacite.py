@@ -133,7 +133,8 @@ class DataCiteMetadata(OaiPmhMetadata):
                     Subject(
                         s.get("subject", s.get("#text")),
                         s.get("@subjectScheme"),
-                        s.get("@schemeURI")
+                        s.get("@schemeURI"),
+                        s.get("@valueURI")
                     )
                 )
         return self._subjects
@@ -208,17 +209,23 @@ class DataCiteMetadata(OaiPmhMetadata):
                 dates = [ dates ]
             for d in dates:
                 if isinstance(d, str):
-                    self._dates.append((Date(d)))
+                    try:
+                        self._dates.append((Date(d)))
+                    except ValueError as ve:
+                        pass
                 if isinstance(d, OrderedDict):
                     if d.get("date") is None:
                         d["date"] = d["#text"]
-                    self._dates.append(
-                        Date(
-                            d["date"],
-                            d.get("@dateType"),
-                            d.get("@dateInformation")
+                    try:
+                        self._dates.append(
+                            Date(
+                                d["date"],
+                                d.get("@dateType"),
+                                d.get("@dateInformation")
+                            )
                         )
-                    )
+                    except ValueError as ve:
+                        pass
         return self._dates
 
     @property
@@ -264,7 +271,9 @@ def create_personOrInstitution_object_from_OrderedDict(p):
     nameField = p.get("creatorName", p.get("contributorName", None))
     if isinstance(nameField, OrderedDict):
         if nameField.get("@nameType", None) == "Organizational":
-            return PersonOrInstitution(nameField["#text"], False)
+            inst = PersonOrInstitution(nameField["#text"], False)
+            inst.type = p.get("@contributorType")
+            return inst
         # after this p is considered to be a person
         else:
             name = nameField.get("#text",

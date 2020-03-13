@@ -233,6 +233,10 @@ def test_rdp_zenodo_subjects(mock_get):
     assert rdp.metadata.subjects[0].scheme is None
     assert rdp.metadata.subjects[0].text == "datacite"
 
+    rdp = RdpFactory.create("10.5281/zenodo.goodex1", "zenodo", token="123")
+    assert len(rdp.metadata.subjects) == 15
+    assert rdp.metadata.subjects[3].valueURI == "https://www.wikidata.org/wiki/Q846047"
+
 @mock.patch('requests.get', side_effect=mocked_requests_get)
 def test_rdp_zenodo_creators(mock_get):
     rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
@@ -309,6 +313,10 @@ def test_rdp_zenodo_contributors(mock_get):
 
     rdp = RdpFactory.create("10.5281/zenodo.badex1", "zenodo", token="123")
     assert len(rdp.metadata.contributors) == 0
+
+    rdp = RdpFactory.create("10.5281/zenodo.badex3", "zenodo", token="123")
+    assert rdp.metadata.contributors[0].type == "RightsHolder"
+    assert rdp.metadata.contributors[1].type == "HostingInstitution"
 
 @mock.patch('requests.get', side_effect=mocked_requests_get)
 def test_rdp_zenodo_publicationYear(mock_get):
@@ -410,6 +418,7 @@ def test_rdp_related_resources(mock_get):
 
     rdp = RdpFactory.create("10.5281/zenodo.badex5", "zenodo", token="123")
     assert len(rdp.metadata.relatedResources) == 1
+
 
 @mock.patch('requests.get', side_effect=mocked_requests_get)
 def test_rdp_zenodo_data(mock_get):

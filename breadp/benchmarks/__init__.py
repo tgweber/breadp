@@ -66,7 +66,7 @@ class Benchmark(object):
         }
         for e in self.evaluations:
             add_to_report = e.report()
-            add_to_report["evaluation"] = e.evaluate(rdp)
+            add_to_report["evaluation"] = round(e.evaluate(rdp), 10)
             report["evaluations"].append(add_to_report)
         for c in self.checks:
             report["checks"].append(c.report(rdp.pid))
@@ -88,4 +88,4 @@ class Benchmark(object):
                 continue
             numberOfEvalutations+= 1
             score += e.evaluate(rdp)
-        return score/numberOfEvalutations
+        return round(score/numberOfEvalutations, 10)

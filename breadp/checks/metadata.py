@@ -235,9 +235,11 @@ class FormatsAreValidMediaTypeCheck(Check):
             'mediatypes.csv'
         )
         iana = pd.read_csv(iana_file_path)
-        msg = "No formats found!"
+        if len(rdp.metadata.formats) == 0:
+            msg = "No formats found!"
+        else:
+            msg= ""
         for f in rdp.metadata.formats:
-            msg = ""
             if f not in iana.Template.tolist():
                 msg += "{} is not a valid format ".format(f)
                 valid.append(False)
@@ -421,10 +423,11 @@ class SubjectsHaveWikidataKeywordsCheck(Check):
     def _do_check(self, rdp):
         for so in rdp.metadata.subjects:
             if str(so.uri).startswith("https://www.wikidata.org/wiki"):
-                if re.match("q\d+", str(so.text), re.IGNORECASE):
-                    return (True, BooleanResult(
-                        True, "{} is a wikidata keyword ".format(so.text))
-                    )
+                for value in (str(so.text), str(so.valueURI)):
+                    if re.match("q\d+$", value.split("/")[-1], re.IGNORECASE):
+                        return (True, BooleanResult(
+                            True, "{} is a wikidata keyword ".format(so.text))
+                        )
         return (True, BooleanResult(False, "No wikidata keyword found"))
 
 class CreatorsOrcidCheck(Check):
@@ -479,7 +482,7 @@ class CreatorsContainInstitutionsCheck(Check):
     Methods
     -------
     _do_check(self, rdp)
-        returns a BooleanResult, indicating whether an institution is part of the creators.
+        returns a ListResult, indicating whether the contributors are an institution.
 
     """
     def __init__(self):
@@ -488,12 +491,15 @@ class CreatorsContainInstitutionsCheck(Check):
         self.version = "0.0.1"
 
     def _do_check(self, rdp):
-        if len(rdp.metadata.creators) < 1:
-            return (False, BooleanResult(False, "no creators"))
+        instiutions = []
+        success = False
         for po in rdp.metadata.creators:
-            if not po.person:
-                return(True, BooleanResult(True, "{} is an institution".format(po.name)))
-        return (True, BooleanResult(False, ""))
+            success = True
+            if po.person:
+                instiutions.append(False)
+            else:
+                instiutions.append(True)
+        return (success, ListResult(instiutions, ""))
 
 class SizesNumberCheck(Check):
     """ Checks the number of size specifications
@@ -658,12 +664,15 @@ class ContributorsContainInstitutionsCheck(Check):
         self.version = "0.0.1"
 
     def _do_check(self, rdp):
-        if len(rdp.metadata.contributors) < 1:
-            return (False, BooleanResult(None, "no contributors"))
+        instiutions = []
+        success = False
         for po in rdp.metadata.contributors:
-            if not po.person:
-                return(True, BooleanResult(True, "{} is an institution".format(po.name)))
-        return (True, BooleanResult(False, ""))
+            success = True
+            if po.person:
+                instiutions.append(False)
+            else:
+                instiutions.append(True)
+        return (success, ListResult(instiutions, ""))
 
 class ContributorsTypeCheck(Check):
     """ Checks whether the type of the contributors
@@ -859,6 +868,6 @@ def rights_are_open(ro):
     if ro.spdx is not None and re.match("CC-(0|BY-\d\.\d|BY-SA-\d\-\d)", ro.spdx):
         return True
     if ro.uri is not None and \
-       re.match("https://creativecommons.org/(publicdomain.*|licenses/(by|by-sa)/\d\.\d)", ro.uri):
+       re.match("https{0,1}://creativecommons.org/(publicdomain.*|licenses/(by|by-sa)/\d\.\d)/{0,1}", ro.uri):
         return True
     return False

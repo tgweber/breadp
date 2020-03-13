@@ -40,4 +40,11 @@ def test_full_benchmark(mock_get, mock_head):
         BPGBenchmark.check_all(rdp)
     assert BPGBenchmark.score(rdps[0]) == 1
     assert BPGBenchmark.score(rdps[1]) == 0
+    assert BPGBenchmark.score(rdps[2]) == round((487/30)/34, 10)
+    assert BPGBenchmark.score(rdps[3]) == round(16.5/34, 10)
+    assert BPGBenchmark.score(rdps[4]) == round(12.4/34, 10)
+    assert BPGBenchmark.score(rdps[5]) == round(14/34, 10)
+    assert BPGBenchmark.score(rdps[6]) == round((26+11/28)/34, 10)
+    assert BPGBenchmark.score(rdps[7]) == round((28+22/48)/34, 10)
+    assert BPGBenchmark.score(rdps[8]) == round((21+20/21)/34, 10)
 

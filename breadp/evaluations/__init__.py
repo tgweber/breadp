@@ -264,6 +264,21 @@ class TheMoreTrueTheBetterEvaluation(Evaluation):
                         evaluation += 1/len(result.outcome)
         return evaluation
 
+class TheMoreFalseTheBetterEvaluation(Evaluation):
+    """ Each check's result adds (#False/len(result))*1/#checks to the score.
+
+        Note: Adds 0 when the check's result is not of type ListResult (or empty)
+    """
+    def _evaluate(self, pid):
+        evaluation = 0
+        for c in self.checks:
+            result = c.get_last_result(pid)
+            if isinstance(result, ListResult) and len(result.outcome) > 0:
+                for item in result.outcome:
+                    if isinstance(item, bool) and not item:
+                        evaluation += 1/len(result.outcome)
+        return evaluation
+
 class ContainsItemExactlyNTimesEvaluation(Evaluation):
     """ Each check's result in which the item occurrs exactly n times
         adds 1/#checks to the score.

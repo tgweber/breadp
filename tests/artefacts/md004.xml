@@ -33,7 +33,7 @@
           </subjects>
           <contributors>
               <contributor contributorType="RightsHolder">
-                  <contributorName>Christina Hammock Koch</contributorName>
+                  <contributorName>Hammock Koch, Christina</contributorName>
                   <nameIdentifier 
                       nameIdentifierScheme="wikidata"
                       schemeURI="https://www.wikidata.org/wiki/"
@@ -41,7 +41,7 @@
                       Q13500192
                   </nameIdentifier>
               </contributor>
-              <contributor contributorType="HostingInstiutiion">
+              <contributor contributorType="HostingInstitution">
                   <contributorName nameType="Organizational">LRZ</contributorName>
               </contributor>
           </contributors>

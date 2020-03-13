@@ -54,6 +54,18 @@ def mocked_requests_get(*args, **kwargs):
         with open("./tests/artefacts/md006.xml", "rb") as f:
             content = f.read()
         return _MockResponse(content, 200)
+    elif args[0] == "https://zenodo.org/oai2d" and args[1]["identifier"] == "oai:zenodo.org:goodex1":
+        with open("./tests/artefacts/md007.xml", "rb") as f:
+            content = f.read()
+        return _MockResponse(content, 200)
+    elif args[0] == "https://zenodo.org/oai2d" and args[1]["identifier"] == "oai:zenodo.org:goodex2":
+        with open("./tests/artefacts/md008.xml", "rb") as f:
+            content = f.read()
+        return _MockResponse(content, 200)
+    elif args[0] == "https://zenodo.org/oai2d" and args[1]["identifier"] == "oai:zenodo.org:goodex3":
+        with open("./tests/artefacts/md009.xml", "rb") as f:
+            content = f.read()
+        return _MockResponse(content, 200)
     elif args[0] == "https://zenodo.org/api/deposit/depositions/3490396/files":
         with open("./tests/artefacts/zenodo001.json", "r") as f:
             content = json.load(f)
@@ -73,7 +85,9 @@ def mocked_requests_head(*args, **kwargs):
     elif args[0] == "https://doi.org/10.123/zenodo.3490396-exception" or \
         args[0] == "https://somethingwentterriblywrong.com":
         raise Exception("Something went terribly wrong")
-    elif args[0] == "http://creativecommons.org/licenses/by/4.0/legalcode":
+    elif args[0] == "http://creativecommons.org/licenses/by/4.0/legalcode" or \
+            args[0] == "https://creativecommons.org/licenses/by-sa/4.0/legalcode" or \
+            args[0] == "http://creativecommons.org/licenses/by-sa/4.0/":
         return _MockResponse("Some License text", 200)
     return _MockResponse(None, 404)
 
@@ -108,7 +122,10 @@ def get_rdps():
         RdpFactory.create("10.123/zenodo.badex2", "zenodo", token="123"),
         RdpFactory.create("10.123/zenodo.badex3", "zenodo", token="123"),
         RdpFactory.create("10.123/zenodo.badex4", "zenodo", token="123"),
-        RdpFactory.create("10.123/zenodo.badex5", "zenodo", token="123")
+        RdpFactory.create("10.123/zenodo.badex5", "zenodo", token="123"),
+        RdpFactory.create("10.123/zenodo.goodex1", "zenodo", token="123"),
+        RdpFactory.create("10.123/zenodo.goodex2", "zenodo", token="123"),
+        RdpFactory.create("10.123/zenodo.goodex3", "zenodo", token="123")
     ]
 
 def get_checks(rdps):

@@ -524,6 +524,11 @@ def test_subjects_have_wikidata_keywords_check(mock_get):
     assert check.log.get_by_pid(rdp.pid)[-1].success
     assert not check.get_last_result(rdp.pid).outcome
 
+    rdp = RdpFactory.create("10.5281/zenodo.goodex1", "zenodo", token="123")
+    check.check(rdp)
+    assert check.log.get_by_pid(rdp.pid)[-1].success
+    assert check.get_last_result(rdp.pid).outcome
+
 def test_is_valid_orcid():
     assert is_valid_orcid("0000-0003-1815-7041")
     assert not is_valid_orcid("0000-0003-1815-7042")
@@ -596,7 +601,7 @@ def test_creators_contain_institutions_check(mock_get):
     rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
     check.check(rdp)
     assert check.log.get_by_pid(rdp.pid)[-1].success
-    assert not check.get_last_result(rdp.pid).outcome
+    assert not check.get_last_result(rdp.pid).outcome[0]
 
     rdp = RdpFactory.create("10.5281/zenodo.badex1", "zenodo", token="123")
     check.check(rdp)
@@ -605,8 +610,8 @@ def test_creators_contain_institutions_check(mock_get):
     rdp = RdpFactory.create("10.5281/zenodo.badex3", "zenodo", token="123")
     check.check(rdp)
     assert check.log.get_by_pid(rdp.pid)[-1].success
-    assert check.get_last_result(rdp.pid).outcome
-    assert check.get_last_result(rdp.pid).msg == "Leibniz Rechenzentrum is an institution"
+    assert not check.get_last_result(rdp.pid).outcome[0]
+    assert check.get_last_result(rdp.pid).outcome[1]
 
 @mock.patch('requests.get', side_effect=mocked_requests_get)
 def test_sizes_number_check(mock_get):
@@ -743,7 +748,8 @@ def test_contributors_contain_institutions_check(mock_get):
     rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
     check.check(rdp)
     assert check.log.get_by_pid(rdp.pid)[-1].success
-    assert not check.get_last_result(rdp.pid).outcome
+    assert not check.get_last_result(rdp.pid).outcome[0]
+    assert not check.get_last_result(rdp.pid).outcome[1]
 
     rdp = RdpFactory.create("10.5281/zenodo.badex1", "zenodo", token="123")
     check.check(rdp)
@@ -752,7 +758,8 @@ def test_contributors_contain_institutions_check(mock_get):
     rdp = RdpFactory.create("10.5281/zenodo.badex3", "zenodo", token="123")
     check.check(rdp)
     assert check.log.get_by_pid(rdp.pid)[-1].success
-    assert check.get_last_result(rdp.pid).outcome
+    assert not check.get_last_result(rdp.pid).outcome[0]
+    assert check.get_last_result(rdp.pid).outcome[1]
 
 @mock.patch('requests.get', side_effect=mocked_requests_get)
 def test_contributors_type_check(mock_get):
@@ -763,6 +770,7 @@ def test_contributors_type_check(mock_get):
     rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
     check.check(rdp)
     assert check.log.get_by_pid(rdp.pid)[-1].success
+    assert len(check.get_last_result(rdp.pid).outcome) == 2
     assert check.get_last_result(rdp.pid).outcome[0] == "ContactPerson"
     assert check.get_last_result(rdp.pid).outcome[1] == "ProjectMember"
 
@@ -774,12 +782,15 @@ def test_contributors_type_check(mock_get):
     rdp = RdpFactory.create("10.5281/zenodo.badex2", "zenodo", token="123")
     check.check(rdp)
     assert check.log.get_by_pid(rdp.pid)[-1].success
+    assert len(check.get_last_result(rdp.pid).outcome) == 1
     assert check.get_last_result(rdp.pid).outcome[0] == "Editor"
 
     rdp = RdpFactory.create("10.5281/zenodo.badex3", "zenodo", token="123")
     check.check(rdp)
+    assert len(check.get_last_result(rdp.pid).outcome) == 2
     assert check.log.get_by_pid(rdp.pid)[-1].success
     assert check.get_last_result(rdp.pid).outcome[0] == "RightsHolder"
+    assert check.get_last_result(rdp.pid).outcome[1] == "HostingInstitution"
 
 @mock.patch('requests.get', side_effect=mocked_requests_get)
 def test_publicationYear_check(mock_get):

@@ -57,6 +57,7 @@ from breadp.evaluations import \
     IsBetweenEvaluation, \
     IsIdenticalToEvaluation, \
     TheMoreTrueTheBetterEvaluation, \
+    TheMoreFalseTheBetterEvaluation, \
     TrueEvaluation
 from breadp.rdp import Rdp
 
@@ -94,7 +95,9 @@ BPGBenchmark.add_evaluation(
 BPGBenchmark.add_evaluation(
     TheMoreTrueTheBetterEvaluation([creatorsFamilyAndGivenNameCheck])
 )
-BPGBenchmark.add_evaluation(FalseEvaluation([creatorsContainInstitutionsCheck]))
+BPGBenchmark.add_evaluation(
+    TheMoreFalseTheBetterEvaluation([creatorsContainInstitutionsCheck])
+)
 
 # TITLE
 titlesJustAFileNameCheck = TitlesJustAFileNameCheck()
@@ -131,13 +134,55 @@ contributorsOrcidCheck = ContributorsOrcidCheck()
 contributorsFamilyAndGivenNameCheck = ContributorsFamilyAndGivenNameCheck()
 contributorsContainInstitutionsCheck = ContributorsContainInstitutionsCheck()
 contributorsTypeCheck = ContributorsTypeCheck()
+def allow_person_related_tests_to_be_skipped(checks, pid):
+    evaluation = 0
+    isInstitution = checks[0].get_last_result(pid).outcome
+    booleanCheckResult = checks[1].get_last_result(pid).outcome
+    newTotal = isInstitution.count(False)
+    for idx, inst in enumerate(isInstitution):
+        if inst:
+            continue
+        if booleanCheckResult[idx]:
+            evaluation += 1/newTotal
+    return evaluation
 BPGBenchmark.add_evaluation(
-    TheMoreTrueTheBetterEvaluation([contributorsOrcidCheck])
+    FunctionEvaluation(
+        [
+            contributorsContainInstitutionsCheck,
+            contributorsOrcidCheck
+        ],
+        allow_person_related_tests_to_be_skipped
+    )
 )
 BPGBenchmark.add_evaluation(
-    TheMoreTrueTheBetterEvaluation([contributorsFamilyAndGivenNameCheck])
+    FunctionEvaluation(
+        [
+            contributorsContainInstitutionsCheck,
+            contributorsFamilyAndGivenNameCheck
+        ],
+        allow_person_related_tests_to_be_skipped
+    )
 )
-BPGBenchmark.add_evaluation(FalseEvaluation([contributorsContainInstitutionsCheck]))
+def allow_type_to_enforce_institution(checks, pid):
+    evaluation = 0
+    isInstitution = checks[0].get_last_result(pid).outcome
+    contributorTypes  = checks[1].get_last_result(pid).outcome
+    for idx, inst in enumerate(isInstitution):
+        if inst:
+            if contributorTypes[idx] == "HostingInstitution":
+                evaluation += 1/len(isInstitution)
+        else:
+            evaluation += 1/len(isInstitution)
+    return evaluation
+BPGBenchmark.add_evaluation(
+    FunctionEvaluation(
+        [
+            contributorsContainInstitutionsCheck,
+            contributorsTypeCheck
+        ],
+        allow_type_to_enforce_institution
+    )
+)
 BPGBenchmark.add_evaluation(
     InListEvaluation(
         [contributorsTypeCheck],

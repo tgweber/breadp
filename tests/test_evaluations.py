@@ -24,6 +24,7 @@ from breadp.evaluations import \
     InListEvaluation, \
     IsBetweenEvaluation, \
     IsIdenticalToEvaluation, \
+    TheMoreFalseTheBetterEvaluation, \
     TheMoreTrueTheBetterEvaluation, \
     TrueEvaluation
 
@@ -187,6 +188,22 @@ def test_the_more_true_the_better_evaluation(mock_get, mock_head):
     assert e.evaluate(rdps[0]) == 0
     assert e.evaluate(rdps[1]) == 0
     assert e.evaluate(rdps[2]) == round(1/5, 10)
+
+@mock.patch('requests.get', side_effect=mocked_requests_get)
+@mock.patch('requests.head', side_effect=mocked_requests_head)
+def test_the_more_false_the_better_evaluation(mock_get, mock_head):
+    rdps = get_rdps()
+    checks = get_checks(rdps)
+    e = TheMoreFalseTheBetterEvaluation([checks["lob"]])
+    # one check
+    assert e.evaluate(rdps[0]) == 1
+    assert e.evaluate(rdps[1]) == 0
+    assert e.evaluate(rdps[2]) == 0
+    # multiple checks
+    e = TheMoreFalseTheBetterEvaluation(checks.values())
+    assert e.evaluate(rdps[0]) == 0.2
+    assert e.evaluate(rdps[1]) == 0
+    assert e.evaluate(rdps[2]) == 0
 
 @mock.patch('requests.get', side_effect=mocked_requests_get)
 @mock.patch('requests.head', side_effect=mocked_requests_head)
