@@ -133,17 +133,14 @@ class ZenodoRestService(Service):
     ---------
     endpoint: str
         URL indicating the endpoint of the service
-    token: str
-        Token to authenticate the client against the zenodo API
 
     Methods
     -------
     get_files(zenodo_Id) -> Generator[Data, None, None]
         Yields all Data objects of the RDP retrievable by the zenodo API
     """
-    def __init__(self, endpoint, token):
+    def __init__(self, endpoint):
         super(ZenodoRestService, self).__init__(endpoint)
-        self.token = token
 
     @property
     def protocol(self):
@@ -162,9 +159,12 @@ class ZenodoRestService(Service):
         Data
             Data objects for an RDP
         """
-        params = {
-            'access_token': self.token
-        }
-        r = requests.get("{}/{}/files".format(self.endpoint, zenodoId), params)
-        for data_item in r.json():
-            yield DataFactory.create(data_item["links"]["download"])
+        r = requests.get("{}/records/?q=recid:{}".format(self.endpoint, zenodoId))
+        restJson = r.json()
+        # TODO caching
+        if not "hits" in restJson.keys():
+            raise ValueError("{} does not seem to be a valid zenodoId".format(zenodoId))
+        if restJson["hits"]["total"] != 1:
+            raise ValueError("{} does not unambiguously identify a zenodo record".format(zenodoId))
+        for data_item in restJson["hits"]["hits"][0]["files"]:
+            yield DataFactory.create(data_item["links"]["self"])

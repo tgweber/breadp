@@ -84,7 +84,7 @@ class RdpFactory(object):
             Further optional arguments
         """
         if rdpType == "zenodo":
-            return ZenodoRdp(pid, kwargs["token"])
+            return ZenodoRdp(pid)
         else:
             return Rdp(pid)
 
@@ -99,7 +99,7 @@ class ZenodoRdp(Rdp):
     The ZenodoRDP is initiated with an OAI-PMH and an Zenodo REST-API service.
 
     """
-    def __init__(self, pid, token):
+    def __init__(self, pid):
        super(ZenodoRdp, self).__init__(pid)
        self.zenodo_id = self.pid.split(".")[-1]
        self._services.put(
@@ -107,7 +107,7 @@ class ZenodoRdp(Rdp):
            OaipmhService("https://zenodo.org/oai2d", "oai:zenodo.org:"))
        self._services.put(
            "zenodo-rest-api",
-           ZenodoRestService("https://zenodo.org/api/deposit/depositions", token)
+           ZenodoRestService("https://zenodo.org/api")
        )
 
     @property

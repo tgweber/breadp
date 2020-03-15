@@ -23,8 +23,8 @@ from util import mocked_requests_get, mocked_requests_head, get_rdps
 def test_benchmark(mock_get, mock_head):
     b = Benchmark()
     c1 = DescriptionsNumberCheck()
-    rdp1 = RdpFactory.create("10.5281/zenodo.3490396", "zenodo", token="123")
-    rdp2 = RdpFactory.create("10.5281/zenodo.badex1", "zenodo", token="123")
+    rdp1 = RdpFactory.create("10.5281/zenodo.3490396", "zenodo")
+    rdp2 = RdpFactory.create("10.5281/zenodo.badex1", "zenodo")
     c1.check(rdp1)
     c1.check(rdp2)
     b.add_evaluation(IsBetweenEvaluation([c1], 1, 100))
@@ -47,6 +47,9 @@ def test_full_benchmark(mock_get, mock_head):
     assert BPGBenchmark.score(rdps[6]) == round((26+11/28)/34, 10)
     assert BPGBenchmark.score(rdps[7]) == round((28+22/48)/34, 10)
     assert BPGBenchmark.score(rdps[8]) == round((19+20/21)/31, 10)
+    import pprint
+    #pprint.pprint(BPGBenchmark.report(rdps[8]))
+    assert BPGBenchmark.score(rdps[9]) == round(26.5/34, 10)
 
 @mock.patch('requests.head', side_effect=mocked_requests_head)
 @mock.patch('requests.get', side_effect=mocked_requests_get)
