@@ -12,46 +12,52 @@ import pytest
 import re
 from unittest import mock
 
-from util import mocked_requests_get, mocked_requests_head, base_init_check_test
+from util import \
+    base_init_check_test, \
+    get_rdps, \
+    mocked_requests_get, \
+    mocked_requests_head
 from breadp.checks import Check
 from breadp.checks.pid import IsValidDoiCheck, DoiResolvesCheck
 from breadp.checks.metadata import \
-        CreatorsContainInstitutionsCheck, \
-        CreatorsOrcidCheck, \
-        CreatorsFamilyAndGivenNameCheck, \
-        ContributorsContainInstitutionsCheck, \
-        ContributorsOrcidCheck, \
-        ContributorsFamilyAndGivenNameCheck, \
-        ContributorsTypeCheck, \
-        DatesTypeCheck, \
-        DatesInformationCheck, \
-        DatesIssuedYearCheck, \
-        DescriptionsNumberCheck, \
-        DescriptionsLanguageCheck, \
-        DescriptionsLengthCheck, \
-        DescriptionsTypeCheck, \
-        FormatsAreValidMediaTypeCheck, \
-        is_valid_orcid, \
-        LanguageSpecifiedCheck, \
-        PublicationYearCheck, \
-        RelatedResourceTypeCheck, \
-        RelatedResourceMetadataCheck, \
-        rights_are_open, \
-        RightsAreOpenCheck, \
-        RightsHaveValidSPDXIdentifierCheck, \
-        RightsHasAtLeastOneLicenseCheck, \
-        SizesNumberCheck, \
-        SizesByteSizeCheck, \
-        SubjectsAreQualifiedCheck, \
-        SubjectsHaveDdcCheck, \
-        SubjectsHaveWikidataKeywordsCheck, \
-        SubjectsNumberCheck, \
-        TitlesJustAFileNameCheck, \
-        TitlesLanguageCheck, \
-        TitlesLengthCheck, \
-        TitlesNumberCheck, \
-        TitlesTypeCheck, \
-        VersionSpecifiedCheck
+    CreatorsContainInstitutionsCheck, \
+    CreatorsOrcidCheck, \
+    CreatorsFamilyAndGivenNameCheck, \
+    ContributorsContainInstitutionsCheck, \
+    ContributorsOrcidCheck, \
+    ContributorsFamilyAndGivenNameCheck, \
+    ContributorsTypeCheck, \
+    DatesTypeCheck, \
+    DatesInformationCheck, \
+    DatesIssuedYearCheck, \
+    DescriptionsNumberCheck, \
+    DescriptionsLanguageCheck, \
+    DescriptionsLengthCheck, \
+    DescriptionsTypeCheck, \
+    FormatsAreValidMediaTypeCheck, \
+    is_valid_orcid, \
+    LanguageSpecifiedCheck, \
+    PublicationYearCheck, \
+    RelatedResourceTypeCheck, \
+    RelatedResourceMetadataCheck, \
+    rights_are_open, \
+    RightsAreOpenCheck, \
+    RightsHaveValidSPDXIdentifierCheck, \
+    RightsHasAtLeastOneLicenseCheck, \
+    SizesNumberCheck, \
+    SizesByteSizeCheck, \
+    SubjectsAreQualifiedCheck, \
+    SubjectsHaveDdcCheck, \
+    SubjectsHaveWikidataKeywordsCheck, \
+    SubjectsNumberCheck, \
+    TitlesJustAFileNameCheck, \
+    TitlesLanguageCheck, \
+    TitlesLengthCheck, \
+    TitlesNumberCheck, \
+    TitlesTypeCheck, \
+    VersionSpecifiedCheck
+from breadp.checks.data import \
+        PdfMetadataCheck
 from breadp.rdp import RdpFactory, Rdp
 from breadp.rdp.metadata import Rights
 
@@ -932,13 +938,5 @@ def test_related_resource_has_metadata_check(mock_get):
 
 @mock.patch('requests.get', side_effect=mocked_requests_get)
 def test_rdp_zenodo_data(mock_get):
-    rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo")
-    assert len(rdp.data) == 2
-
-    rdp = RdpFactory.create("10.5281/zenodo.badex3", "zenodo")
-    assert rdp.metadata.type == "Text"
-
-@mock.patch('requests.get', side_effect=mocked_requests_get)
-def test_rdp_zenodo_data(mock_get):
-    rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo")
-    assert len(rdp.data) == 1
+    rdps = get_rdps()
+    assert len(rdps[0].data) == 1

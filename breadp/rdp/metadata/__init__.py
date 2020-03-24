@@ -247,7 +247,7 @@ def parseDateString(dateString):
     # Remedy for "+/-%H:%S" time zone formatting
     # adapted version from https://stackoverflow.com/a/45300534
     # Should become superfluous if Python version is >= 3.7
-    if re.match(".*(\+|-)\d{1,2}:\d\d$", dateString):
+    if re.match(r".*(\+|-)\d{1,2}:\d\d$", dateString):
         # drop the colon
         dateString = dateString[:-3] + dateString[-2:]
     formats = ("%Y", "%Y-%m", "%Y-%m-%d", "%Y-%m-%dT%H:%M%z", "%Y-%m-%dT%H:%M:%S%z")

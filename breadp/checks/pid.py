@@ -30,7 +30,7 @@ class IsValidDoiCheck(Check):
         if not rdp.pid:
             msg = "RDP has no PID"
             return(False, BooleanResult(False, msg))
-        if re.match("^10\.\d{4}\d*/.*", rdp.pid):
+        if re.match(r"^10\.\d{4}\d*/.*", rdp.pid):
             return (True, BooleanResult(True, ""))
         msg = "{} is not a valid DOI".format(rdp.pid)
         return (True, BooleanResult(False, msg))

@@ -184,7 +184,7 @@ class TitlesJustAFileNameCheck(Check):
             msg = "No titles retrievable"
         for t in rdp.metadata.titles:
             msg = ""
-            if re.match("^\s*\S+\.\S+\s*$", t.text):
+            if re.match(r"^\s*\S+\.\S+\s*$", t.text):
                 msg += "{} is probably just a file name;".format(t.text)
                 bools.append(True)
             else:
@@ -399,7 +399,7 @@ class SubjectsHaveDdcCheck(Check):
         for so in rdp.metadata.subjects:
             if re.match("^(ddc|dewey)|ddc$", str(so.scheme), re.IGNORECASE) \
               or "dewey.info" in str(so.uri):
-                if re.match("^\d\d\d", so.text):
+                if re.match(r"^\d\d\d", so.text):
                     return (True, BooleanResult(
                         True,
                         "{} is a DDC field of study specificiation".format(so.text))
@@ -424,7 +424,7 @@ class SubjectsHaveWikidataKeywordsCheck(Check):
         for so in rdp.metadata.subjects:
             if str(so.uri).startswith("https://www.wikidata.org/wiki"):
                 for value in (str(so.text), str(so.valueURI)):
-                    if re.match("q\d+$", value.split("/")[-1], re.IGNORECASE):
+                    if re.match(r"q\d+$", value.split("/")[-1], re.IGNORECASE):
                         return (True, BooleanResult(
                             True, "{} is a wikidata keyword ".format(so.text))
                         )
@@ -539,7 +539,7 @@ class SizesByteSizeCheck(Check):
         msg = "no sizes specified"
         for s in rdp.metadata.sizes:
             msg = ""
-            if re.match("^\d+\s*(k|m|g|t|p|e|z|y){0,1}b$", s, re.IGNORECASE):
+            if re.match(r"^\d+\s*(k|m|g|t|p|e|z|y){0,1}b$", s, re.IGNORECASE):
                 valid.append(True)
             else:
                 valid.append(False)
@@ -562,7 +562,7 @@ class VersionSpecifiedCheck(Check):
     def _do_check(self, rdp):
         if rdp.metadata.version is None:
             return(False, BooleanResult(False, "no version specified"))
-        if re.match("^\d+\.\d+\.\d+(-\S+){0,1}$", rdp.metadata.version):
+        if re.match(r"^\d+\.\d+\.\d+(-\S+){0,1}$", rdp.metadata.version):
             return (True, BooleanResult(True, ""))
         return(True, BooleanResult(False,
                                    "'{}' is not in semantic versioning format".format(
@@ -831,7 +831,7 @@ def is_valid_orcid(orcid):
     """ returns True when the given str is a valid orcid and the checksum test succeeds
     """
     # Test format
-    if not re.match("^\d\d\d\d-\d\d\d\d-\d\d\d\d-\d\d\d(\d|X)", orcid):
+    if not re.match(r"^\d\d\d\d-\d\d\d\d-\d\d\d\d-\d\d\d(\d|X)", orcid):
         return False
     # Test checksum
     total = 0
@@ -865,9 +865,9 @@ def rights_are_open(ro):
         not restricted in a way that necessitates interation with the rights
         holder. False otherwise (also if rights object is unknown).
     """
-    if ro.spdx is not None and re.match("CC-(0|BY-\d\.\d|BY-SA-\d\-\d)", ro.spdx):
+    if ro.spdx is not None and re.match(r"CC-(0|BY-\d\.\d|BY-SA-\d\-\d)", ro.spdx):
         return True
     if ro.uri is not None and \
-       re.match("https{0,1}://creativecommons.org/(publicdomain.*|licenses/(by|by-sa)/\d\.\d)/{0,1}", ro.uri):
+       re.match(r"https{0,1}://creativecommons.org/(publicdomain.*|licenses/(by|by-sa)/\d\.\d)/{0,1}", ro.uri):
         return True
     return False

@@ -1,5 +1,6 @@
 pandas
 pytest
 pytest-cov
+requests
 xmltodict
 git+https://github.com/Mimino666/langdetect
