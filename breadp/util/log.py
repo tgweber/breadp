@@ -30,6 +30,7 @@ class LogEntry(object):
         self.end = end
         self.version = version
         self.pid = pid
+        # TODO refactor msg to result!
         self.msg = msg
 
 class CheckLogEntry(LogEntry):

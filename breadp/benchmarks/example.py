@@ -59,7 +59,7 @@ from breadp.evaluations import \
     TheMoreTrueTheBetterEvaluation, \
     TheMoreFalseTheBetterEvaluation, \
     TrueEvaluation
-from breadp.rdp import Rdp
+from rdp import Rdp
 
 BPGBenchmark = Benchmark()
 BPGBenchmark.version = "0.0.1"

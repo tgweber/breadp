@@ -42,6 +42,7 @@ class Evaluation(object):
         self.checks = checks
 
     @property
+    # TODO: Refactor desc -> description
     def desc(self):
         return ' '.join(inspect.getdoc(self).split("\n\n")[0].split())
 
@@ -66,6 +67,7 @@ class Evaluation(object):
                 )
             if not c.log.get_by_pid(rdp.pid)[-1].success:
                 return 0
+        # TODO add 10 to documentation!
         return round(self._evaluate(rdp.pid)/len(self.checks), 10)
 
     def report(self):

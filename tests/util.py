@@ -17,7 +17,7 @@ from breadp.checks.metadata import \
     DescriptionsLengthCheck, \
     DescriptionsTypeCheck, \
     TitlesJustAFileNameCheck
-from breadp.rdp import RdpFactory, Rdp
+from rdp import RdpFactory, Rdp
 
 class _MockResponse:
     def __init__(self, content, status_code, headers = {}):
@@ -30,6 +30,7 @@ class _MockResponse:
 
 # Prepare Mock responses for the tests
 def mocked_requests_get(*args, **kwargs):
+    print(args[0])
     if args[0] == "https://zenodo.org/oai2d" and args[1]["identifier"] == "oai:zenodo.org:3490396":
         with open("./tests/artefacts/md001.xml", "rb") as f:
             content = f.read()
@@ -74,8 +75,8 @@ def mocked_requests_get(*args, **kwargs):
         with open("./tests/artefacts/zenodo001.json", "r") as f:
             content = json.load(f)
         return _MockResponse(content, 200)
-    elif args[0] == "https://zenodo.org/api/files/abc/s_data_vectorized.csv":
-        with open("./tests/artefacts/d001.csv", "rb") as f:
+    elif args[0] == "https://zenodo.org/api/files/7c4aaea9-0290-47ab-90e6-f5570ddcc0a8/md001.pdf":
+        with open("./tests/artefacts/md001.pdf", "rb") as f:
             content = f.read()
         return _MockResponse(content, 200)
     return _MockResponse(None, 404)

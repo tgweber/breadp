@@ -69,13 +69,13 @@
                 "files": [
                     {
                         "bucket": "7c4aaea9-0290-47ab-90e6-f5570ddcc0a8",
-                        "checksum": "md5:1b412036083c40c38346b6def1b0db8c",
-                        "key": "s_data_vectorized.tar.gz",
+                        "checksum": "md5:037c8d56988886e7209f45abe0855a9a",
+                        "key": "md001.pdf",
                         "links": {
-                            "self": "https://zenodo.org/api/files/7c4aaea9-0290-47ab-90e6-f5570ddcc0a8/s_data_vectorized.tar.gz"
+                            "self": "https://zenodo.org/api/files/7c4aaea9-0290-47ab-90e6-f5570ddcc0a8/md001.pdf"
                         },
-                        "size": 1848371687,
-                        "type": "gz"
+                        "size": 348081,
+                        "type": "pdf"
                     }
                 ],
                 "id": 3490396,
