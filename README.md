@@ -15,7 +15,7 @@ make test
 # Design
 
 ## Research Data Product (RDP)
-see [https://github.com/tgweber/rdp](RDP repository)
+see [RDP repository](https://github.com/tgweber/rdp)
 
 ## Checks
 A check is a machine-actionable program that indicates wether or not an RDP successfully passes a technical condition (e.g. valid format, response in a given time, etc.).
