@@ -56,8 +56,6 @@ from breadp.checks.metadata import \
     TitlesNumberCheck, \
     TitlesTypeCheck, \
     VersionSpecifiedCheck
-from breadp.checks.data import \
-    TextHasPaperStructureCheck
 from rdp import RdpFactory, Rdp
 from rdp.metadata import Rights
 
@@ -935,11 +933,6 @@ def test_related_resource_has_metadata_check(mock_get):
     assert check.get_last_result(rdp.pid).outcome[0]
     assert not check.get_last_result(rdp.pid).outcome[1]
     assert check.get_last_result(rdp.pid).outcome[2]
-
-@mock.patch('requests.get', side_effect=mocked_requests_get)
-def test_text_has_paper_structure_check(mock_get):
-    check = TextHasPaperStructureCheck()
-    assert base_init_check_test(check, 37)
 
 @mock.patch('requests.get', side_effect=mocked_requests_get)
 def test_rdp_zenodo_data(mock_get):

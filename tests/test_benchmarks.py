@@ -47,11 +47,6 @@ def test_full_benchmark(mock_get, mock_head):
     assert BPGBenchmark.score(rdps[6]) == round((26+11/28)/34, 10)
     assert BPGBenchmark.score(rdps[7]) == round((28+22/48)/34, 10)
     assert BPGBenchmark.score(rdps[8]) == round((19+20/21)/31, 10)
-
-    import json
-    with open("test.json", "w") as f:
-        json.dump(BPGBenchmark.report(rdps[8]), f)
-
     assert BPGBenchmark.score(rdps[9]) == round(26.5/34, 10)
 
 @mock.patch('requests.head', side_effect=mocked_requests_head)
