@@ -35,7 +35,7 @@ class DescriptionsNumberCheck(Check):
         self.version = "0.0.1"
 
     def _do_check(self, rdp):
-        return(True, MetricResult(len(rdp.metadata.descriptions), ""))
+        return MetricResult(len(rdp.metadata.descriptions), "", True)
 
 class DescriptionsLengthCheck(Check):
     """ Checks the length of all description in words
@@ -56,7 +56,7 @@ class DescriptionsLengthCheck(Check):
         for d in rdp.metadata.descriptions:
             msg = ""
             lengths.append(len(d.text.split()))
-        return(True, ListResult(lengths, msg))
+        return ListResult(lengths, msg, True)
 
 class DescriptionsLanguageCheck(Check):
     """ Checks the language of the descriptions
@@ -77,7 +77,7 @@ class DescriptionsLanguageCheck(Check):
         for d in rdp.metadata.descriptions:
             msg = ""
             languages.append(detect(d.text))
-        return(True, ListResult(languages, msg))
+        return ListResult(languages, msg, True)
 
 class DescriptionsTypeCheck(Check):
     """ Checks all description types of DataCite metadata
@@ -96,11 +96,11 @@ class DescriptionsTypeCheck(Check):
     def _do_check(self, rdp):
         types = []
         if len(rdp.metadata.descriptions) == 0:
-            return(True, ListResult(types, "No descriptions retrievable"))
+            return ListResult(types, "No descriptions retrievable", True)
         for d in rdp.metadata.descriptions:
             if d.type:
                 types.append(d.type)
-        return (True, ListResult(types, ""))
+        return ListResult(types, "", True)
 
 class TitlesNumberCheck(Check):
     """ Checks the number of titles in the metadata of an RDP
@@ -118,8 +118,8 @@ class TitlesNumberCheck(Check):
     def _do_check(self, rdp):
         if not rdp.metadata.titles:
             msg = "No titles could be retrieved"
-            return(True, MetricResult(float(0), msg))
-        return(True, MetricResult(len(rdp.metadata.titles), ""))
+            return MetricResult(float(0), msg, True)
+        return MetricResult(len(rdp.metadata.titles), "", True)
 
 class TitlesLengthCheck(Check):
     """ Checks the length of all titles (in words)
@@ -140,7 +140,7 @@ class TitlesLengthCheck(Check):
         for t in rdp.metadata.titles:
             msg = ""
             lengths.append(len(t.text.split()))
-        return(True, ListResult(lengths, msg))
+        return ListResult(lengths, msg, True)
 
 class TitlesLanguageCheck(Check):
     """ Checks the language of all titles title
@@ -161,7 +161,7 @@ class TitlesLanguageCheck(Check):
         for t in rdp.metadata.titles:
             msg = ""
             languages.append(detect(t.text))
-        return(True, ListResult(languages, msg))
+        return ListResult(languages, msg, True)
 
 class TitlesJustAFileNameCheck(Check):
     """ Checks whether the titles are (probably) just a file names
@@ -189,7 +189,7 @@ class TitlesJustAFileNameCheck(Check):
                 bools.append(True)
             else:
                 bools.append(False)
-        return(True, ListResult(bools, msg))
+        return ListResult(bools, msg, True)
 
 class TitlesTypeCheck(Check):
     """ Checks the types of all titles (None if not given)
@@ -210,7 +210,7 @@ class TitlesTypeCheck(Check):
         for t in rdp.metadata.titles:
             msg = ""
             types.append(t.type)
-        return(True, ListResult(types, msg))
+        return ListResult(types, msg, True)
 
 class FormatsAreValidMediaTypeCheck(Check):
     """ Checks which formats are valid IANA MediaTypes
@@ -245,7 +245,7 @@ class FormatsAreValidMediaTypeCheck(Check):
                 valid.append(False)
             else:
                 valid.append(True)
-        return(True, ListResult(valid, msg))
+        return ListResult(valid, msg, True)
 
 class RightsHaveValidSPDXIdentifierCheck(Check):
     """ Checks whether all rights have valid SPDX licenses identifiers
@@ -280,7 +280,7 @@ class RightsHaveValidSPDXIdentifierCheck(Check):
                 valid.append(False)
             else:
                 valid.append(True)
-        return(True, ListResult(valid, msg))
+        return ListResult(valid, msg, True)
 
 class RightsHasAtLeastOneLicenseCheck(Check):
     """ Checks whether at least one license statement is among the rights
@@ -306,14 +306,14 @@ class RightsHasAtLeastOneLicenseCheck(Check):
             try:
                 response = requests.head(ro.uri)
                 if response.status_code > 199 and response.status_code < 400:
-                    return (True, BooleanResult(True, ""))
+                    return BooleanResult(True, "", True)
                 else:
                     msg = "No license retrievable: {}".format(response.status_code)
                     continue
             except Exception as e:
                 msg += "{}: {}".format(type(e), e)
                 continue
-        return (True, BooleanResult(False, msg))
+        return BooleanResult(False, msg, True)
 
 class RightsAreOpenCheck(Check):
     """ Checks whether rights are open, i.e. their usage is not restricted in a
@@ -335,8 +335,8 @@ class RightsAreOpenCheck(Check):
             msg = "No rights specified"
         for ro in rdp.metadata.rights:
             if rights_are_open(ro):
-                return (True, BooleanResult(True, "{} is open".format(ro.text)))
-        return (True, BooleanResult(False, "Rights are not open (or not specified)"))
+                return BooleanResult(True, "{} is open".format(ro.text), True)
+        return BooleanResult(False, "Rights are not open (or not specified)", True)
 
 class SubjectsAreQualifiedCheck(Check):
     """ Checks subjects have qualified subjects (subjects are either specified
@@ -362,7 +362,7 @@ class SubjectsAreQualifiedCheck(Check):
                 qualified.append(True)
             else:
                 qualified.append(False)
-        return (True, ListResult(qualified, msg))
+        return ListResult(qualified, msg, True)
 
 class SubjectsNumberCheck(Check):
     """ Checks the number of subjects
@@ -378,7 +378,7 @@ class SubjectsNumberCheck(Check):
         self.version = "0.0.1"
 
     def _do_check(self, rdp):
-        return (True, MetricResult(len(rdp.metadata.subjects), ""))
+        return MetricResult(len(rdp.metadata.subjects), "", True)
 
 
 class SubjectsHaveDdcCheck(Check):
@@ -400,11 +400,12 @@ class SubjectsHaveDdcCheck(Check):
             if re.match("^(ddc|dewey)|ddc$", str(so.scheme), re.IGNORECASE) \
               or "dewey.info" in str(so.uri):
                 if re.match(r"^\d\d\d", so.text):
-                    return (True, BooleanResult(
+                    return BooleanResult(
                         True,
-                        "{} is a DDC field of study specificiation".format(so.text))
+                        "{} is a DDC field of study specificiation".format(so.text),
+                        True
                     )
-        return (True, BooleanResult(False, "No DDC field of study specification found"))
+        return BooleanResult(False, "No DDC field of study specification found", True)
 
 class SubjectsHaveWikidataKeywordsCheck(Check):
     """ Checks whether the subjects contain keynames for field of study specification.
@@ -425,10 +426,12 @@ class SubjectsHaveWikidataKeywordsCheck(Check):
             if str(so.uri).startswith("https://www.wikidata.org/wiki"):
                 for value in (str(so.text), str(so.valueURI)):
                     if re.match(r"q\d+$", value.split("/")[-1], re.IGNORECASE):
-                        return (True, BooleanResult(
-                            True, "{} is a wikidata keyword ".format(so.text))
+                        return BooleanResult(
+                            True,
+                            "{} is a wikidata keyword ".format(so.text),
+                            True
                         )
-        return (True, BooleanResult(False, "No wikidata keyword found"))
+        return BooleanResult(False, "No wikidata keyword found", True)
 
 class CreatorsOrcidCheck(Check):
     """ Checks whether the creators have valid orcids
@@ -454,7 +457,7 @@ class CreatorsOrcidCheck(Check):
                 continue
             # Test format
             valid.append(is_valid_orcid(po.orcid))
-        return (True, ListResult(valid, ""))
+        return ListResult(valid, "", True)
 
 class CreatorsFamilyAndGivenNameCheck(Check):
     """ Checks whether the creators have distinguishable family and given names
@@ -474,7 +477,7 @@ class CreatorsFamilyAndGivenNameCheck(Check):
         valid = []
         for po in rdp.metadata.creators:
             valid.append(has_family_and_given_name(po))
-        return (True, ListResult(valid, ""))
+        return ListResult(valid, "", True)
 
 class CreatorsContainInstitutionsCheck(Check):
     """ Checks whether the creators contain institutions
@@ -491,15 +494,15 @@ class CreatorsContainInstitutionsCheck(Check):
         self.version = "0.0.1"
 
     def _do_check(self, rdp):
-        instiutions = []
+        institutions = []
         success = False
         for po in rdp.metadata.creators:
             success = True
             if po.person:
-                instiutions.append(False)
+                institutions.append(False)
             else:
-                instiutions.append(True)
-        return (success, ListResult(instiutions, ""))
+                institutions.append(True)
+        return ListResult(institutions, "", success)
 
 class SizesNumberCheck(Check):
     """ Checks the number of size specifications
@@ -516,7 +519,7 @@ class SizesNumberCheck(Check):
         self.version = "0.0.1"
 
     def _do_check(self, rdp):
-            return (True, MetricResult(len(rdp.metadata.sizes), ""))
+            return MetricResult(len(rdp.metadata.sizes), "", True)
 
 class SizesByteSizeCheck(Check):
     """ Checks which of the size specifications have a valid *byte-specification,
@@ -539,11 +542,11 @@ class SizesByteSizeCheck(Check):
         msg = "no sizes specified"
         for s in rdp.metadata.sizes:
             msg = ""
-            if re.match(r"^\d+\s*(k|m|g|t|p|e|z|y){0,1}b$", s, re.IGNORECASE):
+            if re.match(r"^\d+\s*(k|m|g|t|p|e|z|y){0,1}i{0,1}b$", s, re.IGNORECASE):
                 valid.append(True)
             else:
                 valid.append(False)
-        return (True, ListResult(valid, msg))
+        return ListResult(valid, msg, True)
 
 class VersionSpecifiedCheck(Check):
     """ Checks whether the version of the RDP is specified in semantic versioning format.
@@ -561,13 +564,13 @@ class VersionSpecifiedCheck(Check):
 
     def _do_check(self, rdp):
         if rdp.metadata.version is None:
-            return(False, BooleanResult(False, "no version specified"))
+            return BooleanResult(False, "no version specified", False)
         if re.match(r"^\d+\.\d+\.\d+(-\S+){0,1}$", rdp.metadata.version):
-            return (True, BooleanResult(True, ""))
-        return(True, BooleanResult(False,
-                                   "'{}' is not in semantic versioning format".format(
-                                       rdp.metadata.version)
-                                  )
+            return BooleanResult(True, "", True)
+        return BooleanResult(
+            False,
+            "'{}' is not in semantic versioning format".format(rdp.metadata.version),
+            True
         )
 
 class LanguageSpecifiedCheck(Check):
@@ -595,13 +598,13 @@ class LanguageSpecifiedCheck(Check):
 
     def _do_check(self, rdp):
         if rdp.metadata.language is None:
-            return (True, BooleanResult(False, "no language specified"))
+            return BooleanResult(False, "no language specified", True)
         if rdp.metadata.language in self.iso_codes.alpha2.tolist():
-            return (True, BooleanResult(True, ""))
-        return(True, BooleanResult(False,
-                                   "'{}' is not a valid ISO-639-1 code".format(
-                                       rdp.metadata.language)
-                                  )
+            return BooleanResult(True, "", True)
+        return BooleanResult(
+            False,
+            "'{}' is not a valid ISO-639-1 code".format(rdp.metadata.language),
+            True
         )
 
 class ContributorsOrcidCheck(Check):
@@ -627,7 +630,7 @@ class ContributorsOrcidCheck(Check):
                 valid.append(False)
                 continue
             valid.append(is_valid_orcid(po.orcid))
-        return (True, ListResult(valid, ""))
+        return ListResult(valid, "", True)
 
 class ContributorsFamilyAndGivenNameCheck(Check):
     """ Checks whether the contributors have distinguishable family and given names
@@ -647,7 +650,7 @@ class ContributorsFamilyAndGivenNameCheck(Check):
         valid = []
         for po in rdp.metadata.contributors:
             valid.append(has_family_and_given_name(po))
-        return (True, ListResult(valid, ""))
+        return ListResult(valid, "", True)
 
 class ContributorsContainInstitutionsCheck(Check):
     """ Checks whether the contributors contain institutions
@@ -664,15 +667,15 @@ class ContributorsContainInstitutionsCheck(Check):
         self.version = "0.0.1"
 
     def _do_check(self, rdp):
-        instiutions = []
+        institutions = []
         success = False
         for po in rdp.metadata.contributors:
             success = True
             if po.person:
-                instiutions.append(False)
+                institutions.append(False)
             else:
-                instiutions.append(True)
-        return (success, ListResult(instiutions, ""))
+                institutions.append(True)
+        return ListResult(institutions, "", success)
 
 class ContributorsTypeCheck(Check):
     """ Checks whether the type of the contributors
@@ -692,7 +695,7 @@ class ContributorsTypeCheck(Check):
         types = []
         for po in rdp.metadata.contributors:
             types.append(po.type)
-        return (True, ListResult(types, ""))
+        return ListResult(types, "", True)
 
 class PublicationYearCheck(Check):
     """ Checks the year of the publication
@@ -710,8 +713,12 @@ class PublicationYearCheck(Check):
 
     def _do_check(self, rdp):
         if rdp.metadata.publicationYear is None:
-            return (False, MetricResult(sys.float_info.min, "No publicationYear retrievable"))
-        return (True, MetricResult(rdp.metadata.publicationYear, ""))
+            return MetricResult(
+                sys.float_info.min,
+                "No publicationYear retrievable",
+                False
+            )
+        return MetricResult(rdp.metadata.publicationYear, "", True)
 
 class DatesTypeCheck(Check):
     """ Checks the types of the dates of the publication
@@ -733,7 +740,7 @@ class DatesTypeCheck(Check):
         for d in rdp.metadata.dates:
             msg = ""
             types.append(d.type)
-        return (True, ListResult(types, msg))
+        return ListResult(types, msg, True)
 
 class DatesIssuedYearCheck(Check):
     """ Checks whether the year of issuance is specified (in the date fields)
@@ -752,8 +759,8 @@ class DatesIssuedYearCheck(Check):
     def _do_check(self, rdp):
         for d in rdp.metadata.dates:
             if d.type == "Issued":
-                return (True, MetricResult(d.date.year, ""))
-        return (False, MetricResult(sys.float_info.min, "No IssueDate retrievable"))
+                return MetricResult(d.date.year, "", True)
+        return MetricResult(sys.float_info.min, "No IssueDate retrievable", False)
 
 class DatesInformationCheck(Check):
     """ Checks the date information field of the dates of the publication
@@ -775,7 +782,7 @@ class DatesInformationCheck(Check):
         for d in rdp.metadata.dates:
             msg = ""
             information.append(d.information)
-        return (True, ListResult(information, msg))
+        return ListResult(information, msg, True)
 
 class RelatedResourceTypeCheck(Check):
     """ Checks the type of related resources to the RDP
@@ -798,7 +805,7 @@ class RelatedResourceTypeCheck(Check):
         for r in rdp.metadata.relatedResources:
             msg = ""
             relationTypes.append(r.relationType)
-        return (True, ListResult(relationTypes, msg))
+        return ListResult(relationTypes, msg, True)
 
 class RelatedResourceMetadataCheck(Check):
     """ Checks if a resource is not of type HasMetadata or if it is,
@@ -825,7 +832,49 @@ class RelatedResourceMetadataCheck(Check):
                     linkedProperly.append(False)
                     continue
             linkedProperly.append(True)
-        return (True, ListResult(linkedProperly, msg))
+        return ListResult(linkedProperly, msg, True)
+
+class DataSizeCheck(Check):
+    """ Checks the size of the data set, returns it in bytes
+
+    Methods
+    -------
+    _do_check(self, rdp)
+        returns a ListResult of bools, indicating whether metadata are linked properly
+
+    """
+    def __init__(self):
+        Check.__init__(self)
+        self.id = 37
+        self.version = "0.0.1"
+
+    def _do_check(self, rdp):
+        factors = {
+            "k": 2 ** 10,
+            "m": 2 ** 20,
+            "g": 2 ** 30,
+            "t": 2 ** 40,
+            "p": 2 ** 50,
+            "e": 2 ** 60,
+            "z": 2 ** 70,
+            "y": 2 ** 80
+        }
+        size = 0
+
+        # Try metadata fields
+        for s in rdp.metadata.sizes:
+            m = re.match(r"(^\d+)\s*(k|m|g|t|p|e|z|y){0,1}i{0,1}b$", s, re.IGNORECASE)
+            # groups() allows to set a default value, but the index of the
+            # returned tuple is 0-based!
+            if m:
+                size += int(m.group(1)) * factors.get(m.groups("")[1].lower(), 1)
+        if size > 0:
+            return MetricResult(size, "Used metadata", True)
+
+        # Try headers
+
+        # Download and check
+        return MetricResult(sys.float_info.min, "Could not determine size", False)
 
 def is_valid_orcid(orcid):
     """ returns True when the given str is a valid orcid and the checksum test succeeds

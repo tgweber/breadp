@@ -23,8 +23,6 @@ class Check(object):
         Version of the check
     desc: str
         A short text describing the criterion checked (in English)
-    success: bool
-        Success of the last run check (false on initialization)
     log: Log
         List of log entries of run checks
         (includes keys "start", "end", "state", "version", "pid", "msg")
@@ -55,17 +53,14 @@ class Check(object):
             Research Data Product to be checked
         """
         start = datetime.utcnow().isoformat()
-        (success, result) = (self._do_check(rdp))
+        result = (self._do_check(rdp))
         end = datetime.utcnow().isoformat()
         msg = result.msg
         self.log.add(
             CheckLogEntry(
                 start,
                 end,
-                self.version,
                 rdp.pid,
-                result.msg,
-                success,
                 result
             )
         )
@@ -91,9 +86,9 @@ class Check(object):
             report["log"].append(
                 {
                     "start": entry.start,
-                    "success": entry.success,
+                    "success": entry.result.success,
                     "result": entry.result.outcome,
-                    "msg": entry.msg,
+                    "msg": entry.result.msg,
                     "end": entry.end
                 }
             )

@@ -25,16 +25,12 @@ class Log(object):
         return rv
 
 class LogEntry(object):
-    def __init__(self, start, end, version, pid, msg):
+    def __init__(self, start, end, pid):
         self.start = start
         self.end = end
-        self.version = version
         self.pid = pid
-        # TODO refactor msg to result!
-        self.msg = msg
 
 class CheckLogEntry(LogEntry):
-    def __init__(self, start, end, version, pid, msg, success, result):
-        LogEntry.__init__(self, start, end, version, pid, msg)
-        self.success = success
+    def __init__(self, start, end, pid, result):
+        LogEntry.__init__(self, start, end, pid)
         self.result = result

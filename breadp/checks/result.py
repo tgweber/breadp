@@ -13,11 +13,14 @@ class CheckResult(object):
     Attributes
     ----------
     msg: str
-        Message giving more msg to the outcome of the check.
+        Message giving more msg to the outcome of the check
+    success: bool
+        Flag indicating whether the check was successful
     """
 
-    def __init__(self, msg):
+    def __init__(self, msg, success):
         self.msg = msg
+        self.success = success
 
 class BooleanResult(CheckResult):
     """ A result with a boolean outcome
@@ -28,8 +31,8 @@ class BooleanResult(CheckResult):
         Indicates whether the rdp fulfills the criterion checked
     """
 
-    def __init__(self, outcome: bool, msg: str):
-        super(BooleanResult, self).__init__(msg)
+    def __init__(self, outcome: bool, msg: str, success: bool):
+        CheckResult.__init__(self, msg, success)
         self.outcome = outcome
 
 class MetricResult(CheckResult):
@@ -40,8 +43,8 @@ class MetricResult(CheckResult):
     outcome: float
         The number the check resulted in (can be a float("nan")).
     """
-    def __init__(self, outcome: float, msg: str):
-        super(MetricResult, self).__init__(msg)
+    def __init__(self, outcome: float, msg: str, success: bool):
+        CheckResult.__init__(self, msg, success)
         self.outcome = outcome
 
 class ListResult(CheckResult):
@@ -52,6 +55,6 @@ class ListResult(CheckResult):
     outcome: list
         The list the check resuled in.
     """
-    def __init__(self, outcome: list, msg: str):
-        super(ListResult, self).__init__(msg)
+    def __init__(self, outcome: list, msg: str, success: bool):
+        CheckResult.__init__(self, msg, success)
         self.outcome = outcome

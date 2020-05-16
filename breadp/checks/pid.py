@@ -29,11 +29,11 @@ class IsValidDoiCheck(Check):
     def _do_check(self, rdp):
         if not rdp.pid:
             msg = "RDP has no PID"
-            return(False, BooleanResult(False, msg))
+            return BooleanResult(False, msg, False)
         if re.match(r"^10\.\d{4}\d*/.*", rdp.pid):
-            return (True, BooleanResult(True, ""))
+            return BooleanResult(True, "", True)
         msg = "{} is not a valid DOI".format(rdp.pid)
-        return (True, BooleanResult(False, msg))
+        return BooleanResult(False, msg, True)
 
 class DoiResolvesCheck(Check):
     """ Checks whether the DOI of an RDP resolves
@@ -51,18 +51,18 @@ class DoiResolvesCheck(Check):
     def _do_check(self, rdp):
         if not rdp.pid:
             msg = "RDP has no PID"
-            return(False, BooleanResult(False, msg))
+            return BooleanResult(False, msg, False)
         try:
             response = requests.head('https://doi.org/' + rdp.pid)
         except Exception as e:
             msg = "{}: {}".format(type(e).__name__, e)
-            return(False, BooleanResult(False, msg))
+            return BooleanResult(False, msg, False)
 
         if response.status_code != 302:
             msg = "Could not resolve {}, status code: {}".format(
                 rdp.pid, response.status_code)
-            return (True, BooleanResult(False, msg))
+            return BooleanResult(False, msg, True)
 
         msg = "Location of resolved doi: {}".format(
             response.headers.get('Location'))
-        return (True, BooleanResult(True, msg))
+        return BooleanResult(True, msg, True)

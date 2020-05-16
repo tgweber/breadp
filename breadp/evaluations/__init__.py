@@ -65,7 +65,7 @@ class Evaluation(object):
                         rdp.pid
                     )
                 )
-            if not c.log.get_by_pid(rdp.pid)[-1].success:
+            if not c.log.get_by_pid(rdp.pid)[-1].result.success:
                 return 0
         # TODO add 10 to documentation!
         return round(self._evaluate(rdp.pid)/len(self.checks), 10)
