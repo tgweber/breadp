@@ -58,3 +58,15 @@ class ListResult(CheckResult):
     def __init__(self, outcome: list, msg: str, success: bool):
         CheckResult.__init__(self, msg, success)
         self.outcome = outcome
+
+class CardinalResult(CheckResult):
+    """ A result with a controlled list of strings as possible outcomes
+
+    Attributes
+    ----------
+    outcome: list
+        The list the check resuled in.
+    """
+    def __init__(self, outcome: str, msg: str, success: bool):
+        CheckResult.__init__(self, msg, success)
+        self.outcome = outcome
