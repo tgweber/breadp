@@ -58,6 +58,8 @@ from breadp.checks.metadata import \
     TitlesNumberCheck, \
     TitlesTypeCheck, \
     VersionSpecifiedCheck
+from breadp.checks.services import \
+    CapacitiesSupportedCheck
 from rdp import RdpFactory, Rdp
 from rdp.metadata import Rights
 
@@ -950,6 +952,18 @@ def test_data_size_check(mock_get, mock_head):
     assert check.get_last_result(rdps[1].pid).msg.endswith("a valid zenodoId")
     assert check.get_last_result(rdps[2].pid).outcome == 12 * (2 ** 30)
     assert check.get_last_result(rdps[3].pid).outcome == 123456
+
+@mock.patch('requests.get', side_effect=mocked_requests_get)
+def test_capacities_supported_check(mock_get):
+    check = CapacitiesSupportedCheck()
+    assert base_init_check_test(check, 38)
+
+    rdps = get_rdps()
+    check.check(rdps[0])
+    print(check.get_last_result(rdps[0].pid).msg)
+    assert "RetrieveMetadata" in check.get_last_result(rdps[0].pid).outcome
+    assert "RetrieveData" in check.get_last_result(rdps[0].pid).outcome
+    assert "RetrieveDataHttpHeaders" in check.get_last_result(rdps[0].pid).outcome
 
 @mock.patch('requests.get', side_effect=mocked_requests_get)
 def test_rdp_zenodo_data(mock_get):
