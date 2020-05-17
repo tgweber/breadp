@@ -75,6 +75,14 @@ def mocked_requests_get(*args, **kwargs):
         with open("./tests/artefacts/zenodo001.json", "r") as f:
             content = json.load(f)
         return _MockResponse(content, 200)
+    elif args[0] == "https://zenodo.org/api/records/?q=recid:10.123/zenodo.badex1":
+        with open("./tests/artefacts/zenodo002.json", "r") as f:
+            content = json.load(f)
+        return _MockResponse(content, 200)
+    elif args[0].startswith("https://zenodo.org/api/records/?q=recid:"):
+        with open("./tests/artefacts/zenodo001.json", "r") as f:
+            content = json.load(f)
+            return _MockResponse(content, 200)
     elif args[0] == "https://zenodo.org/api/files/7c4aaea9-0290-47ab-90e6-f5570ddcc0a8/md001.pdf":
         with open("./tests/artefacts/md001.pdf", "rb") as f:
             content = f.read()
@@ -82,7 +90,7 @@ def mocked_requests_get(*args, **kwargs):
     return _MockResponse(None, 404)
 
 def mocked_requests_head(*args, **kwargs):
-    #print(args[0])
+    print(args[0])
     if args[0] == "https://doi.org/10.5281/zenodo.3490396":
         return _MockResponse(
             "", 302, {"Location": "https://zenodo.org/record/3490396"}
@@ -95,6 +103,10 @@ def mocked_requests_head(*args, **kwargs):
             args[0] == "http://creativecommons.org/licenses/by-sa/4.0/" or \
             args[0] == "http://creativecommons.org/publicdomain/zero/1.0" :
         return _MockResponse("Some License text", 200)
+    elif args[0].startswith("https://zenodo.org/api/files"):
+        return _MockResponse(
+            "", 200, {"Content-Length": 123456}
+        )
     return _MockResponse(None, 404)
 
 # Basic tests for all checks which did not already run

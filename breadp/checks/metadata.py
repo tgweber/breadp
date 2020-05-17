@@ -10,6 +10,7 @@ import json
 from langdetect import detect, DetectorFactory
 import os
 import pandas as pd
+from rdp.services.capacities import RetrieveDataHttpHeaders
 import re
 import requests
 import sys
@@ -872,8 +873,14 @@ class DataSizeCheck(Check):
             return MetricResult(size, "Used metadata", True)
 
         # Try headers
+        for service_name in rdp.services:
+            service  = rdp.services.get(service_name)
+            if service.can(RetrieveDataHttpHeaders()):
+                for headers in service.get_headers(rdp.pid):
+                    size += int(headers["Content-Length"])
+        if size > 0:
+            return MetricResult(size, "Used headers", True)
 
-        # Download and check
         return MetricResult(sys.float_info.min, "Could not determine size", False)
 
 def is_valid_orcid(orcid):

@@ -11,6 +11,7 @@ import inspect
 from datetime import datetime
 
 from breadp.util.log import Log, CheckLogEntry
+from breadp.checks.result import CheckResult
 
 class Check(object):
     """ Base class and interface for checks for RDPs
@@ -53,7 +54,11 @@ class Check(object):
             Research Data Product to be checked
         """
         start = datetime.utcnow().isoformat()
-        result = (self._do_check(rdp))
+        try:
+            result = (self._do_check(rdp))
+        except Exception as e:
+            result = CheckResult(str(e), False)
+
         end = datetime.utcnow().isoformat()
         msg = result.msg
         self.log.add(

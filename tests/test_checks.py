@@ -945,12 +945,11 @@ def test_data_size_check(mock_get, mock_head):
     rdps = get_rdps()
     for rdp in rdps:
         check.check(rdp)
-    assert len(check.log) == len(rdps)
-    print(rdps[0])
     assert check.get_last_result(rdps[0].pid).outcome == 12288000
-    assert check.get_last_result(rdps[1].pid).outcome == sys.float_info.min
-    assert check.get_last_result(rdps[1].pid).success == False
-    assert check.get_last_result(rdps[1].pid).msg == "Could not determine size"
+    assert not check.get_last_result(rdps[1].pid).success
+    assert check.get_last_result(rdps[1].pid).msg.endswith("a valid zenodoId")
+    assert check.get_last_result(rdps[2].pid).outcome == 12 * (2 ** 30)
+    assert check.get_last_result(rdps[3].pid).outcome == 123456
 
 @mock.patch('requests.get', side_effect=mocked_requests_get)
 def test_rdp_zenodo_data(mock_get):
