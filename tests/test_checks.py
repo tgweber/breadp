@@ -88,7 +88,7 @@ def test_rights_are_open():
 def test_is_valid_doi_check(mock_get):
     check = IsValidDoiCheck()
     assert base_init_check_test(check, 0)
-    assert check.desc == "Checks whether an RDP has a valid DOI as PID"
+    assert check.description == "Checks whether an RDP has a valid DOI as PID"
 
     # Successful
     rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo")
@@ -176,7 +176,7 @@ def test_descriptions_length_check(mock_get):
     assert report["name"] == "DescriptionsLengthCheck"
     assert report["version"] == check.version
     assert report["id"] == check.id
-    assert report["desc"] == check.desc
+    assert report["description"] == check.description
     assert len(report["log"]) == 0
 
     # Successful check

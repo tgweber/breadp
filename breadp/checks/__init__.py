@@ -22,7 +22,7 @@ class Check(object):
         Identifier for the check
     version: str
         Version of the check
-    desc: str
+    description: str
         A short text describing the criterion checked (in English)
     log: Log
         List of log entries of run checks
@@ -41,7 +41,7 @@ class Check(object):
         self.log = Log()
 
     @property
-    def desc(self):
+    def description(self):
         return ' '.join(inspect.getdoc(self).split("\n\n")[0].split())
 
     def check(self, rdp):
@@ -83,7 +83,7 @@ class Check(object):
         report = {
             "name": type(self).__name__,
             "version": self.version,
-            "desc": self.desc,
+            "description": self.description,
             "id": self.id,
             "log": []
         }
