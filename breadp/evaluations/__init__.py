@@ -25,7 +25,7 @@ class Evaluation(object):
         Identifier for the evaluation
     version: str
         Version of the evaluation
-    desc: str
+    descrption: str
         A short text describing the criterion evaluated (in English)
     checks: list
         A list of checks
@@ -42,8 +42,7 @@ class Evaluation(object):
         self.checks = checks
 
     @property
-    # TODO: Refactor desc -> description
-    def desc(self):
+    def description(self):
         return ' '.join(inspect.getdoc(self).split("\n\n")[0].split())
 
     def evaluate(self, rdp):
@@ -73,7 +72,7 @@ class Evaluation(object):
     def report(self):
         report = {
             "name": type(self).__name__,
-            "desc": self.desc,
+            "description": self.description,
             "checks": [type(c).__name__ for c in self.checks]
         }
         return report
@@ -101,11 +100,11 @@ class IsBetweenEvaluation(Evaluation):
         self.high = high
 
     @property
-    def desc(self):
-        desc = ' '.join(inspect.getdoc(self).split("\n\n")[0].split())
-        desc += " The lower bound is {} the upper bound is {}.".format(self.low,
+    def description(self):
+        description = ' '.join(inspect.getdoc(self).split("\n\n")[0].split())
+        description += " The lower bound is {} the upper bound is {}.".format(self.low,
                                                                       self.high)
-        return desc
+        return description
 
     def _evaluate(self, pid):
         evaluation = 0
@@ -138,10 +137,10 @@ class IsIdenticalToEvaluation(Evaluation):
         self.comparatum = comparatum
 
     @property
-    def desc(self):
-        desc = ' '.join(inspect.getdoc(self).split("\n\n")[0].split())
-        desc += " The comparatum is {}.".format(pformat(self.comparatum))
-        return desc
+    def description(self):
+        description = ' '.join(inspect.getdoc(self).split("\n\n")[0].split())
+        description += " The comparatum is {}.".format(pformat(self.comparatum))
+        return description
 
     def _evaluate(self, pid):
         evaluation = 0
@@ -168,10 +167,10 @@ class ContainsAllEvaluation(Evaluation):
         self.items = items
 
     @property
-    def desc(self):
-        desc = ' '.join(inspect.getdoc(self).split("\n\n")[0].split())
-        desc += " The items are {}.".format(pformat(self.items))
-        return desc
+    def description(self):
+        description = ' '.join(inspect.getdoc(self).split("\n\n")[0].split())
+        description += " The items are {}.".format(pformat(self.items))
+        return description
 
     def _evaluate(self, pid):
         evaluation = 0
@@ -194,10 +193,10 @@ class ContainsAtLeastOneEvaluation(Evaluation):
         self.items = items
 
     @property
-    def desc(self):
-        desc = ' '.join(inspect.getdoc(self).split("\n\n")[0].split())
-        desc += " The items are {}.".format(pformat(self.items))
-        return desc
+    def description(self):
+        description = ' '.join(inspect.getdoc(self).split("\n\n")[0].split())
+        description += " The items are {}.".format(pformat(self.items))
+        return description
 
     def _evaluate(self, pid):
         evaluation = 0
@@ -224,10 +223,10 @@ class DoesNotContainEvaluation(Evaluation):
         self.items = items
 
     @property
-    def desc(self):
-        desc = ' '.join(inspect.getdoc(self).split("\n\n")[0].split())
-        desc += " The items are {}.".format(pformat(self.items))
-        return desc
+    def description(self):
+        description = ' '.join(inspect.getdoc(self).split("\n\n")[0].split())
+        description += " The items are {}.".format(pformat(self.items))
+        return description
 
     def _evaluate(self, pid):
         evaluation = 0
@@ -368,10 +367,10 @@ class FunctionEvaluation(Evaluation):
         self.callback = callback
 
     @property
-    def desc(self):
-        desc = ' '.join(inspect.getdoc(self).split("\n\n")[0].split())
-        desc += " The function's name is '{}'.".format(self.callback.__name__)
-        return desc
+    def description(self):
+        description = ' '.join(inspect.getdoc(self).split("\n\n")[0].split())
+        description += " The function's name is '{}'.".format(self.callback.__name__)
+        return description
 
     def _evaluate(self, pid):
         return self.callback(self.checks, pid) * len(self.checks)
