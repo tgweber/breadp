@@ -8,7 +8,7 @@ with open('LICENSE') as f:
 
 setup(
     name='breadp',
-    version='0.0.5',
+    version='0.0.7',
     description='Benchmarks for REseArch Data Products',
     long_description=readme,
     author='Tobias Weber',
