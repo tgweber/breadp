@@ -2,7 +2,5 @@ pandas
 pytest
 pytest-cov
 requests
-textract
-xmltodict
 git+https://github.com/Mimino666/langdetect
 git+https://github.com/tgweber/rdp

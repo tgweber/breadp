@@ -8,12 +8,17 @@ with open('LICENSE') as f:
 
 setup(
     name='breadp',
-    version='0.0.1',
-    descripion='Benchmarks for REseArch Data Products',
+    version='0.0.3',
+    description='Benchmarks for REseArch Data Products',
     long_description=readme,
     author='Tobias Weber',
     author_email='mail@tgweber.de',
     url='https://github.com/tgweber/breadp',
     license=license,
-    packages=find_packages(exclude=('tests', 'docs'))
+    packages=find_packages(exclude=('tests', 'docs')),
+    install_requires=["rdp @ git+https://github.com/tgweber/rdp",
+                      "langdetect @ git+https://github.com/Mimino666/langdetect",
+                      "pandas",
+                      "requests"]
+
 )
