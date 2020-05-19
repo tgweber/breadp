@@ -15,6 +15,9 @@ setup(
     author_email='mail@tgweber.de',
     url='https://github.com/tgweber/breadp',
     license=license,
+    package_data = {
+        "checks": ["resources/*.json", "resources/*.csv"]
+    },
     packages=find_packages(exclude=('tests', 'docs')),
     install_requires=["rdp @ git+https://github.com/tgweber/rdp",
                       "langdetect @ git+https://github.com/Mimino666/langdetect",
