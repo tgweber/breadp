@@ -8,7 +8,7 @@ with open('LICENSE') as f:
 
 setup(
     name='breadp',
-    version='0.0.8',
+    version='0.0.9',
     description='Benchmarks for REseArch Data Products',
     long_description=readme,
     author='Tobias Weber',
@@ -16,7 +16,7 @@ setup(
     url='https://github.com/tgweber/breadp',
     license=license,
     package_data = {
-        "checks": ["resources/*.json", "resources/*.csv"]
+        "breadp": ["checks/resources/*.json", "checks/resources/*.csv"]
     },
     include_package_data=True,
     packages=find_packages(exclude=('tests', 'docs')),
