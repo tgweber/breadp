@@ -100,8 +100,8 @@ class BenchmarkReport(Report):
         self.rounded = b.rounded
         self.evaluation_reports = []
         for ev in b.evaluations:
-            self.evaluation_reports.append(EvaluationReport(rdp.pid, ev))
-        print(self.evaluation_reports[-1])
+            if not b.skip(ev, rdp):
+                self.evaluation_reports.append(EvaluationReport(rdp.pid, ev))
         self.check_reports = []
         for c in b.checks:
             self.check_reports.append(CheckReport(rdp.pid, c))

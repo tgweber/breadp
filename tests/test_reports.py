@@ -80,7 +80,7 @@ def test_benchmark_reporting(mock_get, mock_head):
                   "rounded", "score", "evaluation_reports", "aggregation_info", "precision",
                  "rounded"):
         assert field in r.keys()
-    assert len(r["evaluation_reports"]) == 34
+    assert len(r["evaluation_reports"]) == 31
 
     assert report.check_reports[0].name == "IsValidDoiCheck"
     assert report.evaluation_reports[0].evaluation == 0
