@@ -17,7 +17,6 @@ from breadp.evaluations import IsBetweenEvaluation
 from rdp import RdpFactory, Rdp
 from util import mocked_requests_get, mocked_requests_head, get_rdps
 
-
 @mock.patch('requests.head', side_effect=mocked_requests_head)
 @mock.patch('requests.get', side_effect=mocked_requests_get)
 def test_benchmark(mock_get, mock_head):
@@ -36,29 +35,16 @@ def test_benchmark(mock_get, mock_head):
 @mock.patch('requests.get', side_effect=mocked_requests_get)
 def test_full_benchmark(mock_get, mock_head):
     rdps = get_rdps()
+    bb = BPGBenchmark()
     for rdp in rdps:
-        BPGBenchmark.check_all(rdp)
-    assert BPGBenchmark.score(rdps[0]) == 1
-    assert BPGBenchmark.score(rdps[1]) == 0
-    assert BPGBenchmark.score(rdps[2]) == round((487/30)/34, 10)
-    assert BPGBenchmark.score(rdps[3]) == round(16.5/33, 10)
-    assert BPGBenchmark.score(rdps[4]) == round(12.4/28, 10)
-    assert BPGBenchmark.score(rdps[5]) == round(14/28, 10)
-    assert BPGBenchmark.score(rdps[6]) == round((26+11/28)/34, 10)
-    assert BPGBenchmark.score(rdps[7]) == round((28+22/48)/34, 10)
-    assert BPGBenchmark.score(rdps[8]) == round((19+20/21)/31, 10)
-    assert BPGBenchmark.score(rdps[9]) == round(26.5/34, 10)
-
-@mock.patch('requests.head', side_effect=mocked_requests_head)
-@mock.patch('requests.get', side_effect=mocked_requests_get)
-def test_benchmark_reporting(mock_get, mock_head):
-    rdps = get_rdps()
-    BPGBenchmark.check_all(rdps[8])
-    report = BPGBenchmark.report(rdps[8])
-    for key in ("name", "version", "checks", "evaluations"):
-        assert key in report.keys()
-    assert len(report["evaluations"]) == 31
-    assert report["checks"][0]["name"] == "IsValidDoiCheck"
-    assert report["evaluations"][0]["evaluation"] == 0
-    assert report["evaluations"][2]["evaluation"] == round(2/3, 10)
-    assert report["evaluations"][5]["evaluation"] == 1
+        bb.check_all(rdp)
+    assert bb.score(rdps[0]) == 1
+    assert bb.score(rdps[1]) == 0
+    assert bb.score(rdps[2]) == round((487/30)/34, 10)
+    assert bb.score(rdps[3]) == round(16.5/33, 10)
+    assert bb.score(rdps[4]) == round(12.4/28, 10)
+    assert bb.score(rdps[5]) == round(14/28, 10)
+    assert bb.score(rdps[6]) == round((26+11/28)/34, 10)
+    assert bb.score(rdps[7]) == round((28+22/48)/34, 10)
+    assert bb.score(rdps[8]) == round((19+20/21)/31, 10)
+    assert bb.score(rdps[9]) == round(26.5/34, 10)

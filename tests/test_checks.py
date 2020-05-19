@@ -60,6 +60,7 @@ from breadp.checks.metadata import \
     VersionSpecifiedCheck
 from breadp.checks.services import \
     CapacitiesSupportedCheck
+
 from rdp import RdpFactory, Rdp
 from rdp.metadata import Rights
 
@@ -89,8 +90,6 @@ def test_is_valid_doi_check(mock_get):
     check = IsValidDoiCheck()
     assert base_init_check_test(check, 0)
     assert check.description == "Checks whether an RDP has a valid DOI as PID"
-
-    # Successful
     rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo")
     assert rdp.pid == rdp.metadata.pid
     check.check(rdp)
@@ -172,12 +171,6 @@ def test_descriptions_number_check(mock_get):
 def test_descriptions_length_check(mock_get):
     check = DescriptionsLengthCheck()
     assert base_init_check_test(check, 3)
-    report = check.report("10.5281/zenodo.3490396")
-    assert report["name"] == "DescriptionsLengthCheck"
-    assert report["version"] == check.version
-    assert report["id"] == check.id
-    assert report["description"] == check.description
-    assert len(report["log"]) == 0
 
     # Successful check
     rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo")
@@ -190,15 +183,6 @@ def test_descriptions_length_check(mock_get):
     check.check(rdp)
     assert check.log.get_by_pid(rdp.pid)[-1].result.success
     assert len(check.get_last_result(rdp.pid).outcome) == 0
-
-    report = check.report("10.5281/zenodo.3490396")
-    assert report["name"] == "DescriptionsLengthCheck"
-    assert report["version"] == check.version
-    assert len(report["log"]) == 1
-    assert report["log"][0]["success"]
-    assert report["log"][0]["result"][0] == 69
-    assert report["log"][0]["result"][1] == 3
-    assert report["log"][0]["msg"] == ""
 
 @mock.patch('requests.get', side_effect=mocked_requests_get)
 def test_descriptions_language_check(mock_get):
@@ -344,14 +328,6 @@ def test_formats_are_valid_media_types(mock_get):
     assert check.log.get_by_pid(rdp.pid)[-1].result.success
     assert len(check.get_last_result(rdp.pid).outcome) == 0
     assert check.get_last_result(rdp.pid).msg == "No formats found!"
-
-    report = check.report("10.5281/zenodo.badex1")
-    assert report["name"] == "FormatsAreValidMediaTypeCheck"
-    assert report["version"] == check.version
-    assert len(report["log"]) == 1
-    assert report["log"][0]["success"]
-    assert len(report["log"][0]["result"]) == 0
-    assert report["log"][0]["msg"] == "No formats found!"
 
     rdp = RdpFactory.create("10.5281/zenodo.badex4", "zenodo")
     check.check(rdp)

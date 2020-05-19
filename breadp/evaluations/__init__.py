@@ -9,8 +9,10 @@
 
 from collections import Counter
 from datetime import datetime
+import hashlib
 import inspect
 from pprint import pformat
+import uuid
 
 from breadp import ChecksNotRunException
 from breadp.checks.result import BooleanResult, ListResult, MetricResult
@@ -32,52 +34,48 @@ class Evaluation(object):
 
     Methods
     -------
-    evaluate(self, rdp) -> None
+    evaluate(self, pid) -> None
         Runs the evaluation
-    report(self) -> dict
-        Returns a dictionary version of the Evaluation and its Checks
     """
 
     def __init__(self, checks):
         self.checks = checks
+        self.rounded = 10
+        self.id = str(uuid.uuid4())
+        self.version = "Blank evaluations have no version"
 
     @property
     def description(self):
         return ' '.join(inspect.getdoc(self).split("\n\n")[0].split())
 
-    def evaluate(self, rdp):
+    @property
+    def name(self):
+        return type(self).__name__
+
+    def evaluate(self, pid):
         """ Wrapper code around each evaluation
         Sets start and end time, handles state, and exceptions.
 
         Parameters
         ----------
-        rdp: Rdp
-            Research Data Product to be evaluated
+        pid: pid
+            PID of the Research Data Product to be evaluated
         """
         if len(self.checks) == 0:
             raise ValueError("No checks in {}".format(type(self).__name__))
         for c in self.checks:
-            if c.get_last_result(rdp.pid) == None:
+            if c.get_last_result(pid) == None:
                 raise ChecksNotRunException(
                     "{} has no result for {}".format(
                         type(c).__name__,
-                        rdp.pid
+                        pid
                     )
                 )
-            if not c.log.get_by_pid(rdp.pid)[-1].result.success:
+            if not c.log.get_by_pid(pid)[-1].result.success:
                 return 0
-        # TODO add 10 to documentation!
-        return round(self._evaluate(rdp.pid)/len(self.checks), 10)
+        return round(self._evaluate(pid)/len(self.checks), self.rounded)
 
-    def report(self):
-        report = {
-            "name": type(self).__name__,
-            "description": self.description,
-            "checks": [type(c).__name__ for c in self.checks]
-        }
-        return report
-
-    def _evaluate(self, rdp):
+    def _evaluate(self, pid):
         raise NotImplementedError("must be implemented by subclasses of Evaluation")
 
 class IsBetweenEvaluation(Evaluation):
@@ -98,6 +96,7 @@ class IsBetweenEvaluation(Evaluation):
         Evaluation.__init__(self, checks)
         self.low = low
         self.high = high
+        self.version = "0.0.1"
 
     @property
     def description(self):
@@ -135,6 +134,7 @@ class IsIdenticalToEvaluation(Evaluation):
     def __init__(self, checks, comparatum):
         Evaluation.__init__(self, checks)
         self.comparatum = comparatum
+        self.version = "0.0.1"
 
     @property
     def description(self):
@@ -165,6 +165,7 @@ class ContainsAllEvaluation(Evaluation):
     def __init__(self, checks, items):
         Evaluation.__init__(self, checks)
         self.items = items
+        self.version = "0.0.1"
 
     @property
     def description(self):
@@ -191,6 +192,7 @@ class ContainsAtLeastOneEvaluation(Evaluation):
     def __init__(self, checks, items):
         Evaluation.__init__(self, checks)
         self.items = items
+        self.version = "0.0.1"
 
     @property
     def description(self):
@@ -221,6 +223,7 @@ class DoesNotContainEvaluation(Evaluation):
     def __init__(self, checks, items):
         Evaluation.__init__(self, checks)
         self.items = items
+        self.version = "0.0.1"
 
     @property
     def description(self):
@@ -247,6 +250,10 @@ class TrueEvaluation(Evaluation):
         Note: Adds 0 when the check's result is not of type ListResult (or empty)
         or not of BooleanResult.
     """
+    def __init__(self, checks):
+        Evaluation.__init__(self, checks)
+        self.version = "0.0.1"
+
     def _evaluate(self, pid):
         evaluation = 0
         for c in self.checks:
@@ -268,6 +275,10 @@ class FalseEvaluation(Evaluation):
         Note: Adds 0 when the check's result is not of type ListResult (or empty)
         or not of BooleanResult.
     """
+    def __init__(self, checks):
+        Evaluation.__init__(self, checks)
+        self.version = "0.0.1"
+
     def _evaluate(self, pid):
         evaluation = 0
         for c in self.checks:
@@ -288,6 +299,10 @@ class TheMoreTrueTheBetterEvaluation(Evaluation):
 
         Note: Adds 0 when the check's result is not of type ListResult (or empty)
     """
+    def __init__(self, checks):
+        Evaluation.__init__(self, checks)
+        self.version = "0.0.1"
+
     def _evaluate(self, pid):
         evaluation = 0
         for c in self.checks:
@@ -303,6 +318,10 @@ class TheMoreFalseTheBetterEvaluation(Evaluation):
 
         Note: Adds 0 when the check's result is not of type ListResult (or empty)
     """
+    def __init__(self, checks):
+        Evaluation.__init__(self, checks)
+        self.version = "0.0.1"
+
     def _evaluate(self, pid):
         evaluation = 0
         for c in self.checks:
@@ -323,6 +342,7 @@ class ContainsItemExactlyNTimesEvaluation(Evaluation):
         Evaluation.__init__(self, checks)
         self.item = item
         self.n = n
+        self.version = "0.0.1"
 
     def _evaluate(self, pid):
         evaluation = 0
@@ -343,6 +363,7 @@ class InListEvaluation(Evaluation):
         if not isinstance(comparata, list):
             raise ValueError("comparata is not a list but a {}".format(type(comparata).__name__))
         self.comparata = comparata
+        self.version = "0.0.1"
 
     def _evaluate(self, pid):
         evaluation = 0
@@ -365,12 +386,18 @@ class FunctionEvaluation(Evaluation):
     def __init__(self, checks, callback):
         Evaluation.__init__(self, checks)
         self.callback = callback
+        self.version = "0.0.1"
 
     @property
     def description(self):
         description = ' '.join(inspect.getdoc(self).split("\n\n")[0].split())
-        description += " The function's name is '{}'.".format(self.callback.__name__)
+        description += " The function's name is '{}'.\n\n".format(self.callback.__name__)
+        description += " The function's code is '{}'.".format(inspect.getsource(self.callback))
         return description
+
+    @property
+    def name(self):
+        return "{}-{}".format(type(self).__name__, self.callback.__name__)
 
     def _evaluate(self, pid):
         return self.callback(self.checks, pid) * len(self.checks)

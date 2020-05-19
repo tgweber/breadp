@@ -24,6 +24,8 @@ class Check(object):
         Version of the check
     description: str
         A short text describing the criterion checked (in English)
+    type: str
+        Indicates whether the check is deterministic or random
     log: Log
         List of log entries of run checks
         (includes keys "start", "end", "state", "version", "pid", "msg")
@@ -33,16 +35,19 @@ class Check(object):
     -------
     check(self, rdp) -> None
         Runs the check and updates log and state
-    report(self, pid) -> dict
-        Returns a dicationary of checks run for the specified pid
     """
 
     def __init__(self):
         self.log = Log()
+        self.type = "deterministic"
 
     @property
     def description(self):
         return ' '.join(inspect.getdoc(self).split("\n\n")[0].split())
+
+    @property
+    def name(self):
+        return type(self).__name__
 
     def check(self, rdp):
         """ Wrapper code around each check
@@ -78,26 +83,6 @@ class Check(object):
             return self.log.get_by_pid(pid)[-1].result
         except IndexError:
             return None
-
-    def report(self, pid):
-        report = {
-            "name": type(self).__name__,
-            "version": self.version,
-            "description": self.description,
-            "id": self.id,
-            "log": []
-        }
-        for entry in self.log.get_by_pid(pid):
-            report["log"].append(
-                {
-                    "start": entry.start,
-                    "success": entry.result.success,
-                    "result": entry.result.outcome,
-                    "msg": entry.result.msg,
-                    "end": entry.end
-                }
-            )
-        return report
 
     def _do_check(self, rdp):
         raise NotImplementedError("_do_check must be implemented by subclasses of Check")
