@@ -7,6 +7,7 @@
 #
 ################################################################################
 
+import hashlib
 import inspect
 from unittest import mock
 import pytest
@@ -37,6 +38,7 @@ from util import \
 def test_evaluation():
     rdps  = get_rdps()
     e = Evaluation([])
+    assert e.id == "4a43dbb3"
     with pytest.raises(NotImplementedError) as nie:
         e._evaluate(rdps[0].pid)
         assert str(nie).startswith("must be implemented")
@@ -53,6 +55,7 @@ def test_is_between_evaluation(mock_get, mock_head):
     checks = get_checks(rdps)
     # empty check
     e = IsBetweenEvaluation([DescriptionsNumberCheck()], 1.0, 2.0)
+    assert e.id == hashlib.md5((e.name + str(e.checks[0].id)).encode()).hexdigest()[2:10]
     assert e.description.endswith("The lower bound is 1.0 the upper bound is 2.0.")
     with pytest.raises(ChecksNotRunException) as cnre:
         e.evaluate(rdps[0].pid)

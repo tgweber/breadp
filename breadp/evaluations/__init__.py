@@ -12,7 +12,6 @@ from datetime import datetime
 import hashlib
 import inspect
 from pprint import pformat
-import uuid
 
 from breadp import ChecksNotRunException
 from breadp.checks.result import BooleanResult, ListResult, MetricResult
@@ -41,8 +40,8 @@ class Evaluation(object):
     def __init__(self, checks):
         self.checks = checks
         self.rounded = 10
-        self.id = str(uuid.uuid4())
         self.version = "Blank evaluations have no version"
+        self._id = None
 
     @property
     def description(self):
@@ -51,6 +50,13 @@ class Evaluation(object):
     @property
     def name(self):
         return type(self).__name__
+
+    @property
+    def id(self):
+        if self._id is None:
+            cids = [c.id for c in self.checks]
+            self._id = hashlib.md5((self.name + "".join(str(c) for c in sorted(cids))).encode()).hexdigest()[2:10]
+        return self._id
 
     def evaluate(self, pid):
         """ Wrapper code around each evaluation
