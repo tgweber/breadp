@@ -91,4 +91,4 @@ def test_benchmark_reporting(mock_get, mock_head):
     assert report.score == bb.score(rdps[8])
     assert report.aggregation_info == bb.aggregation_info()
     assert report.precision == sys.float_info.mant_dig
-    assert len(report.check_reports) == 40
+    assert len(report.check_reports) == 34

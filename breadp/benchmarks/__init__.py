@@ -59,8 +59,20 @@ class Benchmark(object):
         evaluation: Evaluation
             Evaluation to add
         """
+        for stored_ev in self.evaluations:
+            if stored_ev.id == evaluation.id:
+                print("Warning: Evaluation {} already added, skipping".format(stored_ev.id))
+                return
         self.evaluations.append(evaluation)
-        self.checks.extend(evaluation.checks)
+        for add_check in evaluation.checks:
+            self._add_check(add_check)
+
+    def _add_check(self, add_check):
+        for stored_check in self.checks:
+            if add_check.id == stored_check.id:
+                print("Warning: Check {} already added, skipping".format(stored_check.id))
+                return
+        self.checks.append(add_check)
 
     def check_all(self, rdp):
         for c in self.checks:
