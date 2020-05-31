@@ -87,6 +87,8 @@ def mocked_requests_get(*args, **kwargs):
         with open("./tests/artefacts/md001.pdf", "rb") as f:
             content = f.read()
         return _MockResponse(content, 200)
+    elif args[0] == "https://zenodo.org/oai2d" and args[1]["identifier"] == "oai:zenodo.org:excpetion2":
+        return _MockResponse({}, 429)
     return _MockResponse(None, 404)
 
 def mocked_requests_head(*args, **kwargs):

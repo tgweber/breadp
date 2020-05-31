@@ -9,6 +9,7 @@
 
 import inspect
 from datetime import datetime
+from rdp.exceptions import CannotCreateRDPException
 
 from breadp.util.log import Log, CheckLogEntry
 from breadp.checks.result import CheckResult
@@ -61,6 +62,8 @@ class Check(object):
         start = datetime.utcnow().isoformat()
         try:
             result = (self._do_check(rdp))
+        except CannotCreateRDPException as e:
+            raise
         except Exception as e:
             result = CheckResult(str(e), False)
 

@@ -9,12 +9,14 @@
 
 from unittest import mock
 import pytest
+from rdp import RdpFactory, Rdp
+from rdp.exceptions import CannotCreateRDPException
 
 from breadp.benchmarks import Benchmark
 from breadp.benchmarks.example import BPGBenchmark
 from breadp.checks.metadata import DescriptionsNumberCheck
 from breadp.evaluations import IsBetweenEvaluation
-from rdp import RdpFactory, Rdp
+
 from util import mocked_requests_get, mocked_requests_head, get_rdps
 
 @mock.patch('requests.head', side_effect=mocked_requests_head)
@@ -48,3 +50,19 @@ def test_full_benchmark(mock_get, mock_head):
     assert bb.score(rdps[7]) == round((28+22/48)/34, 10)
     assert bb.score(rdps[8]) == round((19+20/21)/31, 10)
     assert bb.score(rdps[9]) == round(26.5/34, 10)
+
+@mock.patch('requests.head', side_effect=mocked_requests_head)
+@mock.patch('requests.get', side_effect=mocked_requests_get)
+def test_benchmark(mock_get, mock_head):
+    b = Benchmark()
+    c1 = DescriptionsNumberCheck()
+    b.add_evaluation(IsBetweenEvaluation([c1], 1, 100))
+    rdp = RdpFactory.create("10.5281/zenodo.exception1", "zenodo")
+    with pytest.raises(CannotCreateRDPException) as e:
+        b.check_all(rdp)
+        str(e).endswith("404")
+    rdp = RdpFactory.create("10.5281/zenodo.exception2", "zenodo")
+    with pytest.raises(CannotCreateRDPException) as e:
+        b.check_all(rdp)
+        str(e).endswith("429")
+
