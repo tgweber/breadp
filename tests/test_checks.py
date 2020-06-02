@@ -206,6 +206,31 @@ def test_descriptions_language_check(mock_get):
     assert check.log.get_by_pid(rdp.pid)[-1].result.success
     assert check.get_last_result(rdp.pid).outcome[0] == "de"
 
+    rdp = RdpFactory.create("10.5281/zenodo.badex5", "zenodo")
+    check.check(rdp)
+    assert check.log.get_by_pid(rdp.pid)[-1].result.success
+    assert check.get_last_result(rdp.pid).outcome[2] is None
+
+    rdp = RdpFactory.create("10.5281/zenodo.badex5", "zenodo")
+    check.check(rdp)
+
+@mock.patch('requests.get', side_effect=mocked_requests_get)
+def test_descriptions_types_check(mock_get):
+    check = DescriptionsTypeCheck()
+    assert base_init_check_test(check, 5)
+
+    # Successful check
+    rdp = RdpFactory.create("10.5281/zenodo.3490396", "zenodo")
+    check.check(rdp)
+    assert check.log.get_by_pid(rdp.pid)[-1].result.success
+    assert len(check.get_last_result(rdp.pid).outcome) == 2
+    assert "Abstract" in check.get_last_result(rdp.pid).outcome
+
+    rdp = RdpFactory.create("10.5281/zenodo.badex1", "zenodo")
+    check.check(rdp)
+    assert check.log.get_by_pid(rdp.pid)[-1].result.success
+    assert len(check.get_last_result(rdp.pid).outcome) == 0
+
 @mock.patch('requests.get', side_effect=mocked_requests_get)
 def test_descriptions_types_check(mock_get):
     check = DescriptionsTypeCheck()
@@ -921,7 +946,7 @@ def test_data_size_check(mock_get, mock_head):
     check = DataSizeCheck()
     assert base_init_check_test(check, 37)
     rdps = get_rdps()
-    for rdp in rdps:
+    for rdp in rdps[0:4]:
         check.check(rdp)
     assert check.get_last_result(rdps[0].pid).outcome == 12288000
     assert not check.get_last_result(rdps[1].pid).success

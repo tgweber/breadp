@@ -45,7 +45,7 @@ def test_full_benchmark(mock_get, mock_head):
     assert bb.score(rdps[2]) == round((487/30)/34, 10)
     assert bb.score(rdps[3]) == round(16.5/33, 10)
     assert bb.score(rdps[4]) == round(12.4/28, 10)
-    assert bb.score(rdps[5]) == round(14/28, 10)
+    assert bb.score(rdps[5]) == round(13/28, 10)
     assert bb.score(rdps[6]) == round((26+11/28)/34, 10)
     assert bb.score(rdps[7]) == round((28+22/48)/34, 10)
     assert bb.score(rdps[8]) == round((19+20/21)/31, 10)

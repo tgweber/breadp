@@ -8,6 +8,7 @@
 ################################################################################
 import json
 from langdetect import detect, DetectorFactory
+from langdetect.lang_detect_exception import LangDetectException
 import os
 import pandas as pd
 from rdp.services.capacities import RetrieveDataHttpHeaders
@@ -77,7 +78,10 @@ class DescriptionsLanguageCheck(Check):
         msg = "No descriptions retrievable"
         for d in rdp.metadata.descriptions:
             msg = ""
-            languages.append(detect(d.text))
+            try:
+                languages.append(detect(d.text))
+            except LangDetectException:
+                languages.append(None)
         return ListResult(languages, msg, True)
 
 class DescriptionsTypeCheck(Check):
@@ -161,7 +165,10 @@ class TitlesLanguageCheck(Check):
         msg = "No titles retrievable"
         for t in rdp.metadata.titles:
             msg = ""
-            languages.append(detect(t.text))
+            try:
+                languages.append(detect(t.text))
+            except LangDetectException:
+                languages.append(None)
         return ListResult(languages, msg, True)
 
 class TitlesJustAFileNameCheck(Check):
@@ -873,13 +880,16 @@ class DataSizeCheck(Check):
             return MetricResult(size, "Used metadata", True)
 
         # Try headers
-        for service_name in rdp.services:
-            service  = rdp.services.get(service_name)
-            if service.can(RetrieveDataHttpHeaders()):
-                for headers in service.get_headers(rdp.pid):
-                    size += int(headers["Content-Length"])
-        if size > 0:
-            return MetricResult(size, "Used headers", True)
+        try:
+            for service_name in rdp.services:
+                service  = rdp.services.get(service_name)
+                if service.can(RetrieveDataHttpHeaders()):
+                    for headers in service.get_headers(rdp.pid):
+                        size += int(headers["Content-Length"])
+                if size > 0:
+                    return MetricResult(size, "Used headers", True)
+        except ValueError as e:
+            return MetricResult(-1, str(e), False)
 
         return MetricResult(sys.float_info.min, "Could not determine size", False)
 

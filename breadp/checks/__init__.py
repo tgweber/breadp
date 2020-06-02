@@ -60,12 +60,7 @@ class Check(object):
             Research Data Product to be checked
         """
         start = datetime.utcnow().isoformat()
-        try:
-            result = (self._do_check(rdp))
-        except CannotCreateRDPException as e:
-            raise
-        except Exception as e:
-            result = CheckResult(str(e), False)
+        result = (self._do_check(rdp))
 
         end = datetime.utcnow().isoformat()
         msg = result.msg
