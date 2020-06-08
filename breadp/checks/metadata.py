@@ -365,6 +365,7 @@ class SubjectsAreQualifiedCheck(Check):
         msg = ""
         if len(rdp.metadata.subjects) == 0:
             msg = "No subjects retrievable"
+            return ListResult(qualified, msg, False)
         for so in rdp.metadata.subjects:
             if so.uri or so.scheme:
                 qualified.append(True)
