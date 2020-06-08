@@ -461,7 +461,7 @@ def test_subjects_are_qualified_check(mock_get):
 
     rdp = RdpFactory.create("10.5281/zenodo.badex1", "zenodo")
     check.check(rdp)
-    assert check.log.get_by_pid(rdp.pid)[-1].result.success
+    assert not check.log.get_by_pid(rdp.pid)[-1].result.success
     assert len(check.get_last_result(rdp.pid).outcome) == 0
     assert check.get_last_result(rdp.pid).msg == "No subjects retrievable"
 

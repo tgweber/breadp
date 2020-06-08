@@ -3,4 +3,4 @@ pytest
 pytest-cov
 requests
 git+https://github.com/Mimino666/langdetect
-git+https://github.com/tgweber/rdp@0.0.8
+git+https://github.com/tgweber/rdp@0.0.9
