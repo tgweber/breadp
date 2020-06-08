@@ -363,7 +363,7 @@ class SubjectsAreQualifiedCheck(Check):
     def _do_check(self, rdp):
         qualified = []
         msg = ""
-        if len(rdp.metadata.rights) == 0:
+        if len(rdp.metadata.subjects) == 0:
             msg = "No subjects retrievable"
         for so in rdp.metadata.subjects:
             if so.uri or so.scheme:
